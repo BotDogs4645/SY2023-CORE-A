@@ -47,7 +47,7 @@ public class BDManager {
     public void register(BDUpdatable item) {
         if (isInstantiated()) {
             update_list.add(item);
-            status_layout.addString(item.getID(), () -> item.getStatus());
+            status_layout.addString(item.getID(), item::getStatus);
         }
     }
 

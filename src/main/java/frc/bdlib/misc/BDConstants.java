@@ -5,6 +5,7 @@
 package frc.bdlib.misc;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -54,8 +55,8 @@ public final class BDConstants {
                 return Optional.empty();
             }
             
-            HashMap<JoystickButtonID, Integer> button_binds = new HashMap<JoystickButtonID, Integer>();
-            HashMap<JoystickAxisID, Integer> axis_binds = new HashMap<JoystickAxisID, Integer>();
+            Map<JoystickButtonID, Integer> button_binds = new HashMap<>();
+            Map<JoystickAxisID, Integer> axis_binds = new HashMap<>();
 
             private String idf;
             private boolean canRumble;

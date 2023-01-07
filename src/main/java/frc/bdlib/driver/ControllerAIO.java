@@ -1,6 +1,7 @@
 package frc.bdlib.driver;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.DoubleUnaryOperator;
 
@@ -13,7 +14,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickVariant;
 
 public class ControllerAIO extends GenericHID {
     private JoystickVariant joystick_type;
-    private HashMap<JoystickButtonID, JoystickButton> actual_buttons = new HashMap<JoystickButtonID, JoystickButton>();
+    private Map<JoystickButtonID, JoystickButton> actual_buttons = new HashMap<>();
 
     public ControllerAIO(final int port) {
         super(port);
@@ -59,7 +60,7 @@ public class ControllerAIO extends GenericHID {
         return joystick_type;
     }
 
-    public boolean getRumble() {
+    public boolean canRumble() {
         return joystick_type.getCanRumble();
     }
 }

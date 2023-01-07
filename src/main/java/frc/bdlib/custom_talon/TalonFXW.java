@@ -12,7 +12,6 @@ import frc.bdlib.misc.BDUpdatable;
 * @author David Muchow
 * @version 1.0.0
 */
-
 public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     // Units. Changes how the outputs of the motor are converted when we use get methods.
     private SensorUnits sensor_units = SensorUnits.CTRE;
@@ -59,14 +58,21 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     }
 
     /**
-     * For Talon controllers on the roboRIO CAN bus.
-     * @param can_id device id of the Talon controller
+     * For Talon controllers on the CANivore CAN bus with desired unit conversions.
+     * @param can_id device ID of the Talon controller
+     * @param can_bus id of the CAN bus, most likely "canivore" or "swerve"
+     * @param sensor_units the decided units via the {@link SensorUnits} enum class.
      * @param configuration the {@link TalonFXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
-    */
-    public TalonFXW(int can_id, FXWConfig configuration) {
-        super(can_id);
-        this.configuration = configuration;
+     */
+    public TalonFXW(int can_id, String can_bus, FXWConfig configuration, SensorUnits sensor_units) {
+        super(can_id, can_bus);
         this.id = can_id;
+        this.configuration = configuration;
+
+        // Retain default
+        if (sensor_units != null) {
+            this.sensor_units = sensor_units;
+        }
 
         BDManager.getInstance().register(this);
     }
@@ -76,43 +82,28 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
      * @param can_id device ID of the Talon controller
      * @param can_bus id of the CAN bus, most likely "canivore" or "swerve"
      * @param configuration the {@link TalonFXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
-    */
+     */
     public TalonFXW(int can_id, String can_bus, FXWConfig configuration) {
-        super(can_id, can_bus);
-        this.configuration = configuration;
-        this.id = can_id;
-
-        BDManager.getInstance().register(this);
+        this(can_id, can_bus, configuration, null);
     }
 
     /**
      * For Talon controllers on the roboRIO CAN bus with desired unit conversions.
      * @param can_id device ID of the Talon controller
-     * @param sensor_units the decided units via the {@link SensorUnits} enum class. 
+     * @param sensor_units the decided units via the {@link SensorUnits} enum class.
      * @param configuration the {@link TalonFXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
-    */
+     */
     public TalonFXW(int can_id, FXWConfig configuration, SensorUnits sensor_units) {
-        super(can_id);
-        this.sensor_units = sensor_units;
-        this.configuration = configuration;
-        this.id = can_id;
-        
-        BDManager.getInstance().register(this);
+        this(can_id, "", configuration, sensor_units);
     }
 
     /**
-     * For Talon controllers on the CANivore CAN bus with desired unit conversions.
-     * @param can_id device ID of the Talon controller
-     * @param can_bus id of the CAN bus, most likely "canivore" or "swerve"
-     * @param sensor_units the decided units via the {@link SensorUnits} enum class. 
+     * For Talon controllers on the roboRIO CAN bus.
+     * @param can_id device id of the Talon controller
      * @param configuration the {@link TalonFXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
     */
-    public TalonFXW(int can_id, String can_bus, FXWConfig configuration, SensorUnits sensor_units) {
-        super(can_id, can_bus);
-        this.sensor_units = sensor_units;
-        this.id = can_id;
-
-        BDManager.getInstance().register(this);
+    public TalonFXW(int can_id, FXWConfig configuration) {
+        this(can_id, configuration, null);
     }
 
     /**

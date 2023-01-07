@@ -13,7 +13,7 @@ public class ToggleBooleanSupplier {
         this.actual_value = false;
 
         new RunCommand(() -> {
-            if (button.getAsBoolean() == true && (System.currentTimeMillis() - timeLastPressed) / 1000 > debounce) {
+            if (button.getAsBoolean() && (System.currentTimeMillis() - timeLastPressed) / 1000 > debounce) {
                 actual_value = !actual_value;
                 timeLastPressed = System.currentTimeMillis();
                 System.out.println(actual_value);

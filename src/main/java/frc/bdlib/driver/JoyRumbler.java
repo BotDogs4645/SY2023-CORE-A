@@ -2,6 +2,7 @@ package frc.bdlib.driver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -13,7 +14,7 @@ public class JoyRumbler extends SubsystemBase {
         RIGHT_SHAKER
     }
 
-    HashMap<RumblerType, ArrayList<BooleanSupplier>> shakers = new HashMap<RumblerType, ArrayList<BooleanSupplier>>();
+    Map<RumblerType, ArrayList<BooleanSupplier>> shakers = new HashMap<>();
     ControllerAIO xbox;
     boolean analysis_mode = true;
 
@@ -24,7 +25,7 @@ public class JoyRumbler extends SubsystemBase {
         this.xbox = xbox;
         this.muter = muter;
         for (RumblerType enu: RumblerType.values()) {
-            shakers.put(enu, new ArrayList<BooleanSupplier>());
+            shakers.put(enu, new ArrayList<>());
         }
         xbox.setRumble(RumbleType.kBothRumble, 1.0);
     }
@@ -34,9 +35,7 @@ public class JoyRumbler extends SubsystemBase {
     }
 
     public void removeRumbleScenario(RumblerType type, BooleanSupplier suppl) {
-        if (shakers.get(type).contains(suppl)) {
-            shakers.get(type).remove(suppl);
-        }
+        shakers.get(type).remove(suppl);
     }
 
     public void setSpecificRumble(BooleanSupplier suppl) {
