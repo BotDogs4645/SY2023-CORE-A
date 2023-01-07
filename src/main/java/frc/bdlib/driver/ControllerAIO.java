@@ -2,11 +2,11 @@ package frc.bdlib.driver;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.function.DoubleUnaryOperator;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.bdlib.driver.JoystickAxisAIO.LineFunctionType;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickVariant;
@@ -43,11 +43,11 @@ public class ControllerAIO extends GenericHID {
         return new JoystickAxisAIO(this, id, deadzone);
     }
 
-    public JoystickAxisAIO getAxis(JoystickAxisID id, LineFunctionType line_function, double deadzone) {
+    public JoystickAxisAIO getAxis(JoystickAxisID id, DoubleUnaryOperator line_function, double deadzone) {
         return new JoystickAxisAIO(this, id, line_function, deadzone);
     }
 
-    public JoystickAxisAIO getAxis(JoystickAxisID id, LineFunctionType line_function) {
+    public JoystickAxisAIO getAxis(JoystickAxisID id, DoubleUnaryOperator line_function) {
         return new JoystickAxisAIO(this, id, line_function);
     }
 
