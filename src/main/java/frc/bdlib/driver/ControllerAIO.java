@@ -1,10 +1,5 @@
 package frc.bdlib.driver;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.DoubleUnaryOperator;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -12,36 +7,33 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickVariant;
 
-public class ControllerAIO extends GenericHID {
-    private JoystickVariant joystick_type;
-    private Map<JoystickButtonID, JoystickButton> actual_buttons = new HashMap<>();
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.DoubleUnaryOperator;
 
-    public ControllerAIO(final int port) {
+public class ControllerAIO extends GenericHID {
+    private final JoystickVariant joystickType;
+    private final Map<JoystickButtonID, JoystickButton> actualButtons = new EnumMap<>(JoystickButtonID.class);
+
+    public ControllerAIO(int port) {
         super(port);
         Optional<JoystickVariant> found = JoystickVariant.findJoy(DriverStation.getJoystickName(super.getPort()));
-        if (found.isPresent()) {
-            joystick_type = found.get();
-            System.out.println("hello");
-        } else {
-            joystick_type = JoystickVariant.XBOX;
-        }
 
-        for (JoystickButtonID id: JoystickButtonID.values()) {
-            actual_buttons.put(id, new JoystickButton(this, joystick_type.getButton(id)));
+        joystickType = found.orElse(JoystickVariant.XBOX);
+
+        for (JoystickButtonID id : JoystickButtonID.values()) {
+            actualButtons.put(id, new JoystickButton(this, joystickType.getButton(id)));
         }
 
     }
 
     public JoystickButton getJoystickButton(JoystickButtonID id) {
-        return actual_buttons.get(id);
+        return actualButtons.get(id);
     }
 
     public ToggleBooleanSupplier getToggleBooleanSupplier(JoystickButtonID id, double debounce) {
-        return new ToggleBooleanSupplier(actual_buttons.get(id), debounce);
-    }
- 
-    public JoystickAxisAIO getAxis(JoystickAxisID id, double deadzone) {
-        return new JoystickAxisAIO(this, id, deadzone);
+        return new ToggleBooleanSupplier(actualButtons.get(id), debounce);
     }
 
     public JoystickAxisAIO getAxis(JoystickAxisID id, DoubleUnaryOperator line_function, double deadzone) {
@@ -49,18 +41,22 @@ public class ControllerAIO extends GenericHID {
     }
 
     public JoystickAxisAIO getAxis(JoystickAxisID id, DoubleUnaryOperator line_function) {
-        return new JoystickAxisAIO(this, id, line_function);
+        return new JoystickAxisAIO(this, id, line_function, 0.0);
+    }
+
+    public JoystickAxisAIO getAxis(JoystickAxisID id, double deadzone) {
+        return new JoystickAxisAIO(this, id, JoystickAxisAIO.INTERMEDIATE, deadzone);
     }
 
     public JoystickAxisAIO getAxis(JoystickAxisID id) {
-        return new JoystickAxisAIO(this, id);
+        return new JoystickAxisAIO(this, id, JoystickAxisAIO.INTERMEDIATE, 0.0);
     }
 
     public JoystickVariant getVariant() {
-        return joystick_type;
+        return joystickType;
     }
 
     public boolean canRumble() {
-        return joystick_type.getCanRumble();
+        return joystickType.canRumble();
     }
 }

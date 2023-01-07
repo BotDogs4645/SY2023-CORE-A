@@ -101,9 +101,9 @@ public class Vision extends SubsystemBase {
         this.selected_apriltag = selectable_tags.get(0);
 
         ShuffleboardLayout layout = sub_tab.getLayout("Selected Value", BuiltInLayouts.kList);
-        layout.addString("Name", () -> selected_apriltag.getLeftValue());
-        layout.addString("ID", () -> selected_apriltag.getRightValue().ID + "");
-        layout.addString("Pose", () -> selected_apriltag.getRightValue().pose.toString());
+        layout.addString("Name", () -> selected_apriltag.left());
+        layout.addString("ID", () -> selected_apriltag.right().ID + "");
+        layout.addString("Pose", () -> selected_apriltag.right().pose.toString());
     }
 
     @Override
@@ -111,7 +111,7 @@ public class Vision extends SubsystemBase {
         if (apriltag_cam.getLatestResult().hasTargets()) {
             current_captures = apriltag_cam.getLatestResult();
             for (PhotonTrackedTarget target: current_captures.targets) {
-                if (target.getFiducialId() == selected_apriltag.getRightValue().ID) {
+                if (target.getFiducialId() == selected_apriltag.right().ID) {
                     target_in_view = true;
                     break;
                 } else {

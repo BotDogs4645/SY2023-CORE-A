@@ -1,6 +1,7 @@
 package frc.bdlib.custom_talon;
 
 import com.ctre.phoenix.motorcontrol.Faults;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.util.Units;
@@ -14,46 +15,27 @@ import frc.bdlib.misc.BDUpdatable;
 */
 public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     // Units. Changes how the outputs of the motor are converted when we use get methods.
-    private SensorUnits sensor_units = SensorUnits.CTRE;
-    private FXWConfig configuration;
-    private int id;
+    private final SensorUnits sensor_units;
+    private final FXWConfig configuration;
+    private final int id;
 
-    public static class FXWConfig {
-        // Base Imperial
-        private double gearing;
-        private double diameter;
+    /**
+     * Settings for Talons with gearing and attached to a wheel-like object. Base measurements should be in imperial.
+     * @param gearing gear ratio of the connection to the
+     * @param diameter diameter of the wheel-like object attached to the motor in inches.
+     */
+    public record FXWConfig(double gearing, double diameter) {
+
+        public FXWConfig {
+            diameter /= 12;
+        }
 
         /**
          * Settings for Talons directly attached to a wheel-like object. Gearing is assumed to be one.
          * @param diameter diameter of the wheel-like object attached to the motor in inches.
         */
         public FXWConfig(double diameter) {
-            this.diameter = diameter / 12;
-            this.gearing = 1;
-        }
-
-        /**
-         * Settings for Talons with gearing and attached to a wheel-like object.
-         * @param gearing gear ratio of the connection to the 
-         * @param diameter diameter of the wheel-like object attached to the motor in inches.
-        */
-        public FXWConfig(double gearing, double diameter) {
-            this.gearing = gearing;
-            this.diameter = diameter / 12;
-        }
-
-        /**
-         * @return The gearing of this motor.
-        */
-        public double getGearing() {
-            return gearing;
-        }
-
-        /**
-         * @return The diameter of the object attached to the mtoro.
-        */
-        public double getDiameter() {
-            return diameter;
+            this(diameter, 1.0);
         }
     }
 
@@ -61,18 +43,16 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
      * For Talon controllers on the CANivore CAN bus with desired unit conversions.
      * @param can_id device ID of the Talon controller
      * @param can_bus id of the CAN bus, most likely "canivore" or "swerve"
+     * @param configuration the {@link TalonFXW.FXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
      * @param sensor_units the decided units via the {@link SensorUnits} enum class.
-     * @param configuration the {@link TalonFXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
      */
     public TalonFXW(int can_id, String can_bus, FXWConfig configuration, SensorUnits sensor_units) {
         super(can_id, can_bus);
         this.id = can_id;
         this.configuration = configuration;
 
-        // Retain default
-        if (sensor_units != null) {
-            this.sensor_units = sensor_units;
-        }
+        // Retain default value
+        this.sensor_units = sensor_units == null ? SensorUnits.CTRE : sensor_units;
 
         BDManager.getInstance().register(this);
     }
@@ -81,7 +61,7 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
      * For Talon controllers on a CANivore.
      * @param can_id device ID of the Talon controller
      * @param can_bus id of the CAN bus, most likely "canivore" or "swerve"
-     * @param configuration the {@link TalonFXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
+     * @param configuration the {@link TalonFXW.FXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
      */
     public TalonFXW(int can_id, String can_bus, FXWConfig configuration) {
         this(can_id, can_bus, configuration, null);
@@ -90,8 +70,8 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     /**
      * For Talon controllers on the roboRIO CAN bus with desired unit conversions.
      * @param can_id device ID of the Talon controller
+     * @param configuration the {@link TalonFXW.FXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
      * @param sensor_units the decided units via the {@link SensorUnits} enum class.
-     * @param configuration the {@link TalonFXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
      */
     public TalonFXW(int can_id, FXWConfig configuration, SensorUnits sensor_units) {
         this(can_id, "", configuration, sensor_units);
@@ -100,7 +80,7 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     /**
      * For Talon controllers on the roboRIO CAN bus.
      * @param can_id device id of the Talon controller
-     * @param configuration the {@link TalonFXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
+     * @param configuration the {@link TalonFXW.FXWConfig} configuration that signifies the gearing ratio and attached object diameter of the motor.
     */
     public TalonFXW(int can_id, FXWConfig configuration) {
         this(can_id, configuration, null);
@@ -124,7 +104,7 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
      * @return How many rotations the object, through gearing, makes per second.
     */
     public double getObjectRotationsPerSecond() {
-        return (getShaftVelocity() * 10) / configuration.getGearing();
+        return (getShaftVelocity() * 10) / configuration.gearing();
     }
 
     /**
@@ -135,7 +115,7 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     }
 
     public double getObjectTotalRotations() {
-        return (getShaftRotations() / configuration.getGearing());
+        return (getShaftRotations() / configuration.gearing());
     }
 
     /**
@@ -148,11 +128,11 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     public double getObjectTotalDistanceTraveled() {
         if (sensor_units == SensorUnits.METRIC) {
             double wheelRotations = getObjectTotalRotations();
-            return Units.feetToMeters(wheelRotations * configuration.getDiameter() * Math.PI);
+            return Units.feetToMeters(wheelRotations * configuration.diameter() * Math.PI);
         }
         if (sensor_units == SensorUnits.IMPERIAL) {
             double wheelRotations = getObjectTotalRotations();
-            return wheelRotations * configuration.getDiameter() * Math.PI;
+            return wheelRotations * configuration.diameter() * Math.PI;
         }
 
         // returns how many rotations the object has made.
@@ -169,11 +149,11 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     public double getObjectConvertedVelocity() {
         if (sensor_units == SensorUnits.METRIC) {
             double wheelVelocityInRotations = getObjectRotationsPerSecond();
-            return Units.feetToMeters(wheelVelocityInRotations * configuration.getDiameter() * Math.PI); 
+            return Units.feetToMeters(wheelVelocityInRotations * configuration.diameter() * Math.PI);
         }
         if (sensor_units == SensorUnits.IMPERIAL) {
             double wheelVelocityInRotations = getObjectRotationsPerSecond();
-            return wheelVelocityInRotations * configuration.getDiameter() * Math.PI; 
+            return wheelVelocityInRotations * configuration.diameter() * Math.PI;
         }
 
         // returns how many rotations the object has made.
@@ -188,7 +168,7 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     }
 
     /** <i>Warning:</i> might be error prone.
-     * @return Set the position of the motor to zero.
+     * Sets the position of the motor to zero.
     */
     public void zero() {
         super.setSelectedSensorPosition(0, 0, 0);
