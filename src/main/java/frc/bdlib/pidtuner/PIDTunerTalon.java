@@ -20,16 +20,17 @@ import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
 public class PIDTunerTalon {
+    public static final double CONVERSION_RATE = 600.0 / 2048.0;
+
     TalonFX tuning_motor;
     ShuffleboardTab subsystem_tab;
     int id;
     int modifier = 1;
-    double CONVERSION_RATE = 600.0 / 2048.0;
 
     boolean sus_mode = false;
     boolean bench_on = false;
     public String cur_string = "none";
-    HashMap<String, Double> save = new HashMap<String, Double>();
+    Map<String, Double> save = new HashMap<>();
     double threshold = 5.0;
     SuppliedValueWidget<double[]> veloGraph;
     SuppliedValueWidget<Double> errorGraph;
@@ -197,7 +198,7 @@ public class PIDTunerTalon {
     }
 
     public void graphSetups() {
-        this.veloGraph = subsystem_tab.addDoubleArray("Current Velocity", () -> getGraphSetpoints())
+        this.veloGraph = subsystem_tab.addDoubleArray("Current Velocity", this::getGraphSetpoints)
             .withWidget(BuiltInWidgets.kGraph)
             .withProperties(Map.of("Visible time", 20, "Unit", "RPM")
         )
@@ -221,7 +222,6 @@ public class PIDTunerTalon {
     public double[] getGraphSetpoints() {
         return new double[] {tuning_motor.getSelectedSensorVelocity() * CONVERSION_RATE, RPMDirect.getEntry().getDouble(0.0)};
     }
-
 
     public String getString() {
         return cur_string;

@@ -4,7 +4,8 @@
 
 package frc.bdlib.misc;
 
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -46,7 +47,7 @@ public final class BDConstants {
             ;
 
             public static Optional<JoystickVariant> findJoy(String idf) {
-                for (JoystickVariant variant: JoystickVariant.values()) {
+                for (JoystickVariant variant : JoystickVariant.values()) {
                     if (variant.getIdf().equals(idf)) {
                         return Optional.of(variant);
                     }
@@ -54,35 +55,35 @@ public final class BDConstants {
                 return Optional.empty();
             }
             
-            HashMap<JoystickButtonID, Integer> button_binds = new HashMap<JoystickButtonID, Integer>();
-            HashMap<JoystickAxisID, Integer> axis_binds = new HashMap<JoystickAxisID, Integer>();
+            final Map<JoystickButtonID, Integer> buttonBinds = new EnumMap<>(JoystickButtonID.class);
+            final Map<JoystickAxisID, Integer> axisBinds = new EnumMap<>(JoystickAxisID.class);
 
-            private String idf;
-            private boolean canRumble;
+            private final String idf;
+            private final boolean canRumble;
 
             private JoystickVariant(String idf, int[] buttonIDs, int[] axisIDs, boolean canRumble) {
                 this.idf = idf;
                 this.canRumble = canRumble;
                 for (int i = 0; i < JoystickButtonID.values().length; i++) {
-                    button_binds.put(JoystickButtonID.values()[i], buttonIDs[i]);
+                    buttonBinds.put(JoystickButtonID.values()[i], buttonIDs[i]);
                 }
                 for (int i = 0; i < JoystickAxisID.values().length; i++) {
-                    axis_binds.put(JoystickAxisID.values()[i], axisIDs[i]);
+                    axisBinds.put(JoystickAxisID.values()[i], axisIDs[i]);
                 }
             }
 
             public int getButton(JoystickButtonID id) {
-                return button_binds.get(id);
+                return buttonBinds.get(id);
             }
             public int getAxis(JoystickAxisID id) {
-                return axis_binds.get(id);
+                return axisBinds.get(id);
             }
 
             public String getIdf() {
                 return idf;
             }
 
-            public boolean getCanRumble() {
+            public boolean canRumble() {
                 return canRumble;
             }
         }

@@ -44,11 +44,13 @@ public class TalonPIDBenchmarker extends CommandBase {
   @Override
   public void initialize() {
     start_time = System.currentTimeMillis();
-    this.lower_bound = Math.max(tuner.getRPMSetpoint() - ((tuner.getThreshold() / 100) * tuner.getRPMSetpoint()), 0);
-    this.upper_bound = Math.min(tuner.getRPMSetpoint() + ((tuner.getThreshold() / 100) * tuner.getRPMSetpoint()), 6380);
+
+    double adjustedThreshold = tuner.getThreshold() / 100 * tuner.getRPMSetpoint();
+    this.lower_bound = Math.max(tuner.getRPMSetpoint() - adjustedThreshold, 0);
+    this.upper_bound = Math.min(tuner.getRPMSetpoint() + adjustedThreshold, 6380);
   }
 
-  public double ingetVelo() {
+  public double getVelo() {
     return cur_velo;
   }
 

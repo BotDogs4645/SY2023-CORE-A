@@ -1,10 +1,10 @@
 package frc.bdlib.custom_talon;
+
 /**
 * Unit control modes for use within the <code>TalonFXW</code> class. 
 * @author David Muchow
 * @version 1.0a
 */
-
 public enum SensorUnits {
 
     /**
