@@ -1,7 +1,6 @@
 package frc.bdlib.custom_talon;
 
 import com.ctre.phoenix.motorcontrol.Faults;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.util.Units;
