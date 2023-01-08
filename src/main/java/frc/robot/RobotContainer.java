@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.bdlib.driver.ControllerAIO;
@@ -25,6 +26,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
 import frc.robot.commands.swervecommands.TeleopSwerve;
+import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
@@ -73,8 +75,15 @@ public class RobotContainer {
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kLeftX, LineFunctionType.Gentle, 0.05);
 
     /* Driver Buttons */
-    // driver.getJoystickButton(JoystickButtonID.kA)
-    //   .onTrue(new InstantCommand(() -> swerve.zeroGyro()));
+    ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(vision, swerve);
+    driver.getJoystickButton(JoystickButtonID.kX)
+    .toggleOnTrue(
+      new ConditionalCommand(
+        toPoseFromSnapshotCommand,
+        new InstantCommand(),
+        vision::hasTargets
+      )
+    );
 
     // driver.getJoystickButton(JoystickButtonID.kX)
     //   .toggleOnTrue(new OrientationFlipCommand(
@@ -89,17 +98,7 @@ public class RobotContainer {
     //   ));
 
     /* Manipulator Buttons */
-    driver.getJoystickButton(JoystickButtonID.kX).and(driver.getAxis(JoystickAxisID.kRightTrigger).axisHigherThan(.5))
-      .onTrue(new InstantCommand(() -> {
-        vision.cursorLeft();
-      })
-    );
 
-    driver.getJoystickButton(JoystickButtonID.kB).and(driver.getAxis(JoystickAxisID.kRightTrigger).axisHigherThan(.5))
-      .onTrue(new InstantCommand(() -> {
-        vision.cursorRight();
-      })
-    );
 
     // Vision bindings
 
@@ -117,6 +116,8 @@ public class RobotContainer {
     })
     .ignoringDisable(true)
     .schedule();
+    
+
   }
 
   private void configureAutonomous() {

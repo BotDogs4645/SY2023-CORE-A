@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Optional;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -24,15 +29,12 @@ public final class Constants {
         // "x+" = Pigeon2 orientation dependent ;p - check which direction points forward.. x+ can be technically defined as the x+ from a pose
         // defined from the origin of the robot chassis facing the "front face" of the robot. Or atleast it should be.
         public static enum CameraDefaults {
-            MountOne(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-            MountTwo(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            MountOne(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, 0.0)),
+            MountTwo(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, 0.0));
 
             Transform3d overallTransform;
-            private CameraDefaults(double translationInX, double translationInY, double translationInZ, double changeInRoll, double changeInPitch, double changeInYaw) {
-                Translation3d translationRelativeToGyroPosition = new Translation3d(translationInX, changeInYaw, translationInZ);
-                Rotation3d rotationRelativeToGyroOrientation = new Rotation3d(changeInRoll, changeInPitch, changeInYaw);
-
-                this.overallTransform = new Transform3d(translationRelativeToGyroPosition, rotationRelativeToGyroOrientation);
+            private CameraDefaults(Translation3d translation, Rotation3d rotation) {
+                this.overallTransform = new Transform3d(translation, rotation);
             }
 
             public Transform3d getTransformation() {
@@ -41,7 +43,44 @@ public final class Constants {
         }
     }
 
-    
+    public static class AutoPositionConstants {
+        public static enum Direction {
+            LEFT,
+            CENTER,
+            RIGHT
+        }
+
+        // TODO: decide if the rotation2d portion should be magnetic or not
+        public static enum AprilTagDerivedPosition {
+            PoseClosest(List.of(1, 2), List.of(
+                new Pose2d(new Translation2d(0,0), new Rotation2d(0))
+            ));
+
+            public static Optional<AprilTagDerivedPosition> getEnumFromID(Integer id, Direction dir) {
+                for (AprilTagDerivedPosition position : AprilTagDerivedPosition.values()) {
+                    if (position.getIds().contains(id)) {
+                        return Optional.of(position);
+                    }
+                }
+                return Optional.empty();
+            }
+
+            EnumMap<Direction, Pose2d> storage = new EnumMap<>(Direction.class);
+
+            private List<Integer> ids;
+
+            private AprilTagDerivedPosition(List<Integer> ids, List<Pose2d> poses) {
+                this.ids = ids;
+                for (int i = 0; i < storage.size(); i++) {
+                    storage.put(Direction.values()[i], poses.get(i));
+                }
+            }
+
+            public List<Integer> getIds() {
+                return ids;
+            }
+        }
+    }
     
     // 
     public static final double FIELD_ZERO_MAGNETIC_HEADING = 0;
