@@ -223,7 +223,6 @@ public class PIDTunerTalon {
         return new double[] {tuning_motor.getSelectedSensorVelocity() * CONVERSION_RATE, RPMDirect.getEntry().getDouble(0.0)};
     }
 
-
     public String getString() {
         return cur_string;
     }
