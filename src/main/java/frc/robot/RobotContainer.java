@@ -19,7 +19,6 @@ import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoyRumbler;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.bdlib.driver.JoyRumbler.RumblerType;
-import frc.bdlib.driver.JoystickAxisAIO.LineFunctionType;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.autos.ExampleAuto1;
@@ -68,9 +67,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     /* Axis Controllers */
-    JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, LineFunctionType.Intermediate, 0.1);
-    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftX, LineFunctionType.Intermediate, 0.1);
-    JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kLeftX, LineFunctionType.Gentle, 0.05);
+    JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, JoystickAxisAIO.INTERMEDIATE, 0.1);
+    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftX, JoystickAxisAIO.INTERMEDIATE, 0.1);
+    JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kLeftX, JoystickAxisAIO.GENTLE, 0.05);
 
     /* Driver Buttons */
     // driver.getJoystickButton(JoystickButtonID.kA)

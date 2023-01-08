@@ -2,6 +2,7 @@ package frc.bdlib.driver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -13,7 +14,7 @@ public class JoyRumbler extends SubsystemBase {
         RIGHT_SHAKER
     }
 
-    HashMap<RumblerType, ArrayList<BooleanSupplier>> shakers = new HashMap<RumblerType, ArrayList<BooleanSupplier>>();
+    Map<RumblerType, ArrayList<BooleanSupplier>> shakers = new HashMap<>();
     ControllerAIO xbox;
     boolean analysis_mode = true;
 
@@ -24,7 +25,7 @@ public class JoyRumbler extends SubsystemBase {
         this.xbox = xbox;
         this.muter = muter;
         for (RumblerType enu: RumblerType.values()) {
-            shakers.put(enu, new ArrayList<BooleanSupplier>());
+            shakers.put(enu, new ArrayList<>());
         }
         xbox.setRumble(RumbleType.kBothRumble, 1.0);
     }
@@ -34,9 +35,7 @@ public class JoyRumbler extends SubsystemBase {
     }
 
     public void removeRumbleScenario(RumblerType type, BooleanSupplier suppl) {
-        if (shakers.get(type).contains(suppl)) {
-            shakers.get(type).remove(suppl);
-        }
+        shakers.get(type).remove(suppl);
     }
 
     public void setSpecificRumble(BooleanSupplier suppl) {
@@ -49,47 +48,28 @@ public class JoyRumbler extends SubsystemBase {
 
     public void disableSpecificRumble() {
         analysis_mode = true;
-        xbox.setRumble(RumbleType.kLeftRumble, 0.0);
-        xbox.setRumble(RumbleType.kRightRumble, 0.0);
+        xbox.setRumble(RumbleType.kLeftRumble, 0);
+        xbox.setRumble(RumbleType.kRightRumble, 0);
     }
     
     @Override
     public void periodic() {
-        if (muter.getValue()) {
-            if (analysis_mode) {
-                boolean leave = false;
-                for (BooleanSupplier bool: shakers.get(RumblerType.LEFT_SHAKER)) {
-                    if (bool.getAsBoolean()) {
-                        System.out.println("enabled!");
-                        xbox.setRumble(RumbleType.kLeftRumble, 1);
-                        leave = true;
-                    }
-                }
-                if (!leave) {
-                    xbox.setRumble(RumbleType.kLeftRumble, 0);
-                }
-
-                boolean leave2 = false;
-                for (BooleanSupplier bool: shakers.get(RumblerType.RIGHT_SHAKER)) {
-                    if (bool.getAsBoolean()) {
-                        xbox.setRumble(RumbleType.kRightRumble, 1);
-                        leave2 = true;
-                    }
-                }
-                if (!leave2) {
-                    xbox.setRumble(RumbleType.kRightRumble, 0);
-                }
-            } else {
-                if (specific_supplier.getAsBoolean()) {
-                    xbox.setRumble(RumbleType.kLeftRumble, 1);
-                    xbox.setRumble(RumbleType.kRightRumble, 1);
-                } else {
-                    xbox.setRumble(RumbleType.kLeftRumble, 0);
-                    xbox.setRumble(RumbleType.kRightRumble, 0);
-                }
-            }
-        } else {
+        if (!muter.getValue()) {
             xbox.setRumble(RumbleType.kBothRumble, 0);
         }
+
+        boolean left, right;
+
+        if (analysis_mode) {
+            left = shakers.get(RumblerType.LEFT_SHAKER).stream().anyMatch(BooleanSupplier::getAsBoolean);
+            right = shakers.get(RumblerType.RIGHT_SHAKER).stream().anyMatch(BooleanSupplier::getAsBoolean);
+        } else {
+            boolean actualValue = specific_supplier.getAsBoolean();
+            left = actualValue;
+            right = actualValue;
+        }
+
+        xbox.setRumble(RumbleType.kLeftRumble, left ? 1 : 0);
+        xbox.setRumble(RumbleType.kRightRumble, right ? 1 : 0);
     }
 }
