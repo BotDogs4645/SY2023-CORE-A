@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import edu.wpi.first.math.Pair;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -23,8 +24,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import frc.bdlib.misc.ValuePair;
 
 import frc.robot.Constants;
 import frc.robot.Constants.CameraConstants.CameraDefaults;
@@ -53,9 +52,9 @@ public class Vision extends SubsystemBase {
 
     private AprilTagFieldLayout tag_locations;
 
-    private ArrayList<ValuePair<String, AprilTag>> selectable_tags = new ArrayList<>();
+    private ArrayList<Pair<String, AprilTag>> selectable_tags = new ArrayList<>();
 
-    private ValuePair<String, AprilTag> selected_apriltag;
+    private Pair<String, AprilTag> selected_apriltag;
 
     private boolean target_in_view = false;
 
@@ -91,7 +90,7 @@ public class Vision extends SubsystemBase {
         // add our list of supported apriltags
         for (AprilTagOption avail: AprilTagOption.values()) {
             selectable_tags.add(
-                ValuePair.of(
+                Pair.of(
                     avail.name,
                     new AprilTag(avail.id, new Pose3d(0, 0, 0, new Rotation3d()))// tag_locations.getTags().get(avail.id)
                 )
@@ -101,9 +100,9 @@ public class Vision extends SubsystemBase {
         this.selected_apriltag = selectable_tags.get(0);
 
         ShuffleboardLayout layout = sub_tab.getLayout("Selected Value", BuiltInLayouts.kList);
-        layout.addString("Name", () -> selected_apriltag.left());
-        layout.addString("ID", () -> selected_apriltag.right().ID + "");
-        layout.addString("Pose", () -> selected_apriltag.right().pose.toString());
+        layout.addString("Name", () -> selected_apriltag.getFirst());
+        layout.addString("ID", () -> selected_apriltag.getSecond().ID + "");
+        layout.addString("Pose", () -> selected_apriltag.getSecond().pose.toString());
     }
 
     @Override
@@ -111,7 +110,7 @@ public class Vision extends SubsystemBase {
         if (apriltag_cam.getLatestResult().hasTargets()) {
             current_captures = apriltag_cam.getLatestResult();
             for (PhotonTrackedTarget target: current_captures.targets) {
-                if (target.getFiducialId() == selected_apriltag.right().ID) {
+                if (target.getFiducialId() == selected_apriltag.getSecond().ID) {
                     target_in_view = true;
                     break;
                 } else {

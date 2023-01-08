@@ -126,17 +126,11 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
      * @return The total wheel rotations in selected unit.
      */
     public double getObjectTotalDistanceTraveled() {
-        if (sensor_units == SensorUnits.METRIC) {
-            double wheelRotations = getObjectTotalRotations();
-            return Units.feetToMeters(wheelRotations * configuration.diameter() * Math.PI);
-        }
-        if (sensor_units == SensorUnits.IMPERIAL) {
-            double wheelRotations = getObjectTotalRotations();
-            return wheelRotations * configuration.diameter() * Math.PI;
-        }
-
-        // returns how many rotations the object has made.
-        return getObjectTotalRotations();
+        return switch (sensor_units) {
+            case METRIC -> Units.feetToMeters(getObjectTotalRotations() * configuration.diameter() * Math.PI);
+            case IMPERIAL -> getObjectTotalRotations() * configuration.diameter() * Math.PI;
+            case CTRE -> getObjectTotalRotations();
+        };
     }
 
     /**
@@ -147,17 +141,11 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
      * @return The wheel velocity in selected unit.
      */
     public double getObjectConvertedVelocity() {
-        if (sensor_units == SensorUnits.METRIC) {
-            double wheelVelocityInRotations = getObjectRotationsPerSecond();
-            return Units.feetToMeters(wheelVelocityInRotations * configuration.diameter() * Math.PI);
-        }
-        if (sensor_units == SensorUnits.IMPERIAL) {
-            double wheelVelocityInRotations = getObjectRotationsPerSecond();
-            return wheelVelocityInRotations * configuration.diameter() * Math.PI;
-        }
-
-        // returns how many rotations the object has made.
-        return getObjectRotationsPerSecond();
+        return switch (sensor_units) {
+            case METRIC -> Units.feetToMeters(getObjectRotationsPerSecond() * configuration.diameter() * Math.PI);
+            case IMPERIAL -> getObjectRotationsPerSecond() * configuration.diameter() * Math.PI;
+            case CTRE -> getObjectRotationsPerSecond();
+        };
     }
 
     /**

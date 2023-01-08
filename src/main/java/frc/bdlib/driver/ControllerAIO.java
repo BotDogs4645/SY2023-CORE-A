@@ -36,12 +36,12 @@ public class ControllerAIO extends GenericHID {
         return new ToggleBooleanSupplier(actualButtons.get(id), debounce);
     }
 
-    public JoystickAxisAIO getAxis(JoystickAxisID id, DoubleUnaryOperator line_function, double deadzone) {
-        return new JoystickAxisAIO(this, id, line_function, deadzone);
+    public JoystickAxisAIO getAxis(JoystickAxisID id, DoubleUnaryOperator easing, double deadzone) {
+        return new JoystickAxisAIO(this, id, easing, deadzone);
     }
 
-    public JoystickAxisAIO getAxis(JoystickAxisID id, DoubleUnaryOperator line_function) {
-        return new JoystickAxisAIO(this, id, line_function, 0.0);
+    public JoystickAxisAIO getAxis(JoystickAxisID id, DoubleUnaryOperator easing) {
+        return new JoystickAxisAIO(this, id, easing, 0.0);
     }
 
     public JoystickAxisAIO getAxis(JoystickAxisID id, double deadzone) {

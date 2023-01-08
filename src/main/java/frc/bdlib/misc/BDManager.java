@@ -10,12 +10,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class BDManager {
-    static private BDManager _singleton;
-    static private boolean _started = false;
-
-    private List<BDUpdatable> updateList;
-    private ShuffleboardTab tab;
-    private ShuffleboardLayout statusLayout;
+    private static BDManager _singleton;
 
     public static BDManager getInstance() {
         if (_singleton != null) {
@@ -27,15 +22,18 @@ public class BDManager {
     }
 
     public static boolean isInstantiated() {
-        return _started;
+        return _singleton != null;
     }
 
     public static void initialize() {
-        if (!_started) {
+        if (_singleton == null) {
             _singleton = new BDManager();
-            _started = true;
         }
     }
+
+    private final List<BDUpdatable> updateList;
+    private final ShuffleboardTab tab;
+    private final ShuffleboardLayout statusLayout;
 
     private BDManager() {
         updateList = new ArrayList<>();
