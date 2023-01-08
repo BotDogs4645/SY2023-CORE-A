@@ -14,9 +14,9 @@ import frc.robot.Constants;
 import frc.robot.util.swervehelper.CTREConfigs;
 import frc.robot.util.swervehelper.CTREModuleState;
 import frc.robot.util.swervehelper.Conversions;
-import frc.robot.util.swervehelper.SwerveModuleConstants;
 import frc.robot.util.swervehelper.SwerveSettings;
 import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
+import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain.SwerveModuleConstants;
 
 import java.util.Map;
 
@@ -43,20 +43,20 @@ public class SwerveModule {
         // gets our number, name and angle offset from Settings.
         // Settings gets passed through Swerve subsystem and then to here.
         this.moduleNumber = moduleNumber;
-        name = moduleConstants.name;
-        angleOffset = moduleConstants.angleOffset;
+        name = moduleConstants.name();
+        angleOffset = moduleConstants.angleOffset();
         
         // More config
         /* Angle Encoder Config */
-        angleEncoder = new CANCoder(moduleConstants.cancoderID);
+        angleEncoder = new CANCoder(moduleConstants.canCoderID());
         configAngleEncoder();
 
         /* Angle Motor Config */
-        mAngleMotor = new TalonFXW(moduleConstants.angleMotorID, CTRE.angleFXWConfig, SensorUnits.METRIC);
+        mAngleMotor = new TalonFXW(moduleConstants.angleMotorID(), CTRE.angleFXWConfig, SensorUnits.METRIC);
         configAngleMotor();
 
         /* Drive Motor Config */
-        mDriveMotor = new TalonFXW(moduleConstants.driveMotorID, CTRE.driveFXWConfig, SensorUnits.METRIC);
+        mDriveMotor = new TalonFXW(moduleConstants.driveMotorID(), CTRE.driveFXWConfig, SensorUnits.METRIC);
         configDriveMotor();
 
         // gets the last angle for jitter analysis

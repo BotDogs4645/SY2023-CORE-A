@@ -81,6 +81,7 @@ public final class SwerveSettings {
         /* Angle Encoder Invert */
         public static final boolean canCoderInvert = false;
 
+        public static final record SwerveModuleConstants(int driveMotorID, String name, int angleMotorID, int canCoderID, double angleOffset) {};
 
         /* Module Specific Constants */
         /* Front Left Module - Module 0 */
