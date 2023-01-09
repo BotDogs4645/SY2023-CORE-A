@@ -146,7 +146,7 @@ public class Swerve extends SubsystemBase {
      * @param isOpenLoop Determines whether or not to use PID for values; true = yes, false = no.
      * 
      */
-    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
+    public void drive(Translation2d translation, double rotation, boolean isOpenLoop) {
         // How module states work is this: we have a current position, a translation that we want to do, and a rotation vector
         // that we also want to do. From there, we take our current position add the translation and rotation and using
         // inverse kinematics, it returns each module's "state", or rather what direction to rotate to and what velocity to
@@ -278,9 +278,7 @@ public class Swerve extends SubsystemBase {
      * @return Rotation2d representing the yaw
      */
     public Rotation2d getYaw() {
-        double[] ypr = new double[3];
-        gyro.getYawPitchRoll(ypr);
-        return (SwerveDriveTrain.invertGyro) ? Rotation2d.fromDegrees(360 - ypr[0]) : Rotation2d.fromDegrees(ypr[0]);
+        return gyro.getRotation2d();
     }
 
     /**

@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants;
+import frc.robot.Constants.AutoPositionConstants.AlignmentDirection;
 import frc.robot.Constants.CameraConstants.CameraDefaults;
 
 public class Vision extends SubsystemBase {
@@ -27,9 +28,9 @@ public class Vision extends SubsystemBase {
     private PhotonCamera driver_cam;
     private PhotonCamera apriltag_cam;
     private Transform3d centerToAprilTagCamera;
-    private PhotonPipelineResult current_captures = new PhotonPipelineResult();
 
     private AprilTagFieldLayout tag_locations;
+    private AlignmentDirection selectedDirection;
 
     public Vision() {
         this.driver_cam = new PhotonCamera("drivervision");
@@ -38,6 +39,8 @@ public class Vision extends SubsystemBase {
         this.apriltag_cam = new PhotonCamera("apriltagvision");
         apriltag_cam.setDriverMode(false);
         this.centerToAprilTagCamera = CameraDefaults.MountOne.getTransformation();
+
+        this.selectedDirection = AlignmentDirection.CENTER;
 
         // assume that we are testing within our own facilities while testing, else use the current field resource file.
         if (Constants.testing) {
@@ -58,24 +61,19 @@ public class Vision extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
-        if (apriltag_cam.getLatestResult().hasTargets()) {
-            current_captures = apriltag_cam.getLatestResult();
-        } else {
-            current_captures = new PhotonPipelineResult();
-        }
-    }
+    public void periodic() {}
     
     // uses optionals for optimal handling outside of the method.
     public Optional<Pose2d> getRobotPoseContributor() {
-        if (current_captures.hasTargets()) {
-            PhotonTrackedTarget best_target = current_captures.getBestTarget();
-            if (best_target.getPoseAmbiguity() < .1) {
+        PhotonPipelineResult results = getCurrentCaptures();
+        if (results.hasTargets()) {
+            PhotonTrackedTarget bestTarget = results.getBestTarget();
+            if (bestTarget.getPoseAmbiguity() < .1) {
                 // good capture
-                Pose3d fieldRelativeAprilTagPose = tag_locations.getTagPose(best_target.getFiducialId()).get();
+                Pose3d fieldRelativeAprilTagPose = tag_locations.getTagPose(bestTarget.getFiducialId()).get();
                 Pose2d calculatedRobotPose = 
                     fieldRelativeAprilTagPose
-                        .transformBy(best_target.getBestCameraToTarget().inverse())
+                        .transformBy(bestTarget.getBestCameraToTarget().inverse())
                         .transformBy(centerToAprilTagCamera.inverse())
                         .toPose2d();
                 return Optional.of(calculatedRobotPose);
@@ -84,7 +82,15 @@ public class Vision extends SubsystemBase {
         return Optional.empty();
     }
 
+    public PhotonPipelineResult getCurrentCaptures() {
+        return apriltag_cam.getLatestResult();
+    }
+
     public boolean hasTargets() {
-        return current_captures.hasTargets();
+        return getCurrentCaptures().hasTargets();
+    }
+
+    public AlignmentDirection getSelectedDirection() {
+        return selectedDirection;
     }
 }

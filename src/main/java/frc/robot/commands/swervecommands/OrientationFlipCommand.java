@@ -39,7 +39,6 @@ public class OrientationFlipCommand extends ProfiledPIDCommand {
           swerve.drive(
             new Translation2d(y.getValue(), x.getValue()).times(SwerveDriveTrain.maxSpeed), 
             Rotation2d.fromDegrees(output).getRadians(), 
-            true,
             false
           );
         });
@@ -49,8 +48,6 @@ public class OrientationFlipCommand extends ProfiledPIDCommand {
     addRequirements(swerve);
     getController()
         .setTolerance(.01, 5);
-    getController()
-        .enableContinuousInput(-180, 180);
   }
 
   @Override

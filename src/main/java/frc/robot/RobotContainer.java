@@ -74,7 +74,7 @@ public class RobotContainer {
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kLeftX, JoystickAxisAIO.GENTLE, 0.05);
 
     /* Driver Buttons */
-    ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(vision, swerve);
+    ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(swerve, vision);
     driver.getJoystickButton(JoystickButtonID.kX)
     .toggleOnTrue(
       new ConditionalCommand(

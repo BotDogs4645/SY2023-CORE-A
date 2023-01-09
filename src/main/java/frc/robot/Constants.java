@@ -44,7 +44,11 @@ public final class Constants {
     }
 
     public static class AutoPositionConstants {
-        public static enum Direction {
+        public static double maxVelo = 1;
+        public static double accel = 2;
+        public static double timetoVelocity = maxVelo / accel;
+
+        public static enum AlignmentDirection {
             LEFT,
             CENTER,
             RIGHT
@@ -56,7 +60,7 @@ public final class Constants {
                 new Pose2d(new Translation2d(0,0), new Rotation2d(0))
             ));
 
-            public static Optional<AprilTagDerivedPosition> getEnumFromID(Integer id, Direction dir) {
+            public static Optional<AprilTagDerivedPosition> getEnumFromID(Integer id) {
                 for (AprilTagDerivedPosition position : AprilTagDerivedPosition.values()) {
                     if (position.getIds().contains(id)) {
                         return Optional.of(position);
@@ -65,19 +69,23 @@ public final class Constants {
                 return Optional.empty();
             }
 
-            EnumMap<Direction, Pose2d> storage = new EnumMap<>(Direction.class);
+            EnumMap<AlignmentDirection, Pose2d> storage = new EnumMap<>(AlignmentDirection.class);
 
             private List<Integer> ids;
 
             private AprilTagDerivedPosition(List<Integer> ids, List<Pose2d> poses) {
                 this.ids = ids;
                 for (int i = 0; i < storage.size(); i++) {
-                    storage.put(Direction.values()[i], poses.get(i));
+                    storage.put(AlignmentDirection.values()[i], poses.get(i));
                 }
             }
 
             public List<Integer> getIds() {
                 return ids;
+            }
+
+            public Pose2d getDirectionalPose(AlignmentDirection dir) {
+                return storage.get(dir);
             }
         }
     }
