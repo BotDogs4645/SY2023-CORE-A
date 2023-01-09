@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants;
-import frc.robot.Constants.AutoPositionConstants.AlignmentDirection;
+import frc.robot.Constants.AutoPositionConstants.PoseAlignment;
 import frc.robot.Constants.CameraConstants.CameraDefaults;
 
 public class Vision extends SubsystemBase {
@@ -30,7 +30,7 @@ public class Vision extends SubsystemBase {
     private Transform3d centerToAprilTagCamera;
 
     private AprilTagFieldLayout tag_locations;
-    private AlignmentDirection selectedDirection;
+    private PoseAlignment selectedDirection;
 
     public Vision() {
         this.driver_cam = new PhotonCamera("drivervision");
@@ -40,7 +40,7 @@ public class Vision extends SubsystemBase {
         apriltag_cam.setDriverMode(false);
         this.centerToAprilTagCamera = CameraDefaults.MountOne.getTransformation();
 
-        this.selectedDirection = AlignmentDirection.CENTER;
+        this.selectedDirection = PoseAlignment.CENTER;
 
         // assume that we are testing within our own facilities while testing, else use the current field resource file.
         if (Constants.testing) {
@@ -90,7 +90,11 @@ public class Vision extends SubsystemBase {
         return getCurrentCaptures().hasTargets();
     }
 
-    public AlignmentDirection getSelectedDirection() {
+    public Pose3d getAprilTagPose(int id) {
+        return tag_locations.getTagPose(id).get();
+    }
+
+    public PoseAlignment getPoseAlignment() {
         return selectedDirection;
     }
 }

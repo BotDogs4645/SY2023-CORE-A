@@ -4,12 +4,9 @@
 
 package frc.robot;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Optional;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -44,52 +41,22 @@ public final class Constants {
     }
 
     public static class AutoPositionConstants {
-        public static double maxVelo = 1;
-        public static double accel = 2;
-        public static double timetoVelocity = maxVelo / accel;
+        public static enum PoseAlignment {
+            LEFT(new Translation2d(), new Rotation2d()),
+            CENTER(new Translation2d(), new Rotation2d()),
+            RIGHT(new Translation2d(), new Rotation2d());
 
-        public static enum AlignmentDirection {
-            LEFT,
-            CENTER,
-            RIGHT
-        }
 
-        // TODO: decide if the rotation2d portion should be magnetic or not
-        public static enum AprilTagDerivedPosition {
-            PoseClosest(List.of(1, 2), List.of(
-                new Pose2d(new Translation2d(0,0), new Rotation2d(0))
-            ));
-
-            public static Optional<AprilTagDerivedPosition> getEnumFromID(Integer id) {
-                for (AprilTagDerivedPosition position : AprilTagDerivedPosition.values()) {
-                    if (position.getIds().contains(id)) {
-                        return Optional.of(position);
-                    }
-                }
-                return Optional.empty();
+            Transform2d transform;
+            private PoseAlignment(Translation2d translate, Rotation2d heading) {
+                this.transform = new Transform2d(translate, heading);
             }
 
-            EnumMap<AlignmentDirection, Pose2d> storage = new EnumMap<>(AlignmentDirection.class);
-
-            private List<Integer> ids;
-
-            private AprilTagDerivedPosition(List<Integer> ids, List<Pose2d> poses) {
-                this.ids = ids;
-                for (int i = 0; i < storage.size(); i++) {
-                    storage.put(AlignmentDirection.values()[i], poses.get(i));
-                }
-            }
-
-            public List<Integer> getIds() {
-                return ids;
-            }
-
-            public Pose2d getDirectionalPose(AlignmentDirection dir) {
-                return storage.get(dir);
+            public Transform2d getTransform() {
+                return transform;
             }
         }
     }
-    
     // 
     public static final double FIELD_ZERO_MAGNETIC_HEADING = 0;
 

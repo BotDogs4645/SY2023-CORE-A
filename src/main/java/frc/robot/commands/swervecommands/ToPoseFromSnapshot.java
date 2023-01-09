@@ -12,9 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.AutoPositionConstants.AprilTagDerivedPosition;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 
@@ -23,7 +21,7 @@ public class ToPoseFromSnapshot extends CommandBase {
   private Swerve swerve;
   private Vision vision;
 
-  Pose2d toMoveTo;
+  private Pose2d toMoveTo;
 
   private ProfiledPIDController translateXController;
   private ProfiledPIDController translateYController;
@@ -59,15 +57,9 @@ public class ToPoseFromSnapshot extends CommandBase {
     PhotonTrackedTarget finalTarget = result.getBestTarget();
     
     // Use final target as the snapshot and determine the Pose to move to
-    AprilTagDerivedPosition.getEnumFromID(finalTarget.getFiducialId()).ifPresentOrElse(
-      (aprilTagPosition) -> {
-        toMoveTo = aprilTagPosition.getDirectionalPose(vision.getSelectedDirection());
-      },
-      () -> {
-        this.cancel();
-        DriverStation.reportError("Cannot move to IDs 4 or 5", false);
-      }
-    );
+    toMoveTo = 
+      vision.getAprilTagPose(finalTarget.getFiducialId()).toPose2d()
+      .transformBy(vision.getPoseAlignment().getTransform());
 
     // Set the goal.
     translateXController.setGoal(new State(toMoveTo.getX(), 0));
