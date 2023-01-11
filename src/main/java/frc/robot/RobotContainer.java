@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot; 
+package frc.robot;
 
 import java.util.Optional;
 
@@ -32,9 +32,12 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -46,12 +49,14 @@ public class RobotContainer {
   private final Swerve swerve = new Swerve();
   private final Vision vision = new Vision();
 
-  SendableChooser<Command> autoChooser = new SendableChooser<>(); 
+  SendableChooser<Command> autoChooser = new SendableChooser<>();
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     DriverStation.silenceJoystickConnectionWarning(true);
-    
+
     Shuffleboard.getTab("auto").add(autoChooser);
     JoyRumbler rumbler = new JoyRumbler(driver, driver.getToggleBooleanSupplier(JoystickButtonID.kX, 2));
     rumbler.addRumbleScenario(() -> true, RumblerType.LEFT_SHAKER);
@@ -63,9 +68,11 @@ public class RobotContainer {
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be created by
+   * Use this method to define your button->command mappings. Buttons can be
+   * created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+   * it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
@@ -77,25 +84,25 @@ public class RobotContainer {
     /* Driver Buttons */
     ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(swerve, vision);
     driver.getJoystickButton(JoystickButtonID.kX)
-    .toggleOnTrue(
-      new ConditionalCommand(
-        toPoseFromSnapshotCommand,
-        new InstantCommand(),
-        vision::hasTargets
-      )
-    );
+      .toggleOnTrue(
+        new ConditionalCommand(
+            toPoseFromSnapshotCommand,
+            new InstantCommand(),
+            vision::hasTargets
+          )
+      );
 
     // driver.getJoystickButton(JoystickButtonID.kX)
-    //   .toggleOnTrue(new OrientationFlipCommand(
-    //     swerve, leftXAxis, leftYAxis
-    //   )
+    // .toggleOnTrue(new OrientationFlipCommand(
+    // swerve, leftXAxis, leftYAxis
+    // )
     // );
 
     // driver.getJoystickButton(JoystickButtonID.kY)
-    //   .toggleOnTrue(new RotateAroundAbsolutePoint(
-    //     swerve, leftXAxis, leftYAxis, rightXAxis, 
-    //     () -> {return new Translation2d();}
-    //   ));
+    // .toggleOnTrue(new RotateAroundAbsolutePoint(
+    // swerve, leftXAxis, leftYAxis, rightXAxis,
+    // () -> {return new Translation2d();}
+    // ));
 
     /* Manipulator Buttons */
     manipulator.getJoystickButton(JoystickButtonID.kRightBumper)

@@ -40,7 +40,7 @@ public class BDManager {
         tab = Shuffleboard.getTab("BDManager");
         statusLayout = tab.getLayout("BD Device Statuses", BuiltInLayouts.kGrid);
         statusLayout.withSize(4, 4)
-                .withPosition(0, 0);
+            .withPosition(0, 0);
     }
 
     public void register(BDUpdatable item) {

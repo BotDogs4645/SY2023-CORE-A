@@ -23,31 +23,31 @@ public class OrientationFlipCommand extends ProfiledPIDCommand {
   public OrientationFlipCommand(Swerve swerve, JoystickAxisAIO x, JoystickAxisAIO y) {
     super(
         // The ProfiledPIDController used by the command
-        new ProfiledPIDController(
-            // The PID gains
-            0.5,
-            0,
-            0,
-            // The motion profile constraints
-            new TrapezoidProfile.Constraints(SwerveDriveTrain.maxAngularVelocity, 0)), // degrees per second lol
-        // This should return the measurement
-        () -> swerve.getYaw().getDegrees(),
-        // This should return the goal (can also be a constant)
-        swerve.getYaw().plus(Rotation2d.fromDegrees(180)).getDegrees(),
-        // This uses the output
-        (output, setpoint) -> {
-          swerve.drive(
-            new Translation2d(y.getValue(), x.getValue()).times(SwerveDriveTrain.maxSpeed), 
-            Rotation2d.fromDegrees(output).getRadians(), 
-            false
-          );
-        });
+      new ProfiledPIDController(
+          // The PID gains
+          0.5, 0, 0,
+          // The motion profile constraints
+          new TrapezoidProfile.Constraints(SwerveDriveTrain.maxAngularVelocity, 0)
+      ), // degrees per second lol
+      // This should return the measurement
+      () -> swerve.getYaw().getDegrees(),
+      // This should return the goal (can also be a constant)
+      swerve.getYaw().plus(Rotation2d.fromDegrees(180)).getDegrees(),
+      // This uses the output
+      (output, setpoint) -> {
+        swerve.drive(
+          new Translation2d(y.getValue(), x.getValue()).times(SwerveDriveTrain.maxSpeed), 
+          Rotation2d.fromDegrees(output).getRadians(), 
+          false
+        );
+      }
+    );
     // Use addRequirements() here to declare subsystem dependencies.
     // Configure additional PID options by calling `getController` here.
     this.swerve = swerve;
     addRequirements(swerve);
     getController()
-        .setTolerance(.01, 5);
+      .setTolerance(.01, 5);
   }
 
   @Override

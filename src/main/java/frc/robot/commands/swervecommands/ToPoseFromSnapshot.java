@@ -29,7 +29,8 @@ public class ToPoseFromSnapshot extends CommandBase {
 
   /** Creates a new ToPoseFromSnapshotGroup. */
   public ToPoseFromSnapshot(Swerve swerve, Vision vision) {
-    translateXController = new ProfiledPIDController(2.5, 0, 0,
+    translateXController = new ProfiledPIDController(
+      2.5, 0, 0,
       new TrapezoidProfile.Constraints(2, 1)
     );
     
@@ -38,7 +39,8 @@ public class ToPoseFromSnapshot extends CommandBase {
       new TrapezoidProfile.Constraints(2, 1)
     );
 
-    rotateOmegaController = new ProfiledPIDController(0.5, 0,0,
+    rotateOmegaController = new ProfiledPIDController(
+      0.5, 0,0,
       new TrapezoidProfile.Constraints(Math.toRadians(20), Math.toRadians(10))
     );
 
@@ -66,7 +68,6 @@ public class ToPoseFromSnapshot extends CommandBase {
     translateYController.setGoal(new State(toMoveTo.getY(), 0));
     rotateOmegaController.setGoal(new State(toMoveTo.getRotation().getRadians(), 0));
 
-
     // Grab the original pose. The reset() method of PIDControllers is always the **position**, not the velocity.
     // Velocity is what it calculates.
     Pose2d currentPose = swerve.getPose();
@@ -93,6 +94,8 @@ public class ToPoseFromSnapshot extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return translateXController.atSetpoint() && translateYController.atSetpoint() && rotateOmegaController.atSetpoint();
+    return translateXController.atSetpoint() && 
+        translateYController.atSetpoint() && 
+        rotateOmegaController.atSetpoint();
   }
 }
