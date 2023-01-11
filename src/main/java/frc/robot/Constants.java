@@ -4,12 +4,15 @@
 
 package frc.robot;
 
+import java.util.Map;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -46,7 +49,6 @@ public final class Constants {
             CENTER(new Translation2d(), new Rotation2d()),
             RIGHT(new Translation2d(), new Rotation2d());
 
-
             Transform2d transform;
             private PoseAlignment(Translation2d translate, Rotation2d heading) {
                 this.transform = new Transform2d(translate, heading);
@@ -55,6 +57,39 @@ public final class Constants {
             public Transform2d getTransform() {
                 return transform;
             }
+        }
+
+        public static enum PlacementLocation {
+            BOTTOM(),
+            MIDDLE(),
+            TOP()
+            ;
+
+            /* args depend on what method we use to determine what type of inputs we grab here.
+             * For example, if we:
+             * do an arm: These will be Pose3ds that the end affector has to move to.
+             * do an elevator with telescoping arm: These will be xz coordinates with a Y scalar to represent length
+             * other stuff: idk lol
+             */
+            private PlacementLocation() {
+
+            }
+        }
+
+        public static Map<JoystickButtonID, PlacementLocation> placementButtons = Map.of(
+            JoystickButtonID.kA, PlacementLocation.BOTTOM,
+            JoystickButtonID.kX, PlacementLocation.MIDDLE,
+            JoystickButtonID.kY, PlacementLocation.TOP
+        );
+
+        public static PoseAlignment getPoseAlignmentFromNumber(int number) {
+            return switch (number) {
+                case 270 -> PoseAlignment.LEFT;
+                case 0 -> PoseAlignment.CENTER;
+                case 90 -> PoseAlignment.RIGHT;
+                
+                default -> PoseAlignment.CENTER;
+            };
         }
     }
     // 

@@ -22,6 +22,7 @@ import frc.bdlib.driver.JoystickAxisAIO;
 import frc.bdlib.driver.JoyRumbler.RumblerType;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
+import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
 import frc.robot.commands.swervecommands.TeleopSwerve;
@@ -39,7 +40,7 @@ import frc.robot.util.swervehelper.SwerveSettings;
 public class RobotContainer {
   /* Controllers */
   private final ControllerAIO driver = new ControllerAIO(0);
-  // private final ControllerAIO manipulator = new ControllerAIO(1);
+  private final ControllerAIO manipulator = new ControllerAIO(1);
 
   /* Subsystems */
   private final Swerve swerve = new Swerve();
@@ -97,7 +98,8 @@ public class RobotContainer {
     //   ));
 
     /* Manipulator Buttons */
-
+    manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
+      .onTrue(new SetVisionSettings(manipulator, vision));
 
     // Vision bindings
 
@@ -107,6 +109,7 @@ public class RobotContainer {
         swerve, leftXAxis, leftYAxis, rightXAxis, false
       )
     );
+
     new RunCommand(() -> {
       Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
       if (possible_pose.isPresent()) {
@@ -115,8 +118,6 @@ public class RobotContainer {
     })
     .ignoringDisable(true)
     .schedule();
-    
-
   }
 
   private void configureAutonomous() {
