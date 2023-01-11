@@ -44,13 +44,14 @@ public final class Constants {
     }
 
     public static class AutoPositionConstants {
-        public static enum PoseAlignment {
+        public static enum AprilTagTransformDirection {
+            // Transforms the april tag to a position to the..
             LEFT(new Translation2d(), new Rotation2d()),
             CENTER(new Translation2d(), new Rotation2d()),
-            RIGHT(new Translation2d(), new Rotation2d());
+            RIGHT(new Translation2d(), new Rotation2d()); 
 
             Transform2d transform;
-            private PoseAlignment(Translation2d translate, Rotation2d heading) {
+            private AprilTagTransformDirection(Translation2d translate, Rotation2d heading) {
                 this.transform = new Transform2d(translate, heading);
             }
 
@@ -59,7 +60,7 @@ public final class Constants {
             }
         }
 
-        public static enum PlacementLocation {
+        public static enum GamePiecePlacementLevel {
             BOTTOM(),
             MIDDLE(),
             TOP()
@@ -71,24 +72,24 @@ public final class Constants {
              * do an elevator with telescoping arm: These will be xz coordinates with a Y scalar to represent length
              * other stuff: idk lol
              */
-            private PlacementLocation() {
+            private GamePiecePlacementLevel() {
 
             }
         }
 
-        public static Map<JoystickButtonID, PlacementLocation> placementButtons = Map.of(
-            JoystickButtonID.kA, PlacementLocation.BOTTOM,
-            JoystickButtonID.kX, PlacementLocation.MIDDLE,
-            JoystickButtonID.kY, PlacementLocation.TOP
+        public static Map<JoystickButtonID, GamePiecePlacementLevel> placementButtons = Map.of(
+            JoystickButtonID.kA, GamePiecePlacementLevel.BOTTOM,
+            JoystickButtonID.kX, GamePiecePlacementLevel.MIDDLE,
+            JoystickButtonID.kY, GamePiecePlacementLevel.TOP
         );
 
-        public static PoseAlignment getPoseAlignmentFromNumber(int number) {
+        public static AprilTagTransformDirection getPoseAlignmentFromNumber(int number) {
             return switch (number) {
-                case 270 -> PoseAlignment.LEFT;
-                case 0 -> PoseAlignment.CENTER;
-                case 90 -> PoseAlignment.RIGHT;
-                
-                default -> PoseAlignment.CENTER;
+                case 270 -> AprilTagTransformDirection.LEFT;
+                case 0 -> AprilTagTransformDirection.CENTER;
+                case 90 -> AprilTagTransformDirection.RIGHT;
+
+                default -> AprilTagTransformDirection.CENTER;
             };
         }
     }

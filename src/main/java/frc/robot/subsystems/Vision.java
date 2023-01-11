@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.AutoPositionConstants.PlacementLocation;
-import frc.robot.Constants.AutoPositionConstants.PoseAlignment;
+import frc.robot.Constants.AutoPositionConstants.AprilTagTransformDirection;
+import frc.robot.Constants.AutoPositionConstants.GamePiecePlacementLevel;
 import frc.robot.Constants.CameraConstants.CameraDefaults;
 
 public class Vision extends SubsystemBase {
@@ -30,8 +30,8 @@ public class Vision extends SubsystemBase {
     private Transform3d centerToAprilTagCamera;
 
     private AprilTagFieldLayout tag_locations;
-    private PoseAlignment selectedRobotPosition;
-    private PlacementLocation selectedLocationToPlace;
+    private AprilTagTransformDirection selectedRobotTransform;
+    private GamePiecePlacementLevel levelToPlace;
 
     public Vision() {
         this.driver_cam = new PhotonCamera("drivervision");
@@ -41,8 +41,8 @@ public class Vision extends SubsystemBase {
         apriltag_cam.setDriverMode(false);
         this.centerToAprilTagCamera = CameraDefaults.MountOne.getTransformation();
 
-        this.selectedRobotPosition = PoseAlignment.CENTER;
-
+        this.selectedRobotTransform = AprilTagTransformDirection.CENTER;
+        this.levelToPlace = GamePiecePlacementLevel.MIDDLE;
 
         // assume that we are testing within our own facilities while testing, else use the current field resource file.
         if (Constants.testing) {
@@ -96,16 +96,16 @@ public class Vision extends SubsystemBase {
         return tag_locations.getTagPose(id).get();
     }
 
-    public void setPlacementSettings(PlacementLocation location, PoseAlignment alignment) {
-        selectedLocationToPlace = location;
-        selectedRobotPosition = alignment;
+    public void setPlacementSettings(GamePiecePlacementLevel level, AprilTagTransformDirection transform) {
+        levelToPlace = level;
+        selectedRobotTransform = transform;
     }
 
-    public PlacementLocation getLocationToPlace() {
-        return selectedLocationToPlace;
+    public GamePiecePlacementLevel getLocationToPlace() {
+        return levelToPlace;
     }
 
-    public PoseAlignment getPoseAlignment() {
-        return selectedRobotPosition;
+    public AprilTagTransformDirection getSelectedAprilTagTransform() {
+        return selectedRobotTransform;
     }
 }

@@ -59,7 +59,7 @@ public class ToPoseFromSnapshot extends CommandBase {
     // Use final target as the snapshot and determine the Pose to move to
     toMoveTo = 
       vision.getAprilTagPose(finalTarget.getFiducialId()).toPose2d()
-      .transformBy(vision.getPoseAlignment().getTransform());
+      .transformBy(vision.getSelectedAprilTagTransform().getTransform());
 
     // Set the goal.
     translateXController.setGoal(new State(toMoveTo.getX(), 0));

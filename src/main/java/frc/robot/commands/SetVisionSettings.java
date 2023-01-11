@@ -7,8 +7,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.bdlib.driver.ControllerAIO;
 import frc.robot.Constants.AutoPositionConstants;
-import frc.robot.Constants.AutoPositionConstants.PlacementLocation;
-import frc.robot.Constants.AutoPositionConstants.PoseAlignment;
+import frc.robot.Constants.AutoPositionConstants.AprilTagTransformDirection;
+import frc.robot.Constants.AutoPositionConstants.GamePiecePlacementLevel;
 import frc.robot.subsystems.Vision;
 
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
@@ -45,8 +45,8 @@ public class SetVisionSettings extends InstantCommand {
           () -> {
             // Set it to middle row (cube) & middle row.
             vision.setPlacementSettings(
-              PlacementLocation.MIDDLE,
-              PoseAlignment.CENTER
+              GamePiecePlacementLevel.MIDDLE,
+              AprilTagTransformDirection.CENTER
             );
           }
       );
