@@ -281,6 +281,10 @@ public class Swerve extends SubsystemBase {
         return gyro.getRotation2d();
     }
 
+    public void resetDirection() {
+        swerveOdometry.resetPosition(getYaw(), getModulePositions(), new Pose2d());
+    }
+
     /**
      * Adds an event to the event list. The event list directly corresponds to the strings you give
      * events in the PathPlanner application.

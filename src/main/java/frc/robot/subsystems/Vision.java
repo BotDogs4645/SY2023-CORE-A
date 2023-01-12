@@ -39,6 +39,7 @@ public class Vision extends SubsystemBase {
 
         this.apriltag_cam = new PhotonCamera("apriltagvision");
         apriltag_cam.setDriverMode(false);
+        PhotonCamera.setVersionCheckEnabled(false);
         this.centerToAprilTagCamera = CameraDefaults.MountOne.getTransformation();
 
         this.selectedRobotTransform = AprilTagTransformDirection.CENTER;

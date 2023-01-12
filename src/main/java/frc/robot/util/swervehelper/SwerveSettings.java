@@ -75,7 +75,7 @@ public final class SwerveSettings {
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
         /* Motor Inverts */
-        public static final boolean driveMotorInvert = false;
+        public static final boolean driveMotorInvert = true;
         public static final boolean angleMotorInvert = false;
 
         /* Angle Encoder Invert */
@@ -89,7 +89,7 @@ public final class SwerveSettings {
             public static final int driveMotorID = 6;
             public static final int angleMotorID = 5;
             public static final int canCoderID = 11;
-            public static final double angleOffset = 177.45;
+            public static final double angleOffset = 178.154;
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, "Zero", angleMotorID, canCoderID, angleOffset);
         }
@@ -99,7 +99,7 @@ public final class SwerveSettings {
             public static final int driveMotorID = 7;
             public static final int angleMotorID = 8;
             public static final int canCoderID = 12;
-            public static final double angleOffset = 145.107;
+            public static final double angleOffset = 146.425;
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, "One", angleMotorID, canCoderID, angleOffset);
         }
@@ -109,7 +109,7 @@ public final class SwerveSettings {
             public static final int driveMotorID = 3;
             public static final int angleMotorID = 4;
             public static final int canCoderID = 9;
-            public static final double angleOffset = 285.47;
+            public static final double angleOffset = 279.58;
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, "Two", angleMotorID, canCoderID, angleOffset);
         }
