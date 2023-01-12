@@ -29,11 +29,14 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.bdlib.misc.Loggable;
+import frc.bdlib.misc.Loggable.SubsystemTable;
 import frc.robot.util.swervehelper.SwerveSettings.PathList;
 import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
 import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
 
 public class Swerve extends SubsystemBase {
+    public SubsystemTable table = Loggable.subsystemOf(this.getName());
     public HashMap<String, Command> events = new HashMap<String, Command>();
     public HashMap<PathList, PathPlannerTrajectory> trajectories = new HashMap<PathList, PathPlannerTrajectory>();
     public SwerveDrivePoseEstimator swerveOdometry;
@@ -99,7 +102,7 @@ public class Swerve extends SubsystemBase {
         .withWidget(BuiltInWidgets.kGyro);
 
         // Our speedometer, uses the chassis_speed variable.
-        sub_tab.addDouble("Chassis Speedometer: MPS", () -> getChassisSpeed())
+        sub_tab.addDouble("Chassis Speedometer: MPS", this::getChassisSpeed)
         .withWidget(BuiltInWidgets.kDial)
         .withProperties(Map.of("Min", 0.0, "Max", SwerveDriveTrain.maxSpeed, "Show value", true))
         .withSize(4, 3)
