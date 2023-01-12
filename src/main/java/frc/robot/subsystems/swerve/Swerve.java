@@ -36,16 +36,19 @@ import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
 import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
 
 public class Swerve extends SubsystemBase {
-    public SubsystemTable table = Loggable.subsystemOf(this.getName());
-    public HashMap<String, Command> events = new HashMap<String, Command>();
-    public HashMap<PathList, PathPlannerTrajectory> trajectories = new HashMap<PathList, PathPlannerTrajectory>();
-    public SwerveDrivePoseEstimator swerveOdometry;
-    public SwerveModule[] mSwerveMods;
-    public WPI_Pigeon2 gyro;
-    public ShuffleboardTab sub_tab;
-    public SwerveAutoBuilder builder;
-    public double chassis_speed; // meters / second
-    public Field2d field;
+    private SubsystemTable nTable = Loggable.subsystemOf(this.getName());
+    private HashMap<String, Command> events = new HashMap<String, Command>();
+    private HashMap<PathList, PathPlannerTrajectory> trajectories = new HashMap<PathList, PathPlannerTrajectory>();
+    private SwerveDrivePoseEstimator swerveOdometry;
+    private SwerveModule[] mSwerveMods;
+    private WPI_Pigeon2 gyro;
+    private ShuffleboardTab sub_tab;
+    private SwerveAutoBuilder builder;
+    private double chassis_speed; // meters / second
+    private Field2d field;
+
+    private SwerveModuleState[] requestedStates;
+    private SwerveModuleState[] currentStates;
 
     /**
      * A swerve implementation using MK4 SDS modules, with full field oriented features.<p>
@@ -139,6 +142,11 @@ public class Swerve extends SubsystemBase {
         for (PathList enu: PathList.values()) {
             trajectories.put(enu, PathPlanner.loadPath(enu.toString(), enu.getConstraints()));
         }
+        
+        // AdvantageScope NT4 entries
+        nTable.addLoggable("Current Swerve States", () -> {return currentStates;});
+        nTable.addLoggable("Requested Swerve States", () -> {return requestedStates;});
+        nTable.addLoggable("Gyro Angle", this::getYaw);
     }
 
     /**
@@ -194,7 +202,8 @@ public class Swerve extends SubsystemBase {
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveDriveTrain.maxSpeed);
-        
+        this.requestedStates = desiredStates;
+
         for(SwerveModule mod : mSwerveMods){
             mod.setDesiredState(desiredStates[mod.moduleNumber], true);
         }
@@ -209,7 +218,8 @@ public class Swerve extends SubsystemBase {
      */
     public void setModuleStates(SwerveModuleState[] desiredStates, boolean isOpenLoop) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveDriveTrain.maxSpeed);
-        
+        this.requestedStates = desiredStates;
+
         for(SwerveModule mod : mSwerveMods){
             mod.setDesiredState(desiredStates[mod.moduleNumber], isOpenLoop);
         }
@@ -358,14 +368,13 @@ public class Swerve extends SubsystemBase {
         field.setRobotPose(getPose());
 
         // state collection
-        SwerveModuleState[] states = new SwerveModuleState[mSwerveMods.length];
-        for (int i = 0; i < states.length; i++) {
-            states[i] = mSwerveMods[i].getState();
+        for (int i = 0; i < mSwerveMods.length; i++) {
+            currentStates[i] = mSwerveMods[i].getState();
         }
 
         ChassisSpeeds speed = 
             SwerveDriveTrain.swerveKinematics.toChassisSpeeds(
-                states
+                currentStates
             );
         // considering x and y are orthogonal, we can just use the pythagorean theorem
         // to add the vectors together and get the chassis_speed in m/s.
