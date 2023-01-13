@@ -60,7 +60,7 @@ public class CTREModuleState {
     for (int i = 0; i < expandedStates.length; i += 2) {
         expandedStates[i] = moduleStates[counter].angle.getDegrees();
         expandedStates[i + 1] = moduleStates[counter].speedMetersPerSecond;
-        i++;
+        counter++;
     }
     return expandedStates;
   } 
