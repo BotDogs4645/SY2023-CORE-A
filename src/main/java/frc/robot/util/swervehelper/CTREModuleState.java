@@ -55,12 +55,13 @@ public class CTREModuleState {
   }
 
   public static double[] getModuleStatesExpanded(SwerveModuleState[] moduleStates) {
-    // TODO: fix later
-    return new double[] {
-        moduleStates[0].angle.getDegrees(), moduleStates[0].speedMetersPerSecond,
-        moduleStates[1].angle.getDegrees(), moduleStates[1].speedMetersPerSecond,
-        moduleStates[2].angle.getDegrees(), moduleStates[2].speedMetersPerSecond,
-        moduleStates[3].angle.getDegrees(), moduleStates[3].speedMetersPerSecond,
-    };
+    double[] expandedStates = new double[8];
+    int counter = 0;
+    for (int i = 0; i < expandedStates.length; i += 2) {
+        expandedStates[i] = moduleStates[counter].angle.getDegrees();
+        expandedStates[i + 1] = moduleStates[counter].speedMetersPerSecond;
+        i++;
+    }
+    return expandedStates;
   } 
 }
