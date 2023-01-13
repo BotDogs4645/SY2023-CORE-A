@@ -16,8 +16,8 @@ public final class SwerveSettings {
         public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
 
         /* Drivetrain Constants */
-        public static final double trackWidth = Units.inchesToMeters(23.75);
-        public static final double wheelBase = Units.inchesToMeters(20.75);
+        public static final double trackWidth = Units.inchesToMeters(27.75);
+        public static final double wheelBase = Units.inchesToMeters(32.25); //27.75
         public static final double bottomOfChassisHeight = Units.inchesToMeters(2);
         public static final double wheelDiameter = Units.inchesToMeters(4);
         public static final double wheelCircumference = wheelDiameter * Math.PI;
@@ -50,9 +50,9 @@ public final class SwerveSettings {
         public static final boolean driveEnableCurrentLimit = true;
 
         /* Angle Motor PID Values */
-        public static final double angleKP = 0.6;
+        public static final double angleKP = 0.05;
         public static final double angleKI = 0.0;
-        public static final double angleKD = 14.0;
+        public static final double angleKD = 0.0;
         public static final double angleKF = 0.0;
 
         /* Drive Motor PID Values */
@@ -75,7 +75,7 @@ public final class SwerveSettings {
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
         /* Motor Inverts */
-        public static final boolean driveMotorInvert = true;
+        public static final boolean driveMotorInvert = false;
         public static final boolean angleMotorInvert = false;
 
         /* Angle Encoder Invert */

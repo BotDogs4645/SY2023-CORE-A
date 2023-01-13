@@ -76,9 +76,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     /* Axis Controllers */
-    JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, JoystickAxisAIO.INTERMEDIATE, 0.1);
-    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, JoystickAxisAIO.INTERMEDIATE, 0.1);
-    JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, JoystickAxisAIO.GENTLE, 0.05);
+    JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, JoystickAxisAIO.GENTLE, 0.075);
+    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, JoystickAxisAIO.GENTLE, 0.075);
+    JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, JoystickAxisAIO.CUBIC, .35);
 
     /* Driver Buttons */
     ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(swerve, vision);

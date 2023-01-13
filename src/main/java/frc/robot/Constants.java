@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 
 /**
@@ -24,6 +26,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
  */
 public final class Constants {
     public static final boolean testing = true;
+    public static final NetworkTable LogTable = NetworkTableInstance.getDefault().getTable("Loggables");
 
     public static class CameraConstants {
         // "x+" = Pigeon2 orientation dependent ;p - check which direction points forward.. x+ can be technically defined as the x+ from a pose

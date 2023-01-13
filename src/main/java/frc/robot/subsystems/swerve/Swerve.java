@@ -14,13 +14,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -29,26 +30,24 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.bdlib.misc.Loggable;
-import frc.bdlib.misc.Loggable.SubsystemTable;
+import frc.robot.Constants;
+import frc.robot.util.swervehelper.CTREModuleState;
 import frc.robot.util.swervehelper.SwerveSettings.PathList;
 import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
 import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
 
 public class Swerve extends SubsystemBase {
-    private SubsystemTable nTable = Loggable.subsystemOf(this.getName());
+    private NetworkTable nTable = Constants.LogTable.getSubTable("Swerve");
+
     private HashMap<String, Command> events = new HashMap<String, Command>();
     private HashMap<PathList, PathPlannerTrajectory> trajectories = new HashMap<PathList, PathPlannerTrajectory>();
-    private SwerveDrivePoseEstimator swerveOdometry;
+    private SwerveDriveOdometry swerveOdometry;
     private SwerveModule[] mSwerveMods;
     private WPI_Pigeon2 gyro;
     private ShuffleboardTab sub_tab;
     private SwerveAutoBuilder builder;
     private double chassis_speed; // meters / second
     private Field2d field;
-
-    private SwerveModuleState[] requestedStates;
-    private SwerveModuleState[] currentStates;
 
     /**
      * A swerve implementation using MK4 SDS modules, with full field oriented features.<p>
@@ -81,7 +80,7 @@ public class Swerve extends SubsystemBase {
 
         // SwerveDrivePoseEstimator instances are used to calculate and keep track of the Robot's
         // pose, which is essentially the coordinates and orientation of the robot.
-        this.swerveOdometry = new SwerveDrivePoseEstimator(SwerveDriveTrain.swerveKinematics, getYaw(), getModulePositions(), new Pose2d());
+        this.swerveOdometry = new SwerveDriveOdometry(SwerveDriveTrain.swerveKinematics, getYaw(), getModulePositions());
 
         // The SwerveAutoBuilder is used to create paths for this particular swerve drive.
         // All the PID is contained here, and no other commands relating to PathPlanner have to be created.
@@ -142,11 +141,6 @@ public class Swerve extends SubsystemBase {
         for (PathList enu: PathList.values()) {
             trajectories.put(enu, PathPlanner.loadPath(enu.toString(), enu.getConstraints()));
         }
-        
-        // AdvantageScope NT4 entries
-        nTable.addLoggable("Current Swerve States", () -> {return currentStates;});
-        nTable.addLoggable("Requested Swerve States", () -> {return requestedStates;});
-        nTable.addLoggable("Gyro Angle", this::getYaw);
     }
 
     /**
@@ -201,12 +195,7 @@ public class Swerve extends SubsystemBase {
      * 
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveDriveTrain.maxSpeed);
-        this.requestedStates = desiredStates;
-
-        for(SwerveModule mod : mSwerveMods){
-            mod.setDesiredState(desiredStates[mod.moduleNumber], true);
-        }
+        setModuleStates(desiredStates, true);
     }
 
     /**
@@ -218,7 +207,21 @@ public class Swerve extends SubsystemBase {
      */
     public void setModuleStates(SwerveModuleState[] desiredStates, boolean isOpenLoop) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveDriveTrain.maxSpeed);
-        this.requestedStates = desiredStates;
+
+        nTable.putValue(
+            "Swerve Desired States",
+            NetworkTableValue.makeDoubleArray(CTREModuleState.getModuleStatesExpanded(desiredStates))
+        );
+
+        nTable.putValue(
+            "Rotation Want", 
+            NetworkTableValue.makeDouble(mSwerveMods[0].mAngleMotor.getClosedLoopError())
+        );
+
+        nTable.putValue(
+            "Rotation Current", 
+            NetworkTableValue.makeDouble(mSwerveMods[0].mAngleMotor.getClosedLoopTarget())
+        );
 
         for(SwerveModule mod : mSwerveMods){
             mod.setDesiredState(desiredStates[mod.moduleNumber], isOpenLoop);
@@ -230,7 +233,7 @@ public class Swerve extends SubsystemBase {
      * @return the current pose in meters
      */
     public Pose2d getPose() {
-        return swerveOdometry.getEstimatedPosition();
+        return swerveOdometry.getPoseMeters();
     }
 
     /**
@@ -356,7 +359,7 @@ public class Swerve extends SubsystemBase {
     public void provideVisionInformation(Pose2d suspected_pose) {
         if (suspected_pose.getTranslation().getDistance(getPose().getTranslation()) < 1) {
             // seems close enough
-            swerveOdometry.addVisionMeasurement(suspected_pose, Timer.getFPGATimestamp());
+            //swerveOdometry.addVisionMeasurement(suspected_pose, Timer.getFPGATimestamp());
         }
     }
 
@@ -368,9 +371,17 @@ public class Swerve extends SubsystemBase {
         field.setRobotPose(getPose());
 
         // state collection
+        SwerveModuleState currentStates[] = new SwerveModuleState[mSwerveMods.length];
         for (int i = 0; i < mSwerveMods.length; i++) {
             currentStates[i] = mSwerveMods[i].getState();
         }
+
+        nTable.putValue(
+            "Swerve Current States",
+            NetworkTableValue.makeDoubleArray(CTREModuleState.getModuleStatesExpanded(currentStates))
+        );
+
+        nTable.putValue("Yaw", NetworkTableValue.makeDouble(getYaw().getDegrees()));
 
         ChassisSpeeds speed = 
             SwerveDriveTrain.swerveKinematics.toChassisSpeeds(
