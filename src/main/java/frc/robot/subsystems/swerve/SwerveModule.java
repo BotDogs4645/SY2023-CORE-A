@@ -27,7 +27,6 @@ import com.ctre.phoenix.sensors.CANCoder;
 public class SwerveModule {
     public static final CTREConfigs CTRE = SwerveSettings.CTRE;
 
-    public String name;
     public int moduleNumber;
     private double angleOffset;
     public TalonFXW mAngleMotor;
@@ -43,7 +42,6 @@ public class SwerveModule {
         // gets our number, name and angle offset from Settings.
         // Settings gets passed through Swerve subsystem and then to here.
         this.moduleNumber = moduleNumber;
-        name = moduleConstants.name();
         angleOffset = moduleConstants.angleOffset();
         
         // More config
