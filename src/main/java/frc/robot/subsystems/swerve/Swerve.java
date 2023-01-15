@@ -213,15 +213,15 @@ public class Swerve extends SubsystemBase {
             NetworkTableValue.makeDoubleArray(CTREModuleState.getModuleStatesExpanded(desiredStates))
         );
 
-        nTable.putValue(
-            "Rotation Want", 
-            NetworkTableValue.makeDouble(mSwerveMods[0].mAngleMotor.getClosedLoopError())
-        );
+        // nTable.putValue(
+        //     "Rotation Want", 
+        //     NetworkTableValue.makeDouble(mSwerveMods[0].mAngleMotor.getClosedLoopError())
+        // );
 
-        nTable.putValue(
-            "Rotation Current", 
-            NetworkTableValue.makeDouble(mSwerveMods[0].mAngleMotor.getClosedLoopTarget())
-        );
+        // nTable.putValue(
+        //     "Rotation Current", 
+        //     NetworkTableValue.makeDouble(mSwerveMods[0].mAngleMotor.getClosedLoopTarget())
+        // );
 
         for(SwerveModule mod : mSwerveMods){
             mod.setDesiredState(desiredStates[mod.moduleNumber], isOpenLoop);

@@ -27,7 +27,7 @@ public class OrientationFlipCommand extends ProfiledPIDCommand {
           // The PID gains
           0.5, 0, 0,
           // The motion profile constraints
-          new TrapezoidProfile.Constraints(SwerveDriveTrain.maxAngularVelocity, 0)
+          new TrapezoidProfile.Constraints(SwerveDriveTrain.maxAngularVelocity, 2)
       ), // degrees per second lol
       // This should return the measurement
       () -> swerve.getYaw().getDegrees(),
@@ -47,10 +47,10 @@ public class OrientationFlipCommand extends ProfiledPIDCommand {
     this.swerve = swerve;
     addRequirements(swerve);
     getController()
-      .setTolerance(.01, 5);
+      .setTolerance(.05, 2);
   }
 
-  @Override
+  @Override 
   public void initialize() {
     getController().reset(super.m_measurement.getAsDouble());
     getController().setGoal(
@@ -61,6 +61,6 @@ public class OrientationFlipCommand extends ProfiledPIDCommand {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return getController().atGoal();
+    return getController().atSetpoint();
   }
 }

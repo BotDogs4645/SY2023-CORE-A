@@ -34,7 +34,7 @@ public class TeleopSwerve extends CommandBase {
     @Override
     public void execute() {
         translation = new Translation2d(-y.getValue(), -x.getValue()).times(SwerveDriveTrain.maxSpeed);
-        rotation = r.getValue() * SwerveDriveTrain.maxAngularVelocity;
+        rotation = -r.getValue() * SwerveDriveTrain.maxAngularVelocity;
         s_Swerve.drive(translation, rotation, openLoop);
     }
 }

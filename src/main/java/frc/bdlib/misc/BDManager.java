@@ -43,12 +43,10 @@ public class BDManager {
             .withPosition(0, 0);
     }
 
-    public void register(BDUpdatable item, boolean reportStatus) {
+    public void register(BDUpdatable item) {
         if (isInstantiated()) {
             updateList.add(item);
-            if (reportStatus) {
-                statusLayout.addString(item.getID(), item::getStatus);
-            }
+            statusLayout.addString(item.getID(), item::getStatus);
         }
     }
 

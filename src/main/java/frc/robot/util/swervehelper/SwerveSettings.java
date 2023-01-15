@@ -39,20 +39,20 @@ public final class SwerveSettings {
         );
 
         /* Swerve Current Limiting */
-        public static final int angleContinuousCurrentLimit = 30;
-        public static final int anglePeakCurrentLimit = 50;
+        public static final int angleContinuousCurrentLimit = 40;
+        public static final int anglePeakCurrentLimit = 40;
         public static final double anglePeakCurrentDuration = 0.1;
         public static final boolean angleEnableCurrentLimit = true;
 
-        public static final int driveContinuousCurrentLimit = 40;
-        public static final int drivePeakCurrentLimit = 70;
+        public static final int driveContinuousCurrentLimit = 45; // 35
+        public static final int drivePeakCurrentLimit = 45; // 35
         public static final double drivePeakCurrentDuration = 0.1;
         public static final boolean driveEnableCurrentLimit = true;
 
         /* Angle Motor PID Values */
-        public static final double angleKP = 0.05; // https://github.com/Team364/BaseFalconSwerve/blob/main/src/main/java/frc/lib/util/COTSFalconSwerveConstants.java
+        public static final double angleKP = .3; // https://github.com/Team364/BaseFalconSwerve/blob/main/src/main/java/frc/lib/util/COTSFalconSwerveConstants.java
         public static final double angleKI = 0.0;
-        public static final double angleKD = 0.0;
+        public static final double angleKD = 1.0;
         public static final double angleKF = 0.0;
 
         /* Drive Motor PID Values */
@@ -89,7 +89,7 @@ public final class SwerveSettings {
             public static final int driveMotorID = 6;
             public static final int angleMotorID = 5;
             public static final int canCoderID = 11;
-            public static final double angleOffset = 178.154;
+            public static final double angleOffset = 175.605;
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
@@ -99,7 +99,7 @@ public final class SwerveSettings {
             public static final int driveMotorID = 7;
             public static final int angleMotorID = 8;
             public static final int canCoderID = 12;
-            public static final double angleOffset = 146.425;
+            public static final double angleOffset = 144.755;
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
@@ -109,7 +109,7 @@ public final class SwerveSettings {
             public static final int driveMotorID = 3;
             public static final int angleMotorID = 4;
             public static final int canCoderID = 9;
-            public static final double angleOffset = 279.58;
+            public static final double angleOffset = 282.304;
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
@@ -119,7 +119,7 @@ public final class SwerveSettings {
             public static final int driveMotorID = 2;
             public static final int angleMotorID = 1;
             public static final int canCoderID = 10;
-            public static final double angleOffset = 258.574;
+            public static final double angleOffset = 259.804;
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
