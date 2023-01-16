@@ -7,9 +7,12 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.bdlib.driver.Driver.DriverInfo;
+import frc.bdlib.driver.Driver.Profile;
 
 public final class SwerveSettings {
     public static final CTREConfigs CTRE = new CTREConfigs();
+    public static final DriverInfo driver = Profile.LittleDrew.info();
 
     public static final class SwerveDriveTrain {
         public static final int pigeonID = 13;
@@ -24,9 +27,6 @@ public final class SwerveSettings {
 
         public static final double feetInAMile = 5280;
         public static final double secondsInAnHour = 3600;
-
-        public static final double openLoopRamp = 0.25;
-        public static final double closedLoopRamp = 0.0;
 
         public static final double driveGearRatio = (8.14 / 1.0); //6.86:1
         public static final double angleGearRatio = (12.8 / 1.0); //12.8:1
@@ -66,12 +66,7 @@ public final class SwerveSettings {
         public static final double driveKV = (2.44 / 12);
         public static final double driveKA = (0.27 / 12);
 
-        /* Swerve Profiling Values */
-        public static final double maxSpeed = 1.5; // mps = 3.96
-        public static final double maxAngularVelocity = 5; // radians per second
-
         /* Neutral Modes */
-        public static final NeutralMode angleNeutralMode = NeutralMode.Coast;
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
         /* Motor Inverts */

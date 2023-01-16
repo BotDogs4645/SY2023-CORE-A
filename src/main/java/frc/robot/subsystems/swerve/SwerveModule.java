@@ -87,7 +87,7 @@ public class SwerveModule {
         desiredState = CTREModuleState.optimize(desiredState, getState().angle); //Custom optimize command, since default WPILib optimize assumes continuous controller which CTRE is not
 
         if(isOpenLoop) {
-            double percentOutput = desiredState.speedMetersPerSecond / SwerveSettings.SwerveDriveTrain.maxSpeed;
+            double percentOutput = desiredState.speedMetersPerSecond / SwerveSettings.driver.maxSpeed();
             mDriveMotor.set(ControlMode.PercentOutput, percentOutput);
         }
         else {
@@ -95,7 +95,7 @@ public class SwerveModule {
             mDriveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward, feedforward.calculate(desiredState.speedMetersPerSecond));
         }
 
-        double angle = (Math.abs(desiredState.speedMetersPerSecond) <= (SwerveSettings.SwerveDriveTrain.maxSpeed * 0.011)) ? lastAngle : desiredState.angle.getDegrees(); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
+        double angle = (Math.abs(desiredState.speedMetersPerSecond) <= (SwerveSettings.driver.maxSpeed() * 0.011)) ? lastAngle : desiredState.angle.getDegrees(); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
         mAngleMotor.set(ControlMode.Position, Conversions.degreesToFalcon(angle, SwerveSettings.SwerveDriveTrain.angleGearRatio)); 
         lastAngle = angle;
     }
@@ -114,7 +114,7 @@ public class SwerveModule {
         mAngleMotor.configFactoryDefault();
         mAngleMotor.configAllSettings(CTRE.swerveAngleFXConfig);
         mAngleMotor.setInverted(SwerveSettings.SwerveDriveTrain.angleMotorInvert);
-        mAngleMotor.setNeutralMode(SwerveSettings.SwerveDriveTrain.angleNeutralMode);
+        mAngleMotor.setNeutralMode(SwerveSettings.driver.angleMode());
         resetToAbsolute();
     }
 
