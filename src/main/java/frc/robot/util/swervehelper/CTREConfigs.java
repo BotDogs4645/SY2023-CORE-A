@@ -1,6 +1,6 @@
 package frc.robot.util.swervehelper;
 
-import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
@@ -25,7 +25,7 @@ public final class CTREConfigs {
         swerveCanCoderConfig = new CANCoderConfiguration();
 
         /* Swerve Angle Motor Configurations */
-        StatorCurrentLimitConfiguration angleSupplyLimit = new StatorCurrentLimitConfiguration(
+        SupplyCurrentLimitConfiguration angleSupplyLimit = new SupplyCurrentLimitConfiguration(
             SwerveDriveTrain.angleEnableCurrentLimit, 
             SwerveDriveTrain.angleContinuousCurrentLimit, 
             SwerveDriveTrain.anglePeakCurrentLimit, 
@@ -35,14 +35,14 @@ public final class CTREConfigs {
         swerveAngleFXConfig.slot0.kI = SwerveDriveTrain.angleKI;
         swerveAngleFXConfig.slot0.kD = SwerveDriveTrain.angleKD;
         swerveAngleFXConfig.slot0.kF = SwerveDriveTrain.angleKF;
-        swerveAngleFXConfig.statorCurrLimit = angleSupplyLimit;
+        swerveAngleFXConfig.supplyCurrLimit = angleSupplyLimit;
         swerveAngleFXConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
 
         angleFXWConfig = new TalonFXW.FXWConfig(SwerveDriveTrain.angleGearRatio, Units.metersToInches(SwerveDriveTrain.wheelDiameter));
         driveFXWConfig = new TalonFXW.FXWConfig(SwerveDriveTrain.driveGearRatio, Units.metersToInches(SwerveDriveTrain.wheelDiameter));
 
         /* Swerve Drive Motor Configuration */
-        StatorCurrentLimitConfiguration driveSupplyLimit = new StatorCurrentLimitConfiguration(
+        SupplyCurrentLimitConfiguration driveSupplyLimit = new SupplyCurrentLimitConfiguration(
             SwerveDriveTrain.driveEnableCurrentLimit, 
             SwerveDriveTrain.driveContinuousCurrentLimit, 
             SwerveDriveTrain.drivePeakCurrentLimit, 
@@ -54,7 +54,7 @@ public final class CTREConfigs {
         swerveDriveFXConfig.slot0.kI = SwerveDriveTrain.driveKI;
         swerveDriveFXConfig.slot0.kD = SwerveDriveTrain.driveKD;
         swerveDriveFXConfig.slot0.kF = SwerveDriveTrain.driveKF;        
-        swerveDriveFXConfig.statorCurrLimit = driveSupplyLimit;
+        swerveDriveFXConfig.supplyCurrLimit = driveSupplyLimit;
         swerveDriveFXConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
         swerveDriveFXConfig.openloopRamp = SwerveDriveTrain.openLoopRamp;
         swerveDriveFXConfig.closedloopRamp = SwerveDriveTrain.closedLoopRamp;
