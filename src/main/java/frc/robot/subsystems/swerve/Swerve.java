@@ -263,23 +263,6 @@ public class Swerve extends SubsystemBase {
     public void zeroGyro(){
         gyro.setYaw(0);
     }
-    
-    // /**
-    //  * Internal usage for compatability with the {@link DriverProfile} system.
-    //  * @param settings The settings HashMap from a driver settings json file.
-    //  */
-    // public void updatePreferences(HashMap<String, String> settings) {
-    //     Robot.ctreConfigs.swerveDriveFXConfig.openloopRamp = Double.parseDouble(settings.get("open_ramp"));
-    //     Robot.ctreConfigs.swerveDriveFXConfig.closedloopRamp = Double.parseDouble(settings.get("closed_ramp"));
-    //     SwerveDriveTrain.maxSpeed = Double.parseDouble(settings.get("max_speed"));
-    //     SwerveDriveTrain.maxAngularVelocity = Double.parseDouble(settings.get("max_angular_velocity"));
-    //     SwerveDriveTrain.angleNeutralMode = Boolean.parseBoolean(settings.get("brake_angle")) ? NeutralMode.Brake : NeutralMode.Coast;
-    //     SwerveDriveTrain.driveNeutralMode = Boolean.parseBoolean(settings.get("brake_drive")) ? NeutralMode.Brake : NeutralMode.Coast;
-
-    //     for (SwerveModule swerve_module: mSwerveMods) {
-    //         swerve_module.reapplyConfig();
-    //     }
-    // }
 
     /**
      * Gets the chassis's speed
