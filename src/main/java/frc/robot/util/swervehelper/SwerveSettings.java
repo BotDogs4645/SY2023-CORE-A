@@ -25,9 +25,6 @@ public final class SwerveSettings {
         public static final double wheelDiameter = Units.inchesToMeters(4);
         public static final double wheelCircumference = wheelDiameter * Math.PI;
 
-        public static final double feetInAMile = 5280;
-        public static final double secondsInAnHour = 3600;
-
         public static final double driveGearRatio = (8.14 / 1.0); //6.86:1
         public static final double angleGearRatio = (12.8 / 1.0); //12.8:1
 
@@ -134,7 +131,8 @@ public final class SwerveSettings {
         // Constraint for the motion profilied robot angle controller
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
             new TrapezoidProfile.Constraints(
-                kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+                kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared
+            );
       }
 
       public static enum PathList {
