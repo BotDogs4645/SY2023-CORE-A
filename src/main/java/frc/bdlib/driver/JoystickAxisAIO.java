@@ -5,12 +5,15 @@ import java.util.function.DoubleUnaryOperator;
 
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 
+
 public record JoystickAxisAIO(
         ControllerAIO controller,
         JoystickAxisID permanentId,
         DoubleUnaryOperator easing,
         double deadzone
-) {
+    ) {
+
+    public record AxisSettings(DoubleUnaryOperator easing, double deadzone) {};
 
     public static final DoubleUnaryOperator LINEAR = in -> in;
     public static final DoubleUnaryOperator AGGRESSIVE = in -> ((2.0/3.0) * in) + ((1.0/3.0) * Math.pow(in, 3));

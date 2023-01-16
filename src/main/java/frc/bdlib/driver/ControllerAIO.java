@@ -3,6 +3,7 @@ package frc.bdlib.driver;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.bdlib.driver.JoystickAxisAIO.AxisSettings;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickVariant;
@@ -35,6 +36,10 @@ public class ControllerAIO extends GenericHID {
     public ToggleBooleanSupplier getToggleBooleanSupplier(JoystickButtonID id, double debounce) {
         return new ToggleBooleanSupplier(actualButtons.get(id), debounce);
     }
+
+    public JoystickAxisAIO getAxis(JoystickAxisID id, AxisSettings settings) {
+        return new JoystickAxisAIO(this, id, settings.easing(), settings.deadzone());
+    } 
 
     public JoystickAxisAIO getAxis(JoystickAxisID id, DoubleUnaryOperator easing, double deadzone) {
         return new JoystickAxisAIO(this, id, easing, deadzone);
