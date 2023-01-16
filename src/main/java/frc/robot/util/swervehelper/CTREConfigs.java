@@ -29,7 +29,8 @@ public final class CTREConfigs {
             SwerveDriveTrain.angleEnableCurrentLimit, 
             SwerveDriveTrain.angleContinuousCurrentLimit, 
             SwerveDriveTrain.anglePeakCurrentLimit, 
-            SwerveDriveTrain.anglePeakCurrentDuration);
+            SwerveDriveTrain.anglePeakCurrentDuration
+        );
 
         swerveAngleFXConfig.slot0.kP = SwerveDriveTrain.angleKP;
         swerveAngleFXConfig.slot0.kI = SwerveDriveTrain.angleKI;
@@ -39,16 +40,14 @@ public final class CTREConfigs {
         swerveAngleFXConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
 
         angleFXWConfig = new TalonFXW.FXWConfig(SwerveDriveTrain.angleGearRatio, Units.metersToInches(SwerveDriveTrain.wheelDiameter));
-        driveFXWConfig = new TalonFXW.FXWConfig(SwerveDriveTrain.driveGearRatio, Units.metersToInches(SwerveDriveTrain.wheelDiameter));
 
         /* Swerve Drive Motor Configuration */
         SupplyCurrentLimitConfiguration driveSupplyLimit = new SupplyCurrentLimitConfiguration(
             SwerveDriveTrain.driveEnableCurrentLimit, 
             SwerveDriveTrain.driveContinuousCurrentLimit, 
             SwerveDriveTrain.drivePeakCurrentLimit, 
-            SwerveDriveTrain.drivePeakCurrentDuration);
-
-        
+            SwerveDriveTrain.drivePeakCurrentDuration
+        ); 
 
         swerveDriveFXConfig.slot0.kP = SwerveDriveTrain.driveKP;
         swerveDriveFXConfig.slot0.kI = SwerveDriveTrain.driveKI;
@@ -59,6 +58,7 @@ public final class CTREConfigs {
         swerveDriveFXConfig.openloopRamp = SwerveDriveTrain.openLoopRamp;
         swerveDriveFXConfig.closedloopRamp = SwerveDriveTrain.closedLoopRamp;
 
+        driveFXWConfig = new TalonFXW.FXWConfig(SwerveDriveTrain.driveGearRatio, Units.metersToInches(SwerveDriveTrain.wheelDiameter));
         
         /* Swerve CANCoder Configuration */
         swerveCanCoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
