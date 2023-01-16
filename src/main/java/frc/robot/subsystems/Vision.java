@@ -50,7 +50,7 @@ public class Vision extends SubsystemBase {
             tag_locations = new AprilTagFieldLayout(new ArrayList<AprilTag>(), 0, 0);
         } else {
             try {
-                tag_locations = new AprilTagFieldLayout(AprilTagFields.k2022RapidReact.m_resourceFile);
+                tag_locations = new AprilTagFieldLayout(AprilTagFields.k2023ChargedUp.m_resourceFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
