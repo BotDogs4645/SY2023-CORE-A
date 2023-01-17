@@ -11,8 +11,8 @@ import frc.bdlib.driver.Driver.DriverInfo;
 import frc.bdlib.driver.Driver.Profile;
 
 public final class SwerveSettings {
-    public static final CTREConfigs CTRE = new CTREConfigs();
     public static final DriverInfo driver = Profile.LittleDrew.info();
+    public static final CTREConfigs CTRE = new CTREConfigs();
 
     public static final class SwerveDriveTrain {
         public static final int pigeonID = 13;
