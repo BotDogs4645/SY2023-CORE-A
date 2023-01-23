@@ -58,13 +58,13 @@ public final class SwerveSettings {
         /* Drive Motor PID Values */
         public static final double driveKP = 0.05;
         public static final double driveKI = 0.0;
-        public static final double driveKD = 12.0;
+        public static final double driveKD = 0.0;
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.667 / 12); //divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (2.44 / 12);
-        public static final double driveKA = (0.27 / 12);
+        public static final double driveKS = (0.083195); //divide by 12 to convert from volts to percent output for CTRE
+        public static final double driveKV = (0.14032);
+        public static final double driveKA = (0.0059512);
 
         /* Swerve Profiling Values */
         public static final double maxSpeed = 1.5; // mps = 3.96
