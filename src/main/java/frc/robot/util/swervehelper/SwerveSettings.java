@@ -7,8 +7,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.bdlib.driver.Driver.DriverInfo;
+import frc.bdlib.driver.Driver.Profile;
 
 public final class SwerveSettings {
+    public static final DriverInfo driver = Profile.LittleDrew.info();
     public static final CTREConfigs CTRE = new CTREConfigs();
 
     public static final class SwerveDriveTrain {
@@ -21,9 +24,6 @@ public final class SwerveSettings {
         public static final double bottomOfChassisHeight = Units.inchesToMeters(2);
         public static final double wheelDiameter = Units.inchesToMeters(4);
         public static final double wheelCircumference = wheelDiameter * Math.PI;
-
-        public static final double feetInAMile = 5280;
-        public static final double secondsInAnHour = 3600;
 
         public static final double openLoopRamp = 0.25;
         public static final double closedLoopRamp = 0.0;
@@ -139,7 +139,8 @@ public final class SwerveSettings {
         // Constraint for the motion profilied robot angle controller
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
             new TrapezoidProfile.Constraints(
-                kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+                kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared
+            );
       }
 
       public static enum PathList {
