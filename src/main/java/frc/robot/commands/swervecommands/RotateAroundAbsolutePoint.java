@@ -10,7 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.util.swervehelper.SwerveSettings;
+import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
 
 public class RotateAroundAbsolutePoint extends CommandBase {
   Supplier<Translation2d> supplier;
@@ -43,8 +43,8 @@ public class RotateAroundAbsolutePoint extends CommandBase {
     Translation2d map = swerve_absolute_translation.minus(supplier.get());
 
     swerve.pointOrientedDrive(
-      new Translation2d(y.getValue(), x.getValue()).times(SwerveSettings.driver.maxSpeed()),
-      r.getValue() * SwerveSettings.driver.maxRotationSpeed(),
+      new Translation2d(y.getValue(), x.getValue()).times(SwerveDriveTrain.maxSpeed),
+      r.getValue() * SwerveDriveTrain.maxAngularVelocity,
       map
     );
   }

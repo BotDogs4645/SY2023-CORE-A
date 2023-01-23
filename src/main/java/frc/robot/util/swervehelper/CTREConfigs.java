@@ -55,7 +55,8 @@ public final class CTREConfigs {
         swerveDriveFXConfig.slot0.kF = SwerveDriveTrain.driveKF;        
         swerveDriveFXConfig.supplyCurrLimit = driveSupplyLimit;
         swerveDriveFXConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
-        swerveDriveFXConfig.openloopRamp = SwerveSettings.driver.rampTime();
+        swerveDriveFXConfig.openloopRamp = SwerveDriveTrain.openLoopRamp;
+        swerveDriveFXConfig.closedloopRamp = SwerveDriveTrain.closedLoopRamp;
 
         driveFXWConfig = new TalonFXW.FXWConfig(SwerveDriveTrain.driveGearRatio, Units.metersToInches(SwerveDriveTrain.wheelDiameter));
         

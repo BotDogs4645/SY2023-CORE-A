@@ -25,6 +25,9 @@ public final class SwerveSettings {
         public static final double wheelDiameter = Units.inchesToMeters(4);
         public static final double wheelCircumference = wheelDiameter * Math.PI;
 
+        public static final double openLoopRamp = 0.25;
+        public static final double closedLoopRamp = 0.0;
+
         public static final double driveGearRatio = (8.14 / 1.0); //6.86:1
         public static final double angleGearRatio = (12.8 / 1.0); //12.8:1
 
@@ -63,7 +66,12 @@ public final class SwerveSettings {
         public static final double driveKV = (2.44 / 12);
         public static final double driveKA = (0.27 / 12);
 
+        /* Swerve Profiling Values */
+        public static final double maxSpeed = 1.5; // mps = 3.96
+        public static final double maxAngularVelocity = 5; // radians per second
+
         /* Neutral Modes */
+        public static final NeutralMode angleNeutralMode = NeutralMode.Coast;
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
         /* Motor Inverts */

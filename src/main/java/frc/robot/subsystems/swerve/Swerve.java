@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.swervehelper.CTREModuleState;
-import frc.robot.util.swervehelper.SwerveSettings;
 import frc.robot.util.swervehelper.SwerveSettings.PathList;
 import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
 import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
@@ -107,7 +106,7 @@ public class Swerve extends SubsystemBase {
         // Our speedometer, uses the chassis_speed variable.
         sub_tab.addDouble("Chassis Speedometer: MPS", this::getChassisSpeed)
         .withWidget(BuiltInWidgets.kDial)
-        .withProperties(Map.of("Min", 0.0, "Max", SwerveSettings.driver.maxSpeed(), "Show value", true))
+        .withProperties(Map.of("Min", 0.0, "Max", SwerveDriveTrain.maxSpeed, "Show value", true))
         .withSize(4, 3)
         .withPosition(3, 0);
 
@@ -207,7 +206,7 @@ public class Swerve extends SubsystemBase {
      * 
      */
     public void setModuleStates(SwerveModuleState[] desiredStates, boolean isOpenLoop) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveSettings.driver.maxSpeed());
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveDriveTrain.maxSpeed);
 
         nTable.putValue(
             "Swerve Desired States",
