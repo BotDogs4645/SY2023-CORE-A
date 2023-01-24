@@ -39,20 +39,20 @@ public final class SwerveSettings {
         );
 
         /* Swerve Current Limiting */
-        public static final int angleContinuousCurrentLimit = 40;
-        public static final int anglePeakCurrentLimit = 40;
+        public static final int angleContinuousCurrentLimit = 45;
+        public static final int anglePeakCurrentLimit = 45;
         public static final double anglePeakCurrentDuration = 0.1;
         public static final boolean angleEnableCurrentLimit = true;
 
-        public static final int driveContinuousCurrentLimit = 45; // 35
-        public static final int drivePeakCurrentLimit = 45; // 35
+        public static final int driveContinuousCurrentLimit = 50; // 35
+        public static final int drivePeakCurrentLimit = 50; // 35
         public static final double drivePeakCurrentDuration = 0.1;
         public static final boolean driveEnableCurrentLimit = true;
 
         /* Angle Motor PID Values */
         public static final double angleKP = .3; // https://github.com/Team364/BaseFalconSwerve/blob/main/src/main/java/frc/lib/util/COTSFalconSwerveConstants.java
         public static final double angleKI = 0.0;
-        public static final double angleKD = 1.0;
+        public static final double angleKD = 13.0;
         public static final double angleKF = 0.0;
 
         /* Drive Motor PID Values */
@@ -67,7 +67,7 @@ public final class SwerveSettings {
         public static final double driveKA = (0.0059512);
 
         /* Swerve Profiling Values */
-        public static final double maxSpeed = 1.5; // mps = 3.96
+        public static final double maxSpeed = 2.96; // mps = 3.96
         public static final double maxAngularVelocity = 5; // radians per second
 
         /* Neutral Modes */
