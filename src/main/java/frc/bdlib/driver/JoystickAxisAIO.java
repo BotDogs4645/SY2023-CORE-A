@@ -10,7 +10,13 @@ public record JoystickAxisAIO(
         JoystickAxisID permanentId,
         DoubleUnaryOperator easing,
         double deadzone
-) {
+    ) {
+
+    public record AxisSettings(DoubleUnaryOperator easing, double deadzone) {
+        public static AxisSettings of(DoubleUnaryOperator easing, double deadzone) {
+            return new AxisSettings(easing, deadzone);
+        }
+    };
 
     public static final DoubleUnaryOperator LINEAR = in -> in;
     public static final DoubleUnaryOperator AGGRESSIVE = in -> ((2.0/3.0) * in) + ((1.0/3.0) * Math.pow(in, 3));

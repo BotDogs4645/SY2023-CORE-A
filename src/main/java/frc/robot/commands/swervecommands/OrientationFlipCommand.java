@@ -9,9 +9,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+import frc.bdlib.driver.Driver;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -27,7 +27,7 @@ public class OrientationFlipCommand extends ProfiledPIDCommand {
           // The PID gains
           0.5, 0, 0,
           // The motion profile constraints
-          new TrapezoidProfile.Constraints(SwerveDriveTrain.maxAngularVelocity, 2)
+          new TrapezoidProfile.Constraints(Driver.maxRotationSpeed, 2)
       ), // degrees per second lol
       // This should return the measurement
       () -> swerve.getYaw().getDegrees(),
@@ -36,7 +36,7 @@ public class OrientationFlipCommand extends ProfiledPIDCommand {
       // This uses the output
       (output, setpoint) -> {
         swerve.drive(
-          new Translation2d(y.getValue(), x.getValue()).times(SwerveDriveTrain.maxSpeed), 
+          new Translation2d(y.getValue(), x.getValue()).times(Driver.maxChassisSpeed), 
           Rotation2d.fromDegrees(output).getRadians(), 
           false
         );
