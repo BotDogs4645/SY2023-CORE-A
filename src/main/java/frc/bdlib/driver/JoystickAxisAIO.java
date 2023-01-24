@@ -14,7 +14,7 @@ public record JoystickAxisAIO(
 
     public record AxisSettings(DoubleUnaryOperator easing, double deadzone) {
         public static AxisSettings of(DoubleUnaryOperator easing, double deadzone) {
-            return new AxisSettings(AGGRESSIVE, 0);
+            return new AxisSettings(easing, deadzone);
         }
     };
 
