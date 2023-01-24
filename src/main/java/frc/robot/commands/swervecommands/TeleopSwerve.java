@@ -2,6 +2,7 @@ package frc.robot.commands.swervecommands;
 
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.util.swervehelper.SwerveSettings;
 import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -33,8 +34,8 @@ public class TeleopSwerve extends CommandBase {
 
     @Override
     public void execute() {
-        translation = new Translation2d(-y.getValue(), -x.getValue()).times(SwerveDriveTrain.maxSpeed);
-        rotation = -r.getValue() * SwerveDriveTrain.maxAngularVelocity;
+        translation = new Translation2d(-y.getValue(), -x.getValue()).times(SwerveSettings.driver.maxSpeed());
+        rotation = -r.getValue() * SwerveSettings.driver.maxRotationSpeed();
         s_Swerve.drive(translation, rotation, openLoop);
     }
 }

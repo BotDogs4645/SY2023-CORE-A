@@ -21,14 +21,14 @@ public class Driver {
             normal, normal, normal,
             0.8 * maxRotationSpeed, 0.5 * maxChassisSpeed,
             NeutralMode.Coast,
-            0.5
+            0
         )),
 
         LittleDrew(new DriverInfo(
             normal, normal, normal,
             0.8 * maxRotationSpeed, 0.5 * maxChassisSpeed,
             NeutralMode.Coast,
-            0.5
+            0
         ))
         ;
 
