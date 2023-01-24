@@ -66,10 +66,6 @@ public final class SwerveSettings {
         public static final double driveKV = (2.44 / 12);
         public static final double driveKA = (0.27 / 12);
 
-        /* Swerve Profiling Values */
-        public static final double maxSpeed = 1.5; // mps = 3.96
-        public static final double maxAngularVelocity = 5; // radians per second
-
         /* Neutral Modes */
         public static final NeutralMode angleNeutralMode = NeutralMode.Coast;
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
