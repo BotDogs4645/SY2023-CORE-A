@@ -39,33 +39,33 @@ public final class SwerveSettings {
         );
 
         /* Swerve Current Limiting */
-        public static final int angleContinuousCurrentLimit = 40;
-        public static final int anglePeakCurrentLimit = 40;
+        public static final int angleContinuousCurrentLimit = 45;
+        public static final int anglePeakCurrentLimit = 45;
         public static final double anglePeakCurrentDuration = 0.1;
         public static final boolean angleEnableCurrentLimit = true;
 
-        public static final int driveContinuousCurrentLimit = 45; // 35
-        public static final int drivePeakCurrentLimit = 45; // 35
+        public static final int driveContinuousCurrentLimit = 50; // 35
+        public static final int drivePeakCurrentLimit = 50; // 35
         public static final double drivePeakCurrentDuration = 0.1;
         public static final boolean driveEnableCurrentLimit = true;
 
         /* Angle Motor PID Values */
         public static final double angleKP = .3; // https://github.com/Team364/BaseFalconSwerve/blob/main/src/main/java/frc/lib/util/COTSFalconSwerveConstants.java
         public static final double angleKI = 0.0;
-        public static final double angleKD = 1.0;
+        public static final double angleKD = 13.0;
         public static final double angleKF = 0.0;
 
         /* Drive Motor PID Values */
         public static final double driveKP = 0.05;
         public static final double driveKI = 0.0;
-        public static final double driveKD = 12.0;
+        public static final double driveKD = 0.0;
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.667 / 12); //divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (2.44 / 12);
-        public static final double driveKA = (0.27 / 12);
-
+        public static final double driveKS = (0.083195); //divide by 12 to convert from volts to percent output for CTRE
+        public static final double driveKV = (0.14032);
+        public static final double driveKA = (0.0059512);
+        
         /* Neutral Modes */
         public static final NeutralMode angleNeutralMode = NeutralMode.Coast;
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
