@@ -185,18 +185,18 @@ public class Swerve extends SubsystemBase {
                 pointToPivotAround
             );
 
-        setModuleStates(swerveModuleStates);
+        setModuleStates(swerveModuleStates, true);
     }
 
 
     /**
-     * Sets each module state, requires all states. This version always has openLoop at true,
+     * Sets each module state, requires all states. This version always has openLoop at false,
      * because it is used for autonomous, which requires PID.
      * @param desiredStates Array of module states 
      * 
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        setModuleStates(desiredStates, true);
+        setModuleStates(desiredStates, false);
     }
 
     /**
@@ -213,16 +213,6 @@ public class Swerve extends SubsystemBase {
             "Swerve Desired States",
             NetworkTableValue.makeDoubleArray(CTREModuleState.getModuleStatesExpanded(desiredStates))
         );
-
-        // nTable.putValue(
-        //     "Rotation Want", 
-        //     NetworkTableValue.makeDouble(mSwerveMods[0].mAngleMotor.getClosedLoopError())
-        // );
-
-        // nTable.putValue(
-        //     "Rotation Current", 
-        //     NetworkTableValue.makeDouble(mSwerveMods[0].mAngleMotor.getClosedLoopTarget())
-        // );
 
         for(SwerveModule mod : mSwerveMods){
             mod.setDesiredState(desiredStates[mod.moduleNumber], isOpenLoop);
@@ -371,6 +361,7 @@ public class Swerve extends SubsystemBase {
             SwerveDriveTrain.swerveKinematics.toChassisSpeeds(
                 currentStates
             );
+        
         // considering x and y are orthogonal, we can just use the pythagorean theorem
         // to add the vectors together and get the chassis_speed in m/s.
         chassis_speed = Math.sqrt(Math.pow(speed.vxMetersPerSecond, 2) + Math.pow(speed.vyMetersPerSecond, 2));
