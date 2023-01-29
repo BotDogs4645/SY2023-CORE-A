@@ -24,7 +24,6 @@ import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
 import frc.robot.commands.swervecommands.TeleopSwerve;
-import frc.robot.commands.swervecommands.TeleopSwerveAroundPoint;
 import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
@@ -101,10 +100,6 @@ public class RobotContainer {
     // swerve, leftXAxis, leftYAxis
     // )
     // );
-
-    driver.getJoystickButton(JoystickButtonID.kY)
-      .toggleOnTrue(new TeleopSwerveAroundPoint(swerve, leftXAxis, leftYAxis, rightXAxis)
-    );
 
     // driver.getJoystickButton(JoystickButtonID.kY)
     // .toggleOnTrue(new RotateAroundAbsolutePoint(

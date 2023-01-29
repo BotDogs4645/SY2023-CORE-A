@@ -5,11 +5,14 @@
 package frc.robot.commands.swervecommands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.bdlib.driver.JoystickAxisAIO;
+import frc.robot.subsystems.swerve.Swerve;
 
 public class TeleopController extends CommandBase {
   /** Creates a new TeleopController. */
-  public TeleopController() {
+  public TeleopController(Swerve s_Swerve, JoystickAxisAIO x, JoystickAxisAIO y, JoystickAxisAIO r, boolean openLoop) {
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(s_Swerve);
   }
 
   // Called when the command is initially scheduled.
