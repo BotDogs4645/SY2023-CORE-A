@@ -37,7 +37,7 @@ import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
 import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
 
 public class Swerve extends SubsystemBase {
-    public record ChassisControlRequest(Swerve swerve, Pose2d posReq, boolean openLoop) {
+    public record ChassisControlRequest(Swerve swerve, Pose2d posReq, boolean openLoop, double power) {
         static SwerveModuleState[] states;
 
         public ChassisControlRequest {
@@ -175,7 +175,7 @@ public class Swerve extends SubsystemBase {
         // that we also want to do. From there, we take our current position add the translation and rotation and using
         // inverse kinematics, it returns each module's "state", or rather what direction to rotate to and what velocity to
         // spin at.
-        setModuleStates(request.getRequestInStates(), request.openLoop());
+        setModuleStates(request.getRequestInStates(), request.openLoop(), request.power());
     }
 
     /**
@@ -185,7 +185,8 @@ public class Swerve extends SubsystemBase {
      * 
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        setModuleStates(desiredStates, false);
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveSettings.driver.maxSpeed());
+        setModuleStates(desiredStates, false, 1.0);
     }
 
     /**
@@ -195,16 +196,14 @@ public class Swerve extends SubsystemBase {
      * @param isOpenLoop Determines if it uses PID
      * 
      */
-    public void setModuleStates(SwerveModuleState[] desiredStates, boolean isOpenLoop) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveSettings.driver.maxSpeed());
-
+    public void setModuleStates(SwerveModuleState[] desiredStates, boolean isOpenLoop, double powerPercentage) {
         nTable.putValue(
             "Swerve Desired States",
             NetworkTableValue.makeDoubleArray(CTREModuleState.getModuleStatesExpanded(desiredStates))
         );
 
         for(SwerveModule mod : mSwerveMods){
-            mod.setDesiredState(desiredStates[mod.moduleNumber], isOpenLoop);
+            mod.setDesiredState(desiredStates[mod.moduleNumber], isOpenLoop, chassis_speed);
         }
     }
 
@@ -326,8 +325,8 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    public ChassisControlRequest generateRequest(Pose2d posReq, boolean openLoop) {
-        return new ChassisControlRequest(this, posReq, openLoop);
+    public ChassisControlRequest generateRequest(Pose2d posReq, boolean openLoop, double power) {
+        return new ChassisControlRequest(this, posReq, openLoop, power);
     }
 
     @Override

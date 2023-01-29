@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.util.Map;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
@@ -23,11 +25,12 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
-import frc.robot.commands.swervecommands.TeleopSwerve;
+import frc.robot.commands.swervecommands.TeleopController;
 import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
+import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain.DriveMode;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -45,6 +48,8 @@ public class RobotContainer {
 
   /* Subsystems */
   private final Swerve swerve = new Swerve();
+  private DriveMode mode = DriveMode.NORMAL;
+
   private final Vision vision = new Vision();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -78,6 +83,8 @@ public class RobotContainer {
     JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, SwerveSettings.driver.leftX());
     JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.rightX());
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
+    JoystickAxisAIO leftTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
+    JoystickAxisAIO rightTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
 
     /* Driver Buttons */
     ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(swerve, vision);
@@ -112,14 +119,6 @@ public class RobotContainer {
       .onTrue(new SetVisionSettings(manipulator, vision));
 
     // Vision bindings
-
-    /* Default Commands */
-    swerve.setDefaultCommand(
-      new TeleopSwerve(
-        swerve, leftXAxis, leftYAxis, rightXAxis, false
-      )
-    );
-
     new RunCommand(() -> {
       Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
       if (possible_pose.isPresent()) {
@@ -128,6 +127,28 @@ public class RobotContainer {
     })
     .ignoringDisable(true)
     .schedule();
+
+    // i could optimize this... but..
+    // fine. TODO: optimize this
+    swerve.setDefaultCommand(
+      new InstantCommand(() -> {
+        // determine what mode we're in
+        if (driver.getPOV() != -1) {
+          mode = DriveMode.FORCED_HEADING;
+        } else if(driver.getRawButton(driver.getVariant().getButton(JoystickButtonID.kStart))) {
+          mode = DriveMode.SNAKE;
+        } else {
+          mode = DriveMode.NORMAL;
+        }
+      })
+    .andThen(new SelectCommand(
+      Map.ofEntries(
+        Map.entry(DriveMode.NORMAL, new TeleopController(swerve, leftXAxis, leftYAxis, rightXAxis, leftTrigger, rightTrigger)),
+        Map.entry(DriveMode.SNAKE, new InstantCommand()),
+        Map.entry(DriveMode.FORCED_HEADING, new InstantCommand())
+      ), 
+      () -> mode
+    )));
   }
 
   private void configureAutonomous() {

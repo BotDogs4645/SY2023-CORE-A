@@ -4,32 +4,83 @@
 
 package frc.robot.commands.swervecommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.util.swervehelper.SwerveSettings;
 
 public class TeleopController extends CommandBase {
+  private Swerve s_Swerve;
+  private JoystickAxisAIO translateX;
+  private JoystickAxisAIO translateY;
+  private JoystickAxisAIO rotationTheta;
+  private JoystickAxisAIO eBrake;
+  private JoystickAxisAIO redKey;
+
+  private double baseSpeed = .6;
+
   /** Creates a new TeleopController. */
-  public TeleopController(Swerve s_Swerve, JoystickAxisAIO x, JoystickAxisAIO y, JoystickAxisAIO r, boolean openLoop) {
+  public TeleopController(
+      Swerve s_Swerve,
+      JoystickAxisAIO translateX,
+      JoystickAxisAIO translateY,
+      JoystickAxisAIO rotationTheta,
+      JoystickAxisAIO eBrake,
+      JoystickAxisAIO redKey
+    ) {
+    this.s_Swerve = s_Swerve;
+    this.translateX = translateX;
+    this.translateY = translateY;
+    this.rotationTheta = rotationTheta;
+    this.eBrake = eBrake;
+    this.redKey = redKey;
+
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(s_Swerve);
   }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
-
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    if (eBrake.getValue() < .5) {
+      move(); 
+    } else {
+      brake();
+    }
+  }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
+  public void move() {
+    Translation2d translation = new Translation2d(
+      -translateY.getValue(),
+      -translateX.getValue()
+    ).times(SwerveSettings.driver.maxSpeed());
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
+    Rotation2d rotation = Rotation2d.fromRadians(
+      -rotationTheta.getValue() * SwerveSettings.driver.maxRotationSpeed()
+    );
+
+    s_Swerve.drive(
+      s_Swerve.generateRequest(
+        new Pose2d(translation, rotation),
+        true,
+        baseSpeed + ((1.0 - baseSpeed) * redKey.getValue() > .5 ? 1.0 : 0.0)
+      )
+    );
+  }
+
+  public void brake() {
+    Rotation2d currentVelocityDirection = Rotation2d.fromRadians(Math.tan(
+      s_Swerve.getPose().getY() / s_Swerve.getPose().getX()
+    )).plus(Rotation2d.fromRadians(Math.PI / 2));
+    s_Swerve.drive(
+      s_Swerve.generateRequest(
+        new Pose2d(new Translation2d(), currentVelocityDirection),
+        true,
+        1.0
+      )
+    );
   }
 }

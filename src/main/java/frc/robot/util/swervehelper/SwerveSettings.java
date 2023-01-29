@@ -120,6 +120,11 @@ public final class SwerveSettings {
                 new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
 
+        public static enum DriveMode {
+            NORMAL,
+            FORCED_HEADING,
+            SNAKE
+        }
     }
 
     public static final class AutoConstants {

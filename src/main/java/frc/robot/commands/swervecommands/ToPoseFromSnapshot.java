@@ -87,7 +87,7 @@ public class ToPoseFromSnapshot extends CommandBase {
 
     Rotation2d rotation = Rotation2d.fromRadians(rotateOmegaController.calculate(swerve.getYaw().getRadians()));
 
-    swerve.drive(swerve.generateRequest(new Pose2d(translation, rotation), false));
+    swerve.drive(swerve.generateRequest(new Pose2d(translation, rotation), false, 1.0));
   }
 
   // Called once the command ends or is interrupted.
