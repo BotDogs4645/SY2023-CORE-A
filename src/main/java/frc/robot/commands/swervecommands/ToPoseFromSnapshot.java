@@ -9,6 +9,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
@@ -84,7 +85,9 @@ public class ToPoseFromSnapshot extends CommandBase {
       translateYController.calculate(swerve.getPose().getY())
     );
 
-    swerve.drive(translation, rotateOmegaController.calculate(swerve.getYaw().getRadians()), false);
+    Rotation2d rotation = Rotation2d.fromRadians(rotateOmegaController.calculate(swerve.getYaw().getRadians()));
+
+    swerve.drive(swerve.generateRequest(new Pose2d(translation, rotation), false));
   }
 
   // Called once the command ends or is interrupted.

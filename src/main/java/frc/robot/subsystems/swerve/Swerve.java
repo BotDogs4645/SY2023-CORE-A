@@ -18,7 +18,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableValue;
@@ -38,6 +37,26 @@ import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
 import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
 
 public class Swerve extends SubsystemBase {
+    public record ChassisControlRequest(Swerve swerve, Pose2d posReq, boolean openLoop) {
+        static SwerveModuleState[] states;
+
+        public ChassisControlRequest {
+            states = SwerveDriveTrain.swerveKinematics.toSwerveModuleStates(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    posReq().getX(), 
+                    posReq().getY(), 
+                    posReq().getRotation().getRadians(), 
+                    swerve.getYaw()
+                )
+            );
+            SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveSettings.driver.maxSpeed());
+        }
+
+        public SwerveModuleState[] getRequestInStates() {
+            return states;
+        }
+    };
+
     private NetworkTable nTable = Constants.LogTable.getSubTable("Swerve");
 
     private HashMap<String, Command> events = new HashMap<String, Command>();
@@ -118,7 +137,6 @@ public class Swerve extends SubsystemBase {
         .withSize(7, 4)
         .withWidget(BuiltInWidgets.kField);
 
-
         // Add RPM and current calculations for each module and place them on the Shuffleboard
         for (int i = 0; i < mSwerveMods.length; i++) {
             SwerveModule cur = mSwerveMods[i];
@@ -152,42 +170,13 @@ public class Swerve extends SubsystemBase {
      * @param isOpenLoop Determines whether or not to use PID for values; true = yes, false = no.
      * 
      */
-    public void drive(Translation2d translation, double rotation, boolean isOpenLoop) {
+    public void drive(ChassisControlRequest request) {
         // How module states work is this: we have a current position, a translation that we want to do, and a rotation vector
         // that we also want to do. From there, we take our current position add the translation and rotation and using
         // inverse kinematics, it returns each module's "state", or rather what direction to rotate to and what velocity to
         // spin at.
-        SwerveModuleState[] swerveModuleStates =
-            SwerveDriveTrain.swerveKinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                                    translation.getX(),
-                                    translation.getY(),
-                                    rotation,
-                                    getYaw()
-                                )
-            );
-        setModuleStates(swerveModuleStates, isOpenLoop);
+        setModuleStates(request.getRequestInStates(), request.openLoop());
     }
-
-    public void pointOrientedDrive(Translation2d translation, double rotation, Translation2d pointToPivotAround) {
-        // How module states work is this: we have a current position, a translation that we want to do, and a rotation vector
-        // that we also want to do. From there, we take our current position add the translation and rotation and using
-        // inverse kinematics, it returns each module's "state", or rather what direction to rotate to and what velocity to
-        // spin at.
-        SwerveModuleState[] swerveModuleStates =
-            SwerveDriveTrain.swerveKinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                                    translation.getX(), 
-                                    translation.getY(), 
-                                    rotation, 
-                                    getYaw()
-                                ),
-                pointToPivotAround
-            );
-
-        setModuleStates(swerveModuleStates, true);
-    }
-
 
     /**
      * Sets each module state, requires all states. This version always has openLoop at false,
@@ -335,6 +324,10 @@ public class Swerve extends SubsystemBase {
             // seems close enough
             //swerveOdometry.addVisionMeasurement(suspected_pose, Timer.getFPGATimestamp());
         }
+    }
+
+    public ChassisControlRequest generateRequest(Pose2d posReq, boolean openLoop) {
+        return new ChassisControlRequest(this, posReq, openLoop);
     }
 
     @Override
