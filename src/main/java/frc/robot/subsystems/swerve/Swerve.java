@@ -67,6 +67,7 @@ public class Swerve extends SubsystemBase {
     private ShuffleboardTab sub_tab;
     private SwerveAutoBuilder builder;
     private double chassis_speed; // meters / second
+    private ChassisSpeeds speedVector;
     private Field2d field;
 
     /**
@@ -349,13 +350,13 @@ public class Swerve extends SubsystemBase {
 
         nTable.putValue("Yaw", NetworkTableValue.makeDouble(getYaw().getDegrees()));
 
-        ChassisSpeeds speed = 
+        this.speedVector = 
             SwerveDriveTrain.swerveKinematics.toChassisSpeeds(
                 currentStates
             );
         
         // considering x and y are orthogonal, we can just use the pythagorean theorem
         // to add the vectors together and get the chassis_speed in m/s.
-        chassis_speed = Math.sqrt(Math.pow(speed.vxMetersPerSecond, 2) + Math.pow(speed.vyMetersPerSecond, 2));
+        chassis_speed = Math.sqrt(Math.pow(speedVector.vxMetersPerSecond, 2) + Math.pow(speedVector.vyMetersPerSecond, 2));
     }
 }

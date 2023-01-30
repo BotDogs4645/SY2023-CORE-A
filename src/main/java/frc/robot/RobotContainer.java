@@ -25,7 +25,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
-import frc.robot.commands.swervecommands.TeleopController;
+import frc.robot.commands.swervecommands.NormalTeleop;
 import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
@@ -143,7 +143,7 @@ public class RobotContainer {
       })
     .andThen(new SelectCommand(
       Map.ofEntries(
-        Map.entry(DriveMode.NORMAL, new TeleopController(swerve, leftXAxis, leftYAxis, rightXAxis, leftTrigger, rightTrigger)),
+        Map.entry(DriveMode.NORMAL, new NormalTeleop(swerve, leftXAxis, leftYAxis, rightXAxis, leftTrigger, rightTrigger)),
         Map.entry(DriveMode.SNAKE, new InstantCommand()),
         Map.entry(DriveMode.FORCED_HEADING, new InstantCommand())
       ), 

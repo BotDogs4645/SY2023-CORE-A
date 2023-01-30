@@ -12,7 +12,7 @@ import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
 
-public class TeleopController extends CommandBase {
+public class NormalTeleop extends CommandBase {
   private Swerve s_Swerve;
   private JoystickAxisAIO translateX;
   private JoystickAxisAIO translateY;
@@ -23,7 +23,7 @@ public class TeleopController extends CommandBase {
   private double baseSpeed = .6;
 
   /** Creates a new TeleopController. */
-  public TeleopController(
+  public NormalTeleop(
       Swerve s_Swerve,
       JoystickAxisAIO translateX,
       JoystickAxisAIO translateY,
@@ -73,7 +73,7 @@ public class TeleopController extends CommandBase {
 
   public void brake() {
     Rotation2d currentVelocityDirection = Rotation2d.fromRadians(Math.tan(
-      s_Swerve.getPose().getY() / s_Swerve.getPose().getX()
+      s_Swerve.speedVector.vyMetersPerSecond / s_Swerve.speedVector.vxMetersPerSecond
     )).plus(Rotation2d.fromRadians(Math.PI / 2));
     s_Swerve.drive(
       s_Swerve.generateRequest(
