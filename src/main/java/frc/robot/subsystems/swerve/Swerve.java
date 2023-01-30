@@ -67,8 +67,9 @@ public class Swerve extends SubsystemBase {
     private ShuffleboardTab sub_tab;
     private SwerveAutoBuilder builder;
     private double chassis_speed; // meters / second
-    private ChassisSpeeds speedVector;
     private Field2d field;
+
+    public ChassisSpeeds speedVector;
 
     /**
      * A swerve implementation using MK4 SDS modules, with full field oriented features.<p>
