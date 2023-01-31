@@ -39,10 +39,10 @@ public final class SwerveSettings {
         );
 
         /* Swerve Current Limiting */
-        public static final int angleContinuousCurrentLimit = 45;
-        public static final int anglePeakCurrentLimit = 45;
+        public static final int angleContinuousCurrentLimit = 50;
+        public static final int anglePeakCurrentLimit = 50;
         public static final double anglePeakCurrentDuration = 0.1;
-        public static final boolean angleEnableCurrentLimit = false;
+        public static final boolean angleEnableCurrentLimit = true;
 
         public static final int driveContinuousCurrentLimit = 50; // 35
         public static final int drivePeakCurrentLimit = 50; // 35
