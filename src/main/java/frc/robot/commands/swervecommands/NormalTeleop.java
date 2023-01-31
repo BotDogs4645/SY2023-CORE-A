@@ -66,7 +66,7 @@ public class NormalTeleop extends CommandBase {
       s_Swerve.generateRequest(
         new Pose2d(translation, rotation),
         true,
-        baseSpeed + ((1.0 - baseSpeed) * redKey.getValue() > .5 ? 1.0 : 0.0)
+        baseSpeed + ((1.0 - baseSpeed) * (redKey.getValue() > .5 ? 1.0 : 0.0))
       )
     );
   }
@@ -75,12 +75,14 @@ public class NormalTeleop extends CommandBase {
     Rotation2d currentVelocityDirection = Rotation2d.fromRadians(Math.tan(
       s_Swerve.speedVector.vyMetersPerSecond / s_Swerve.speedVector.vxMetersPerSecond
     )).plus(Rotation2d.fromRadians(Math.PI / 2));
-    s_Swerve.drive(
-      s_Swerve.generateRequest(
-        new Pose2d(new Translation2d(), currentVelocityDirection),
-        true,
-        1.0
-      )
-    );
+    if (s_Swerve.getChassisSpeed() > .1) {
+      s_Swerve.drive(
+        s_Swerve.generateRequest(
+          new Pose2d(new Translation2d(.05, currentVelocityDirection), new Rotation2d()),
+          true,
+          1.0
+        )
+      );
+    }
   }
 }

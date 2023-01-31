@@ -22,6 +22,7 @@ import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
+import frc.robot.Constants.DriveMode;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
@@ -30,7 +31,6 @@ import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
-import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain.DriveMode;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -81,10 +81,10 @@ public class RobotContainer {
   private void configureButtonBindings() {
     /* Axis Controllers */
     JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, SwerveSettings.driver.leftX());
-    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.rightX());
+    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.leftY());
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
     JoystickAxisAIO leftTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
-    JoystickAxisAIO rightTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
+    JoystickAxisAIO rightTrigger = driver.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
 
     /* Driver Buttons */
     ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(swerve, vision);
@@ -133,13 +133,10 @@ public class RobotContainer {
     swerve.setDefaultCommand(
       new InstantCommand(() -> {
         // determine what mode we're in
-        if (driver.getPOV() != -1) {
-          mode = DriveMode.FORCED_HEADING;
-        } else if(driver.getRawButton(driver.getVariant().getButton(JoystickButtonID.kStart))) {
-          mode = DriveMode.SNAKE;
-        } else {
-          mode = DriveMode.NORMAL;
-        }
+        Constants.modeMap.entrySet().stream()
+        .filter((set) -> driver.getRawButton(driver.getVariant().getButton(set.getKey())))
+        .findFirst()
+        .ifPresentOrElse((key) -> mode = key.getValue(), () -> mode = DriveMode.NORMAL);
       })
     .andThen(new SelectCommand(
       Map.ofEntries(

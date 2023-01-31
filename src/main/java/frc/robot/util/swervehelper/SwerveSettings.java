@@ -42,7 +42,7 @@ public final class SwerveSettings {
         public static final int angleContinuousCurrentLimit = 45;
         public static final int anglePeakCurrentLimit = 45;
         public static final double anglePeakCurrentDuration = 0.1;
-        public static final boolean angleEnableCurrentLimit = true;
+        public static final boolean angleEnableCurrentLimit = false;
 
         public static final int driveContinuousCurrentLimit = 50; // 35
         public static final int drivePeakCurrentLimit = 50; // 35
@@ -118,12 +118,6 @@ public final class SwerveSettings {
             public static final double angleOffset = 259.804;
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
-        }
-
-        public static enum DriveMode {
-            NORMAL,
-            FORCED_HEADING,
-            SNAKE
         }
     }
 

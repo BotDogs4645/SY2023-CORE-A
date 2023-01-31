@@ -43,9 +43,9 @@ public class Swerve extends SubsystemBase {
         public ChassisControlRequest {
             states = SwerveDriveTrain.swerveKinematics.toSwerveModuleStates(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                    posReq().getX(), 
-                    posReq().getY(), 
-                    posReq().getRotation().getRadians(), 
+                    posReq.getX(), 
+                    posReq.getY(), 
+                    posReq.getRotation().getRadians(), 
                     swerve.getYaw()
                 )
             );
@@ -57,7 +57,7 @@ public class Swerve extends SubsystemBase {
         }
     };
 
-    private NetworkTable nTable = Constants.LogTable.getSubTable("Swerve");
+    public NetworkTable nTable = Constants.LogTable.getSubTable("Swerve");
 
     private HashMap<String, Command> events = new HashMap<String, Command>();
     private HashMap<PathList, PathPlannerTrajectory> trajectories = new HashMap<PathList, PathPlannerTrajectory>();
@@ -205,7 +205,7 @@ public class Swerve extends SubsystemBase {
         );
 
         for(SwerveModule mod : mSwerveMods){
-            mod.setDesiredState(desiredStates[mod.moduleNumber], isOpenLoop, chassis_speed);
+            mod.setDesiredState(desiredStates[mod.moduleNumber], isOpenLoop, powerPercentage);
         }
     }
 

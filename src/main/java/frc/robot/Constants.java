@@ -108,4 +108,15 @@ public final class Constants {
             aligned_pose = new Translation2d(x, y);
         }
     }
+
+    public static enum DriveMode {
+        NORMAL,
+        FORCED_HEADING,
+        SNAKE
+    }
+
+    public static Map<JoystickButtonID, DriveMode> modeMap = Map.ofEntries(
+        Map.entry(JoystickButtonID.kA, DriveMode.FORCED_HEADING),
+        Map.entry(JoystickButtonID.kStart, DriveMode.SNAKE)
+    );
 }
