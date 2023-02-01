@@ -140,8 +140,8 @@ public final class SwerveSettings {
       }
 
       public static enum PathList {
-        Path1("Path1", new PathConstraints(2, 2), 0.0),
-        Path2("Path2", new PathConstraints(2, 2), 0.0);
+        Path1("New Path", new PathConstraints(2, 2), 0.0);
+        //Path2("Path2", new PathConstraints(2, 2), 0.0);
 
         private String path_name;
         private PathConstraints constraints;

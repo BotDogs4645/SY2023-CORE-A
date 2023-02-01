@@ -141,7 +141,7 @@ public class RobotContainer {
     // it is set as a command that can run in parallel :)
     swerve.addEvent("fire_ball", new ExampleCommand());
     autoChooser.addOption("full auto 1", new ExampleAuto1(swerve));
-    autoChooser.addOption("path important", swerve.getFullAutoPath(SwerveSettings.PathList.Path2));
+    autoChooser.addOption("path important", swerve.getFullAutoPath(SwerveSettings.PathList.Path1));
   }
 
   /**
