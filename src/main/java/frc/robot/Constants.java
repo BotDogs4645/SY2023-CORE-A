@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.bdlib.custom_talon.TalonFXW;
@@ -47,7 +49,12 @@ public final class Constants {
         
         // Other
         public static final double momentOfInertia = 0.0;
-        
+        public static final double gearing = 1.0 / 1.0; // output / input
+        private final TrapezoidProfile.Constraints m_constraints =
+            new TrapezoidProfile.Constraints(
+                Units.degreesToRadians(45),
+                Units.degreesToRadians(90)
+            ); // Max arm speed and acceleration.
     }
 
     public static class CameraConstants {
