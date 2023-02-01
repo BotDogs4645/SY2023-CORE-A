@@ -95,7 +95,7 @@ public class SwerveModule {
             mDriveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward, feedforward.calculate(desiredState.speedMetersPerSecond));
         }
 
-        double angle = ((Math.abs(desiredState.speedMetersPerSecond) <= (SwerveSettings.driver.maxSpeed() * 0.011)) ? lastAngle : desiredState.angle.getDegrees()); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
+        double angle = ((Math.abs(desiredState.speedMetersPerSecond) <= (SwerveSettings.driver.maxSpeed() * 0.02)) ? lastAngle : desiredState.angle.getDegrees()); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
         mAngleMotor.set(ControlMode.Position, Conversions.degreesToFalcon(angle, SwerveSettings.SwerveDriveTrain.angleGearRatio)); 
         lastAngle = angle;
     }

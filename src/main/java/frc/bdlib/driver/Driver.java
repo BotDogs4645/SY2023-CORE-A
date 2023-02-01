@@ -19,14 +19,14 @@ public class Driver {
     public static enum Profile {
         Average(new DriverInfo(
             normal, normal, normal,
-            0.8 * maxRotationSpeed, 0.5 * maxChassisSpeed,
+            0.8 * maxChassisSpeed, 0.5 * maxRotationSpeed,
             NeutralMode.Coast,
             0
         )),
 
         LittleDrew(new DriverInfo(
             normal, normal, normal,
-            0.8 * maxRotationSpeed, 0.5 * maxChassisSpeed,
+            0.8 * maxChassisSpeed, 0.5 * maxRotationSpeed,
             NeutralMode.Coast,
             0
         ))
