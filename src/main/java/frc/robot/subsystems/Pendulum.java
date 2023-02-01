@@ -4,24 +4,29 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.estimator.KalmanFilter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.*;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.LinearSystemLoop;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.bdlib.custom_talon.TalonFXW;
 import frc.robot.Constants.PendulumConstants;
+import frc.robot.util.swervehelper.Conversions;
 
 public class Pendulum extends SubsystemBase {
-  TalonFXW left, center, right;
-  MotorControllerGroup falconGearbox;
+  private TalonFXW[] motorGearbox;
+  private CANCoder absoluteEncoder;
 
   /* State space components */
   private LinearSystem<N2, N1, N1> pendulumPlant;
@@ -33,16 +38,22 @@ public class Pendulum extends SubsystemBase {
 
   public Pendulum() {
     /* Motor declarations - keep it CTRE && on RIO can bus ("") */
-    this.left = new TalonFXW(PendulumConstants.leftId, PendulumConstants.pendulumFalconsConfig);
-    this.center = new TalonFXW(PendulumConstants.centerId, PendulumConstants.pendulumFalconsConfig);
-    this.right = new TalonFXW(PendulumConstants.rightId, PendulumConstants.pendulumFalconsConfig);
-    
-    this.falconGearbox = new MotorControllerGroup(left, center, right);
+    motorGearbox = new TalonFXW[] {
+      new TalonFXW(PendulumConstants.leftId, PendulumConstants.pendulumFalconsConfig),
+      new TalonFXW(PendulumConstants.centerId, PendulumConstants.pendulumFalconsConfig),
+      new TalonFXW(PendulumConstants.rightId, PendulumConstants.pendulumFalconsConfig)
+    };
+
+    absoluteEncoder = new CANCoder(PendulumConstants.cancoderId);
+    // we go -180-180 to represent the negative as below the horizon
+    absoluteEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
+    absoluteEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
+    zero();
 
     /* State space stuff */
     // Pendulum arm model
     this.pendulumPlant = LinearSystemId.createSingleJointedArmSystem(
-      DCMotor.getFalcon500(PendulumConstants.numOfMotors),
+      DCMotor.getFalcon500(motorGearbox.length),
       PendulumConstants.momentOfInertia,
       PendulumConstants.gearing
     );
@@ -71,8 +82,26 @@ public class Pendulum extends SubsystemBase {
     this.controlLoop = new LinearSystemLoop<>(pendulumPlant, LQR, observer, 12.0, 0.020);
   }
 
+  public void zero() {
+    double absoluteRotationPosition = Conversions.degreesToFalcon(
+      Rotation2d.fromDegrees(absoluteEncoder.getAbsolutePosition()).getDegrees() - PendulumConstants.cancoderOffset, 
+      PendulumConstants.gearing
+    );
+
+    for (TalonFXW falcon: motorGearbox) {
+      falcon.setSelectedSensorPosition(absoluteRotationPosition);
+    }
+  }
+
+  public void set(double voltage) {
+    for (TalonFXW talon: motorGearbox) {
+      talon.setVoltage(voltage);
+    }
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
   }
 }
