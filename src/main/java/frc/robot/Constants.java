@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.bdlib.custom_talon.TalonFXW;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 
 /**
@@ -27,6 +28,27 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 public final class Constants {
     public static final boolean testing = true;
     public static final NetworkTable LogTable = NetworkTableInstance.getDefault().getTable("Loggables");
+
+    public static class PendulumConstants {
+        public static final TalonFXW.FXWConfig pendulumFalconsConfig = new TalonFXW.FXWConfig(0, 0);
+        public static final int numOfMotors = 3;
+
+        // TODO: find ids
+        public static final int leftId = -1;
+        public static final int centerId = 0;
+        public static final int rightId = 1;
+
+        /* State Space Settings */
+
+        // Characterization
+        public static final double kS = 0.0;
+        public static final double kV = 0.0;
+        public static final double kA = 0.0;      
+        
+        // Other
+        public static final double momentOfInertia = 0.0;
+        
+    }
 
     public static class CameraConstants {
         // "x+" = Pigeon2 orientation dependent ;p - check which direction points forward.. x+ can be technically defined as the x+ from a pose
