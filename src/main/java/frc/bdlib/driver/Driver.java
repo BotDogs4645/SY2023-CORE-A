@@ -6,7 +6,7 @@ import frc.bdlib.driver.JoystickAxisAIO.AxisSettings;
 
 public class Driver {
     public static final double maxChassisSpeed = 3.96;
-    public static final double maxRotationSpeed = 1; // radians per segund
+    public static final double maxRotationSpeed = 6.6; // radians per segund
     public static final AxisSettings normal = AxisSettings.of(JoystickAxisAIO.GENTLE, .15);
 
     public static final record DriverInfo(
