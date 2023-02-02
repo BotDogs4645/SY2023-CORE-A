@@ -23,6 +23,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
+import frc.robot.commands.swervecommands.ForcedHeadingTeleop;
 import frc.robot.commands.swervecommands.NormalTeleop;
 import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
@@ -75,6 +76,22 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    /* Manipulator Buttons */
+    configureDriverController();
+    configureControllerController();
+
+    // Vision bindings
+    new RunCommand(() -> {
+      Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
+      if (possible_pose.isPresent()) {
+        swerve.provideVisionInformation(possible_pose.get());
+      }
+    })
+    .ignoringDisable(true)
+    .schedule();
+  }
+
+  public void configureDriverController() {
     /* Axis Controllers */
     JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, SwerveSettings.driver.leftX());
     JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.leftY());
@@ -82,7 +99,6 @@ public class RobotContainer {
     JoystickAxisAIO leftTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
     JoystickAxisAIO rightTrigger = driver.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
 
-    /* Driver Buttons */
     ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(swerve, vision);
     driver.getJoystickButton(JoystickButtonID.kX)
       .toggleOnTrue(
@@ -98,23 +114,44 @@ public class RobotContainer {
         swerve.zeroGyro();
       }));
 
+    /* Driver Mode Semantics */
+    // Set the normal teleop command.
     swerve.setDefaultCommand(new NormalTeleop(swerve, leftXAxis, leftYAxis, rightXAxis, leftTrigger, rightTrigger));
 
-    /* Manipulator Buttons */
-    manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
-      .onTrue(new SetVisionSettings(manipulator, vision));
+    // Face cardinal direction commands
+    driver.getJoystickButton(JoystickButtonID.kY)
+      .toggleOnTrue(
+        new ForcedHeadingTeleop(swerve, rightXAxis, leftTrigger, rightTrigger, 0)
+      );
 
-    // Vision bindings
-    new RunCommand(() -> {
-      Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
-      if (possible_pose.isPresent()) {
-        swerve.provideVisionInformation(possible_pose.get());
-      }
-    })
-    .ignoringDisable(true)
-    .schedule();
+    driver.getJoystickButton(JoystickButtonID.kB)
+      .toggleOnTrue(
+        new ForcedHeadingTeleop(swerve, rightXAxis, leftTrigger, rightTrigger, 90)
+      );
 
+    driver.getJoystickButton(JoystickButtonID.kA)
+      .toggleOnTrue(
+        new ForcedHeadingTeleop(swerve, rightXAxis, leftTrigger, rightTrigger, 180)
+      );
+
+    driver.getJoystickButton(JoystickButtonID.kX)
+      .toggleOnTrue(
+        new ForcedHeadingTeleop(swerve, rightXAxis, leftTrigger, rightTrigger, 270)
+      );
+
+    // Other types of modes
+    // Snake mode
+    driver.getJoystickButton(JoystickButtonID.kStart)
+      .toggleOnTrue(new InstantCommand());
     
+    // Precision mode
+    driver.getJoystickButton(JoystickButtonID.kBack)
+      .toggleOnTrue(new InstantCommand());
+  }
+
+  public void configureControllerController() {
+    manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
+    .onTrue(new SetVisionSettings(manipulator, vision));
   }
 
   private void configureAutonomous() {
