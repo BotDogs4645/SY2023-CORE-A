@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -132,11 +134,15 @@ public class RobotContainer {
     // fine. TODO: optimize this
     swerve.setDefaultCommand(
       new InstantCommand(() -> {
+        Stream<Entry<JoystickButtonID, DriveMode>> thing = Constants.modeMap.entrySet().stream()
+        .filter((set) -> driver.getRawButton(driver.getVariant().getButton(set.getKey())));
         // determine what mode we're in
-        Constants.modeMap.entrySet().stream()
-        .filter((set) -> driver.getRawButton(driver.getVariant().getButton(set.getKey())))
-        .findFirst()
-        .ifPresentOrElse((key) -> mode = key.getValue(), () -> mode = DriveMode.NORMAL);
+        if (mode == DriveMode.NORMAL) {
+          thing.findFirst()
+          .ifPresentOrElse((key) -> mode = key.getValue(), () -> mode = DriveMode.NORMAL);
+        } else if (thing.toList().size() == 0) {
+          mode = DriveMode.NORMAL;
+        }
       })
     .andThen(new SelectCommand(
       Map.ofEntries(
