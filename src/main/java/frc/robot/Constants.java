@@ -115,6 +115,13 @@ public final class Constants {
         SNAKE
     }
 
+    public static Map<JoystickButtonID, Double> angleMap = Map.ofEntries(
+        Map.entry(JoystickButtonID.kY, 0.0),
+        Map.entry(JoystickButtonID.kB, 90.0),
+        Map.entry(JoystickButtonID.kA, 180.0),
+        Map.entry(JoystickButtonID.kX, 270.0)
+    );
+
     public static Map<JoystickButtonID, DriveMode> modeMap = Map.ofEntries(
         Map.entry(JoystickButtonID.kA, DriveMode.FORCED_HEADING),
         Map.entry(JoystickButtonID.kStart, DriveMode.SNAKE)
