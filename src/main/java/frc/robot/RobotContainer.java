@@ -121,22 +121,22 @@ public class RobotContainer {
     // Face cardinal direction commands
     driver.getJoystickButton(JoystickButtonID.kY)
       .toggleOnTrue(
-        new ForcedHeadingTeleop(swerve, rightXAxis, leftTrigger, rightTrigger, 0)
+        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, 0)
       );
 
     driver.getJoystickButton(JoystickButtonID.kB)
       .toggleOnTrue(
-        new ForcedHeadingTeleop(swerve, rightXAxis, leftTrigger, rightTrigger, 90)
+        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, 90)
       );
 
     driver.getJoystickButton(JoystickButtonID.kA)
       .toggleOnTrue(
-        new ForcedHeadingTeleop(swerve, rightXAxis, leftTrigger, rightTrigger, 180)
+        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, 180)
       );
 
     driver.getJoystickButton(JoystickButtonID.kX)
       .toggleOnTrue(
-        new ForcedHeadingTeleop(swerve, rightXAxis, leftTrigger, rightTrigger, 270)
+        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, 270)
       );
 
     // Other types of modes
