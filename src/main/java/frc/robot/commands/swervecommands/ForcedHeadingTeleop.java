@@ -4,8 +4,6 @@
 
 package frc.robot.commands.swervecommands;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -21,7 +19,7 @@ public class ForcedHeadingTeleop extends CommandBase {
   private JoystickAxisAIO translateX;
   private JoystickAxisAIO translateY;
   private JoystickAxisAIO redKey;
-  private DoubleSupplier headingSupplier;
+  private double headingSupplier;
 
   private double baseSpeed = .6;
   private ProfiledPIDController rotationPID;
@@ -32,7 +30,7 @@ public class ForcedHeadingTeleop extends CommandBase {
     JoystickAxisAIO translateX,
     JoystickAxisAIO translateY,
     JoystickAxisAIO redKey,
-    DoubleSupplier headingSupplier
+    double headingSupplier
   ) {
     this.s_Swerve = s_Swerve;
     this.translateX = translateX;
@@ -65,7 +63,7 @@ public class ForcedHeadingTeleop extends CommandBase {
       -translateX.getValue()
     ).times(SwerveSettings.driver.maxSpeed());
     
-    TrapezoidProfile.State finalState = new TrapezoidProfile.State(headingSupplier.getAsDouble(), 0);
+    TrapezoidProfile.State finalState = new TrapezoidProfile.State(headingSupplier, 0);
     double newRotationInput = rotationPID.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
     
     s_Swerve.drive(

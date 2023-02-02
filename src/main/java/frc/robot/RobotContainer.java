@@ -23,6 +23,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
+import frc.robot.commands.swervecommands.NormalTeleop;
 import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
@@ -97,17 +98,7 @@ public class RobotContainer {
         swerve.zeroGyro();
       }));
 
-    // driver.getJoystickButton(JoystickButtonID.kY)
-    // .toggleOnTrue(new OrientationFlipCommand(
-    // swerve, leftXAxis, leftYAxis
-    // )
-    // );
-
-    // driver.getJoystickButton(JoystickButtonID.kY)
-    // .toggleOnTrue(new RotateAroundAbsolutePoint(
-    // swerve, leftXAxis, leftYAxis, rightXAxis,
-    // () -> {return new Translation2d();}
-    // ));
+    swerve.setDefaultCommand(new NormalTeleop(swerve, leftXAxis, leftYAxis, rightXAxis, leftTrigger, rightTrigger));
 
     /* Manipulator Buttons */
     manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
