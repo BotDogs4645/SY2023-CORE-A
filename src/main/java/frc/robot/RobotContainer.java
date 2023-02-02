@@ -4,10 +4,7 @@
 
 package frc.robot;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.Map.Entry;
-import java.util.stream.Stream;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -19,17 +16,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
-import frc.robot.Constants.DriveMode;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
-import frc.robot.commands.swervecommands.ForcedHeadingTeleop;
-import frc.robot.commands.swervecommands.NormalTeleop;
 import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
@@ -51,8 +44,6 @@ public class RobotContainer {
 
   /* Subsystems */
   private final Swerve swerve = new Swerve();
-  private JoystickButtonID currentlyPressed;
-  private DriveMode mode = DriveMode.NORMAL;
 
   private final Vision vision = new Vision();
 
@@ -132,33 +123,7 @@ public class RobotContainer {
     .ignoringDisable(true)
     .schedule();
 
-    swerve.setDefaultCommand(
-      new InstantCommand(() -> {
-        Stream<Entry<JoystickButtonID, DriveMode>> filteredStream = Constants.modeMap.entrySet().stream()
-        .filter((set) -> driver.getRawButton(driver.getVariant().getButton(set.getKey())));
-        // determine what mode we're in
-        if (mode == DriveMode.NORMAL) {
-          filteredStream.findFirst()
-          .ifPresentOrElse((key) -> {
-            mode = key.getValue(); 
-            currentlyPressed = key.getKey();
-          }, 
-            () -> mode = DriveMode.NORMAL
-          );
-        } else if (filteredStream.toList().size() == 0) {
-          mode = DriveMode.NORMAL;
-        }
-      })
-    .andThen(new SelectCommand(
-      Map.ofEntries(
-        Map.entry(DriveMode.NORMAL, new NormalTeleop(swerve, leftXAxis, leftYAxis, rightXAxis, leftTrigger, rightTrigger)),
-        Map.entry(DriveMode.SNAKE, new InstantCommand()),
-        Map.entry(DriveMode.FORCED_HEADING, new ForcedHeadingTeleop(swerve, rightXAxis, leftTrigger, rightTrigger,
-         () -> Constants.angleMap.get(currentlyPressed) // TODO: optimize further
-        ))
-      ), 
-      () -> mode
-    )));
+    
   }
 
   private void configureAutonomous() {
