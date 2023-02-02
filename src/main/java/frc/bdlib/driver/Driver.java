@@ -5,7 +5,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import frc.bdlib.driver.JoystickAxisAIO.AxisSettings;
 
 public class Driver {
-    public static final double maxChassisSpeed = 3.96;
+    public static final double maxChassisSpeed = 8;
     public static final double maxRotationSpeed = 4; // radians per segund
     public static final AxisSettings normal = AxisSettings.of(JoystickAxisAIO.GENTLE, .15);
 
@@ -19,14 +19,14 @@ public class Driver {
     public static enum Profile {
         Average(new DriverInfo(
             normal, normal, normal,
-            0.8 * maxRotationSpeed, 0.5 * maxChassisSpeed,
+            maxRotationSpeed, maxChassisSpeed,
             NeutralMode.Coast,
             0
         )),
 
         LittleDrew(new DriverInfo(
             normal, normal, normal,
-            0.8 * maxRotationSpeed, 0.5 * maxChassisSpeed,
+            maxRotationSpeed, maxChassisSpeed,
             NeutralMode.Coast,
             0
         ))
