@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableValue;
@@ -41,11 +42,18 @@ public class Swerve extends SubsystemBase {
         static SwerveModuleState[] states;
 
         public ChassisControlRequest {
+            // Second order kinematics
+            Twist2d requestedRobotPose = posReq.log(new Pose2d(
+                swerve.speedVector.vxMetersPerSecond * 0.020,
+                swerve.speedVector.vyMetersPerSecond * 0.020,
+                Rotation2d.fromRadians(swerve.speedVector.omegaRadiansPerSecond * 0.020)
+            ));
+
             states = SwerveDriveTrain.swerveKinematics.toSwerveModuleStates(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                    posReq.getX(), 
-                    posReq.getY(), 
-                    posReq.getRotation().getRadians(), 
+                    requestedRobotPose.dx / 0.020, 
+                    requestedRobotPose.dy / 0.020, 
+                    requestedRobotPose.dtheta / 0.020, 
                     swerve.getYaw()
                 )
             );
