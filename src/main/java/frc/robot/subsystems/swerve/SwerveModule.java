@@ -15,7 +15,7 @@ import frc.robot.util.swervehelper.CTREConfigs;
 import frc.robot.util.swervehelper.CTREModuleState;
 import frc.robot.util.swervehelper.Conversions;
 import frc.robot.util.swervehelper.SwerveSettings;
-import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
+import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BoardPlacement;
 import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain.SwerveModuleConstants;
 
 import java.util.Map;
@@ -61,7 +61,7 @@ public class SwerveModule {
         lastAngle = getState().angle.getDegrees();
 
         // gets the placement of the board via the Shuffleboard placement enumerator
-        BOARD_PLACEMENT placement = BOARD_PLACEMENT.valueOf("TEMP" + moduleNumber);
+        BoardPlacement placement = BoardPlacement.valueOf("TEMP" + moduleNumber);
 
         // Placing stuff on the shuffleboard layout
         layout = sub_tab.getLayout("m" + moduleNumber, BuiltInLayouts.kGrid)

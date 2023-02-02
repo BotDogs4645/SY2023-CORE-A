@@ -35,14 +35,14 @@ import frc.robot.util.swervehelper.CTREModuleState;
 import frc.robot.util.swervehelper.SwerveSettings;
 import frc.robot.util.swervehelper.SwerveSettings.PathList;
 import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
-import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
+import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BoardPlacement;
 
 public class Swerve extends SubsystemBase {
     public record ChassisControlRequest(Swerve swerve, Pose2d posReq, boolean openLoop, double power) {
         static SwerveModuleState[] states;
 
         public ChassisControlRequest {
-            // Second order kinematics
+            // Second order kinematics - kind of
             Twist2d requestedRobotPose = posReq.log(new Pose2d(
                 swerve.speedVector.vxMetersPerSecond * 0.020,
                 swerve.speedVector.vyMetersPerSecond * 0.020,
@@ -150,7 +150,7 @@ public class Swerve extends SubsystemBase {
         // Add RPM and current calculations for each module and place them on the Shuffleboard
         for (int i = 0; i < mSwerveMods.length; i++) {
             SwerveModule cur = mSwerveMods[i];
-            BOARD_PLACEMENT placement = BOARD_PLACEMENT.valueOf("RPM" + i);
+            BoardPlacement placement = BoardPlacement.valueOf("RPM" + i);
             ShuffleboardLayout layout = sub_tab.getLayout("mod " + cur.moduleNumber, BuiltInLayouts.kGrid)
             .withProperties(Map.of("Number of columns", 1, "Number of rows", 2, "Label Position", "TOP"))
             .withPosition(placement.getX(), placement.getY())

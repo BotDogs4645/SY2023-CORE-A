@@ -167,7 +167,7 @@ public final class SwerveSettings {
       }
 
       public static final class ShuffleboardConstants {
-        public enum BOARD_PLACEMENT {
+        public enum BoardPlacement {
             RPM0("RPM0", 0, 0),
             RPM1("RPM1", 8, 0),
             RPM2("RPM2", 0, 3),
@@ -181,7 +181,7 @@ public final class SwerveSettings {
             private int x;
             private int y;
     
-            private BOARD_PLACEMENT(String name, int x, int y) {
+            private BoardPlacement(String name, int x, int y) {
                 this.name = name;
                 this.x = x;
                 this.y = y;
