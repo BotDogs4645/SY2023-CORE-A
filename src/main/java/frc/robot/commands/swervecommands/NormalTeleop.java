@@ -75,6 +75,7 @@ public class NormalTeleop extends CommandBase {
     Rotation2d currentVelocityDirection = Rotation2d.fromRadians(Math.tan(
       s_Swerve.speedVector.vyMetersPerSecond / s_Swerve.speedVector.vxMetersPerSecond
     )).plus(Rotation2d.fromRadians(Math.PI / 2));
+    
     if (s_Swerve.getChassisSpeed() > .1) {
       s_Swerve.drive(
         s_Swerve.generateRequest(

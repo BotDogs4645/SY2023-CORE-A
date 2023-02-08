@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
@@ -23,6 +25,7 @@ public class ForcedHeadingTeleop extends CommandBase {
 
   private double baseSpeed = .6;
   private ProfiledPIDController rotationPID;
+  private double newRotationInput;
 
   /** Creates a new ForcedHeadingTeleop. */
   public ForcedHeadingTeleop(
@@ -39,21 +42,28 @@ public class ForcedHeadingTeleop extends CommandBase {
     this.headingSupplier = headingSupplier;
 
     this.rotationPID = new ProfiledPIDController(
-      0.2,
+      6,
       0.0,
-      0.0,
-      new TrapezoidProfile.Constraints(.2, .1)
+      0,
+      new TrapezoidProfile.Constraints(Math.toRadians(90), Math.toRadians(60))
     );
 
-    rotationPID.setTolerance(Math.toRadians(10), Math.toRadians(1));
+    rotationPID.setTolerance(Math.toRadians(1), Math.toRadians(1));
     rotationPID.enableContinuousInput(-Math.PI, Math.PI);
+
+    Shuffleboard.getTab("tab").addDouble("rotation want" + headingSupplier, () -> newRotationInput);
+    Shuffleboard.getTab("tab").addDouble("rotation current" + headingSupplier, () -> s_Swerve.getPose().getRotation().getRadians());
 
     addRequirements(s_Swerve);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    rotationPID.reset(
+      new State(s_Swerve.getPose().getRotation().getRadians(), 0)
+    );
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -62,15 +72,15 @@ public class ForcedHeadingTeleop extends CommandBase {
       -translateY.getValue(),
       -translateX.getValue()
     ).times(SwerveSettings.driver.maxSpeed());
-    
+
     TrapezoidProfile.State finalState = new TrapezoidProfile.State(headingSupplier, 0);
-    double newRotationInput = rotationPID.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
-    
+    newRotationInput = rotationPID.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
+
     s_Swerve.drive(
       s_Swerve.generateRequest(
         new Pose2d(translation, Rotation2d.fromRadians(newRotationInput)),
         true,
-        baseSpeed + ((1.0 - baseSpeed) * redKey.getValue() > .5 ? 1.0 : 0.0)
+        1.0
       )
     );
   }

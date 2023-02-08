@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
@@ -126,17 +128,19 @@ public class RobotContainer {
 
     driver.getJoystickButton(JoystickButtonID.kB)
       .toggleOnTrue(
-        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, 90)
+        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, -Math.PI / 2)
       );
+
+    Shuffleboard.getTab("tab").add(swerve);
 
     driver.getJoystickButton(JoystickButtonID.kA)
       .toggleOnTrue(
-        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, 180)
+        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, -Math.PI)
       );
 
     driver.getJoystickButton(JoystickButtonID.kX)
       .toggleOnTrue(
-        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, 270)
+        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, Math.PI / 2)
       );
 
     // Other types of modes
@@ -146,7 +150,10 @@ public class RobotContainer {
     
     // Precision mode
     driver.getJoystickButton(JoystickButtonID.kBack)
-      .toggleOnTrue(new InstantCommand());
+      .toggleOnTrue(new InstantCommand(() -> {
+        swerve.zeroGyro();
+      }));
+
   }
 
   public void configureControllerController() {

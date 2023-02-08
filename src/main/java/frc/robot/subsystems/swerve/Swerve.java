@@ -43,17 +43,17 @@ public class Swerve extends SubsystemBase {
 
         public ChassisControlRequest {
             // Second order kinematics - kind of
-            Twist2d requestedRobotPose = posReq.log(new Pose2d(
-                swerve.speedVector.vxMetersPerSecond * 0.020,
-                swerve.speedVector.vyMetersPerSecond * 0.020,
-                Rotation2d.fromRadians(swerve.speedVector.omegaRadiansPerSecond * 0.020)
-            ));
+            // Twist2d requestedRobotPose = posReq.log(new Pose2d(
+            //     swerve.speedVector.vxMetersPerSecond * 0.020,
+            //     swerve.speedVector.vyMetersPerSecond * 0.020,
+            //     Rotation2d.fromRadians(swerve.speedVector.omegaRadiansPerSecond * 0.020)
+            // ));
 
             states = SwerveDriveTrain.swerveKinematics.toSwerveModuleStates(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                    requestedRobotPose.dx / 0.020, 
-                    requestedRobotPose.dy / 0.020, 
-                    requestedRobotPose.dtheta / 0.020, 
+                    posReq.getX(),
+                    posReq.getY(),
+                    posReq.getRotation().getRadians(),
                     swerve.getYaw()
                 )
             );
@@ -87,7 +87,7 @@ public class Swerve extends SubsystemBase {
     public Swerve() {
         // Declares and resets the Gyro to default. This wipes all settings about the gyro,
         // making it customizable in code only.
-        this.gyro = new WPI_Pigeon2(SwerveDriveTrain.pigeonID);
+        this.gyro = new WPI_Pigeon2(SwerveDriveTrain.pigeonID, "canivore");
         gyro.configFactoryDefault();
 
         zeroGyro();
