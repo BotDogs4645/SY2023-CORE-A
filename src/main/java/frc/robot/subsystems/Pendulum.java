@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
@@ -25,7 +26,8 @@ import frc.robot.Constants.PendulumConstants;
 import frc.robot.util.swervehelper.Conversions;
 
 public class Pendulum extends SubsystemBase {
-  private TalonFXW[] motorGearbox;
+  private TalonFXW plantMotor;
+  private TalonFXW followerMotor;
   private CANCoder absoluteEncoder;
 
   /* State space components */
@@ -35,14 +37,13 @@ public class Pendulum extends SubsystemBase {
 
   private LinearSystemLoop<N2, N1, N1> controlLoop;
 
-
   public Pendulum() {
     /* Motor declarations - keep it CTRE && on RIO can bus ("") */
-    motorGearbox = new TalonFXW[] {
-      new TalonFXW(PendulumConstants.leftId, PendulumConstants.pendulumFalconsConfig),
-      new TalonFXW(PendulumConstants.centerId, PendulumConstants.pendulumFalconsConfig),
-      new TalonFXW(PendulumConstants.rightId, PendulumConstants.pendulumFalconsConfig)
-    };
+    this.plantMotor = new TalonFXW(PendulumConstants.controllerId, "", PendulumConstants.pendulumFalconsConfig);
+    this.followerMotor = new TalonFXW(PendulumConstants.followerId, "", PendulumConstants.pendulumFalconsConfig);
+
+    this.plantMotor.setInverted(TalonFXInvertType.CounterClockwise);
+    this.followerMotor.setInverted(TalonFXInvertType.Clockwise);
 
     absoluteEncoder = new CANCoder(PendulumConstants.cancoderId);
     // we go -180-180 to represent the negative as below the horizon
@@ -53,7 +54,7 @@ public class Pendulum extends SubsystemBase {
     /* State space stuff */
     // Pendulum arm model
     this.pendulumPlant = LinearSystemId.createSingleJointedArmSystem(
-      DCMotor.getFalcon500(motorGearbox.length),
+      DCMotor.getFalcon500(1),
       PendulumConstants.momentOfInertia,
       PendulumConstants.gearing
     );
@@ -87,21 +88,15 @@ public class Pendulum extends SubsystemBase {
       Rotation2d.fromDegrees(absoluteEncoder.getAbsolutePosition()).getDegrees() - PendulumConstants.cancoderOffset, 
       PendulumConstants.gearing
     );
-
-    for (TalonFXW falcon: motorGearbox) {
-      falcon.setSelectedSensorPosition(absoluteRotationPosition);
-    }
   }
 
   public void set(double voltage) {
-    for (TalonFXW talon: motorGearbox) {
-      talon.setVoltage(voltage);
-    }
+    plantMotor.setVoltage(voltage);
+    followerMotor.setVoltage(voltage);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
   }
 }

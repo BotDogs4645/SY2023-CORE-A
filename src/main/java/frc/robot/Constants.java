@@ -36,9 +36,8 @@ public final class Constants {
         public static final int numOfMotors = 3;
 
         // TODO: find ids
-        public static final int leftId = -1;
-        public static final int centerId = 0;
-        public static final int rightId = 1;
+        public static final int controllerId = 1;
+        public static final int followerId = 2;
 
         public static final int cancoderId = 0;
         public static final double cancoderOffset = 0.0;
