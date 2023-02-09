@@ -144,7 +144,7 @@ public class RobotContainer {
     // Other types of modes
     // Snake mode
     driver.getJoystickButton(JoystickButtonID.kStart)
-      .toggleOnTrue(new InstantCommand());
+      .whileTrue(new InstantCommand());
     
     // Precision mode
     driver.getJoystickButton(JoystickButtonID.kBack)
