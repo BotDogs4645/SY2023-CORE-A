@@ -120,24 +120,24 @@ public class RobotContainer {
 
     // Face cardinal direction commands
     driver.getJoystickButton(JoystickButtonID.kY)
-      .toggleOnTrue(
+      .whileTrue(
         new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, 0)
       );
 
     driver.getJoystickButton(JoystickButtonID.kB)
-      .toggleOnTrue(
+      .whileTrue(
         new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, -Math.PI / 2)
       );
 
     Shuffleboard.getTab("tab").add(swerve);
 
     driver.getJoystickButton(JoystickButtonID.kA)
-      .toggleOnTrue(
+      .whileTrue(
         new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, -Math.PI)
       );
 
     driver.getJoystickButton(JoystickButtonID.kX)
-      .toggleOnTrue(
+      .whileTrue(
         new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, Math.PI / 2)
       );
 
