@@ -6,9 +6,7 @@ package frc.robot;
 
 import java.util.Map;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -83,25 +81,31 @@ public final class Constants {
 
     public static class AutoPositionConstants {
         public static enum AprilTagTransformDirection {
-            // Transforms the april tag to a position to the..
-            LEFT(new Translation2d(), new Rotation2d()),
-            CENTER(new Translation2d(), new Rotation2d()),
-            RIGHT(new Translation2d(), new Rotation2d()); 
+            // note: no rotation transformation should be required
+            // this direction should only move the apriltag pose left, center, or right, so the Y coord
+            // That coord should basically be aligned w/ the apriltag pose in the Z dimension 
+            // just translated to the left, center or right.
+            // TODO: find translational values
 
-            Transform2d transform;
-            private AprilTagTransformDirection(Translation2d translate, Rotation2d heading) {
-                this.transform = new Transform2d(translate, heading);
+            // Transforms the april tag to a position to the.. 
+            LEFT(new Translation3d(0, -3.2, 0), new Rotation3d()),
+            CENTER(new Translation3d(0, 0, 0), new Rotation3d()),
+            RIGHT(new Translation3d(0, 3.2, 0), new Rotation3d()); 
+
+            Transform3d transform;
+            private AprilTagTransformDirection(Translation3d translate, Rotation3d heading) {
+                this.transform = new Transform3d(translate, heading);
             }
 
-            public Transform2d getTransform() {
+            public Transform3d getTransform() {
                 return transform;
             }
         }
 
         public static enum GamePiecePlacementLevel {
-            BOTTOM(),
-            MIDDLE(),
-            TOP()
+            BOTTOM(new Translation3d(0, 0, 0), new Rotation3d()),
+            MIDDLE(new Translation3d(0, 0, 0), new Rotation3d()),
+            TOP(new Translation3d(0, 0, 0), new Rotation3d())
             ;
 
             /* args depend on what method we use to determine what type of inputs we grab here.
@@ -110,9 +114,16 @@ public final class Constants {
              * do an elevator with telescoping arm: These will be xz coordinates with a Y scalar to represent length
              * other stuff: idk lol
              */
-            private GamePiecePlacementLevel() {
 
-            }
+            
+             Transform3d transform;
+             private GamePiecePlacementLevel(Translation3d translate, Rotation3d heading) {
+                 this.transform = new Transform3d(translate, heading);
+             }
+ 
+             public Transform3d getTransform() {
+                 return transform;
+             }
         }
 
         public static Map<JoystickButtonID, GamePiecePlacementLevel> placementButtons = Map.of(

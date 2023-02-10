@@ -83,11 +83,10 @@ public class RobotContainer {
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
 
     /* Driver Buttons */
-    AutoPlaceCommand toPoseFromSnapshotCommand = new AutoPlaceCommand(swerve, vision);
     driver.getJoystickButton(JoystickButtonID.kX)
-      .toggleOnTrue(
+      .onTrue(
         new ConditionalCommand(
-            toPoseFromSnapshotCommand,
+            new AutoPlaceCommand(pendulum, swerve, vision),
             new InstantCommand(),
             vision::hasTargets
           )
