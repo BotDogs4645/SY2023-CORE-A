@@ -9,12 +9,13 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
+import edu.wpi.first.math.numbers.*;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.estimator.KalmanFilter;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.numbers.*;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.LinearSystemLoop;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -26,6 +27,10 @@ import frc.robot.Constants.PendulumConstants;
 import frc.robot.util.swervehelper.Conversions;
 
 public class Pendulum extends SubsystemBase {
+  public static record PendulumControlRequest() {
+    
+  }
+
   private TalonFXW plantMotor;
   private TalonFXW followerMotor;
   private CANCoder absoluteEncoder;
@@ -92,11 +97,9 @@ public class Pendulum extends SubsystemBase {
 
   public void set(double voltage) {
     plantMotor.setVoltage(voltage);
-    followerMotor.setVoltage(voltage);
+    followerMotor.setVoltage(voltage); 
   }
-
+  
   @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+  public void periodic() {}
 }
