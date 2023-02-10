@@ -51,12 +51,16 @@ public final class Constants {
         
         // Other
         public static final double momentOfInertia = 0.0;
-        public static final double gearing = 1.0 / 1.0; // output / input
-        private final TrapezoidProfile.Constraints m_constraints =
+        public static final double gearing = 48.0 / 1.0; // output / input
+        public static final TrapezoidProfile.Constraints pendulumConstraints =
             new TrapezoidProfile.Constraints(
                 Units.degreesToRadians(45),
                 Units.degreesToRadians(90)
             ); // Max arm speed and acceleration.
+        
+        public static final double heightOfAxis =  Units.inchesToMeters(0.0);
+        public static final double armLength = Units.inchesToMeters(40.5);
+
     }
 
     public static class CameraConstants {

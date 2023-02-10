@@ -14,12 +14,15 @@ import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.estimator.KalmanFilter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.LinearSystemLoop;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.bdlib.custom_talon.TalonFXW;
@@ -27,8 +30,33 @@ import frc.robot.Constants.PendulumConstants;
 import frc.robot.util.swervehelper.Conversions;
 
 public class Pendulum extends SubsystemBase {
-  public static record PendulumControlRequest() {
-    
+  public static record PendulumControlRequest(Pose3d endEffector) {
+    private static Pose2d robotPosition;
+    private static TrapezoidProfile pendulumRotationAngle;
+
+    // simple trig to determine pendulum rotation angle and bot position
+    public PendulumControlRequest {
+      double distanceXFromEndEffector = Math.sqrt(
+        Math.pow(PendulumConstants.armLength, 2) - Math.pow(endEffector.getZ() - PendulumConstants.heightOfAxis, 2)
+      );
+
+      robotPosition = new Pose2d(
+        new Translation2d(endEffector.getX() + distanceXFromEndEffector, endEffector.getY()),
+        Rotation2d.fromRadians(-Math.PI)
+      );
+
+      TrapezoidProfile.State state = new TrapezoidProfile.State(Math.asin(endEffector.getZ() - PendulumConstants.heightOfAxis / PendulumConstants.armLength), 0);
+      pendulumRotationAngle = new TrapezoidProfile(PendulumConstants.pendulumConstraints, state);
+      // TODO: placement and movement constraints
+    }
+
+    public Pose2d getRobotPosition() {
+      return robotPosition;
+    }
+
+    public TrapezoidProfile getPendulumRotation() {
+      return pendulumRotationAngle;
+    }
   }
 
   private TalonFXW plantMotor;
@@ -50,8 +78,8 @@ public class Pendulum extends SubsystemBase {
     this.plantMotor.setInverted(TalonFXInvertType.CounterClockwise);
     this.followerMotor.setInverted(TalonFXInvertType.Clockwise);
 
-    absoluteEncoder = new CANCoder(PendulumConstants.cancoderId);
-    // we go -180-180 to represent the negative as below the horizon
+    this.absoluteEncoder = new CANCoder(PendulumConstants.cancoderId);
+    // we go -180 to 180 to represent the negative as below the horizon
     absoluteEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     absoluteEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
     zero();
@@ -93,6 +121,8 @@ public class Pendulum extends SubsystemBase {
       Rotation2d.fromDegrees(absoluteEncoder.getAbsolutePosition()).getDegrees() - PendulumConstants.cancoderOffset, 
       PendulumConstants.gearing
     );
+    plantMotor.setSelectedSensorPosition(absoluteRotationPosition);
+    followerMotor.setSelectedSensorPosition(absoluteRotationPosition);
   }
 
   public void set(double voltage) {
