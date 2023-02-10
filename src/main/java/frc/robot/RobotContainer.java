@@ -26,7 +26,7 @@ import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
 import frc.robot.commands.swervecommands.TeleopSwerve;
 import frc.robot.commands.swervecommands.TeleopSwerveAroundPoint;
-import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
+import frc.robot.commands.swervecommands.AutoPlaceCommand;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
@@ -83,7 +83,7 @@ public class RobotContainer {
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
 
     /* Driver Buttons */
-    ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(swerve, vision);
+    AutoPlaceCommand toPoseFromSnapshotCommand = new AutoPlaceCommand(swerve, vision);
     driver.getJoystickButton(JoystickButtonID.kX)
       .toggleOnTrue(
         new ConditionalCommand(

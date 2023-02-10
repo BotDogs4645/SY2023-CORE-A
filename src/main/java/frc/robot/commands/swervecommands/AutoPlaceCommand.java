@@ -17,7 +17,7 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 
 
-public class ToPoseFromSnapshot extends CommandBase {
+public class AutoPlaceCommand extends CommandBase {
   private Swerve swerve;
   private Vision vision;
 
@@ -28,7 +28,7 @@ public class ToPoseFromSnapshot extends CommandBase {
   private ProfiledPIDController rotateOmegaController;
 
   /** Creates a new ToPoseFromSnapshotGroup. */
-  public ToPoseFromSnapshot(Swerve swerve, Vision vision) {
+  public AutoPlaceCommand(Swerve swerve, Vision vision) {
     translateXController = new ProfiledPIDController(
       2.5, 0, 0,
       new TrapezoidProfile.Constraints(2, 1)

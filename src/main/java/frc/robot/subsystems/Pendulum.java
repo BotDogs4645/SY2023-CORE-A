@@ -74,8 +74,8 @@ public class Pendulum extends SubsystemBase {
     this.plantMotor = new TalonFXW(PendulumConstants.controllerId, "", PendulumConstants.pendulumFalconsConfig);
     this.followerMotor = new TalonFXW(PendulumConstants.followerId, "", PendulumConstants.pendulumFalconsConfig);
 
-    this.plantMotor.setInverted(TalonFXInvertType.CounterClockwise);
-    this.followerMotor.setInverted(TalonFXInvertType.Clockwise);
+    plantMotor.setInverted(TalonFXInvertType.CounterClockwise);
+    followerMotor.setInverted(TalonFXInvertType.Clockwise);
 
     this.absoluteEncoder = new CANCoder(PendulumConstants.cancoderId);
     // we go -180 to 180 to represent the negative as below the horizon
