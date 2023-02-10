@@ -32,7 +32,7 @@ import frc.robot.util.swervehelper.Conversions;
 public class Pendulum extends SubsystemBase {
   public static record PendulumControlRequest(Pose3d endEffector) {
     private static Pose2d robotPosition;
-    private static TrapezoidProfile pendulumRotationAngle;
+    private static TrapezoidProfile.State pendulumRotationAngle;
 
     // simple trig to determine pendulum rotation angle and bot position
     public PendulumControlRequest {
@@ -45,16 +45,14 @@ public class Pendulum extends SubsystemBase {
         Rotation2d.fromRadians(-Math.PI)
       );
 
-      TrapezoidProfile.State state = new TrapezoidProfile.State(Math.asin(endEffector.getZ() - PendulumConstants.heightOfAxis / PendulumConstants.armLength), 0);
-      pendulumRotationAngle = new TrapezoidProfile(PendulumConstants.pendulumConstraints, state);
-      // TODO: placement and movement constraints
+      pendulumRotationAngle = new TrapezoidProfile.State(Math.asin(endEffector.getZ() - PendulumConstants.heightOfAxis / PendulumConstants.armLength), 0);
     }
 
     public Pose2d getRobotPosition() {
       return robotPosition;
     }
 
-    public TrapezoidProfile getPendulumRotation() {
+    public TrapezoidProfile.State getPendulumRotation() {
       return pendulumRotationAngle;
     }
   }
@@ -68,6 +66,7 @@ public class Pendulum extends SubsystemBase {
   private KalmanFilter<N2, N1, N1> observer;
   private LinearQuadraticRegulator<N2, N1, N1> LQR;
 
+  private TrapezoidProfile.State lastProfiledReference;
   private LinearSystemLoop<N2, N1, N1> controlLoop;
 
   public Pendulum() {
@@ -82,7 +81,6 @@ public class Pendulum extends SubsystemBase {
     // we go -180 to 180 to represent the negative as below the horizon
     absoluteEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     absoluteEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
-    zero();
 
     /* State space stuff */
     // Pendulum arm model
@@ -98,7 +96,7 @@ public class Pendulum extends SubsystemBase {
       Nat.N1(),
       pendulumPlant,
       VecBuilder.fill(0.015, 0.17), // model accuracy std dev.
-      VecBuilder.fill(0.01), // encoder accuracy std dev. low because we trust it
+      VecBuilder.fill(0.001), // encoder accuracy std dev. low because we trust it
       0.020
     );
     
@@ -114,6 +112,9 @@ public class Pendulum extends SubsystemBase {
     );
 
     this.controlLoop = new LinearSystemLoop<>(pendulumPlant, LQR, observer, 12.0, 0.020);
+    zero();
+
+    lastProfiledReference = new TrapezoidProfile.State(plantMotor.getShaftRotationsInRadians(), plantMotor.getShaftVelocityInRadians());
   }
 
   public void zero() {
@@ -123,11 +124,35 @@ public class Pendulum extends SubsystemBase {
     );
     plantMotor.setSelectedSensorPosition(absoluteRotationPosition);
     followerMotor.setSelectedSensorPosition(absoluteRotationPosition);
+
+    controlLoop.reset(
+      VecBuilder.fill(
+        plantMotor.getShaftRotationsInRadians(),
+        plantMotor.getShaftVelocityInRadians()
+      )
+    );
+
+    lastProfiledReference = new TrapezoidProfile.State(plantMotor.getShaftRotationsInRadians(), plantMotor.getShaftVelocityInRadians());
   }
 
   public void set(double voltage) {
     plantMotor.setVoltage(voltage);
     followerMotor.setVoltage(voltage); 
+  }
+
+  public void move(TrapezoidProfile.State angle) {
+    lastProfiledReference = 
+      (new TrapezoidProfile(PendulumConstants.pendulumConstraints, angle, lastProfiledReference)).calculate(0.020);
+    controlLoop.setNextR(lastProfiledReference.position, lastProfiledReference.velocity);
+
+    controlLoop.correct(VecBuilder.fill(plantMotor.getShaftRotationsInRadians()));
+
+    controlLoop.predict(0.020);
+
+    this.set(controlLoop.getU(0));
+    // TODO: determine if zero() should be called everytime we run a movement cmd
+    // might not be required cuz the defaultcommand is to move, so the model is 
+    // updated no matter what.. but still. 
   }
   
   @Override

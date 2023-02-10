@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -46,6 +47,7 @@ public class RobotContainer {
 
   /* Subsystems */
   private final Swerve swerve = new Swerve();
+  private final Pendulum pendulum = new Pendulum();
   private final Vision vision = new Vision();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -124,6 +126,13 @@ public class RobotContainer {
         swerve, leftXAxis, leftYAxis, rightXAxis, false
       )
     );
+
+    pendulum.setDefaultCommand(
+      new InstantCommand(() -> {
+        // default position is arm facing down @ velocity 0, waiting for position commands
+        pendulum.move(new TrapezoidProfile.State(-Math.PI / 2, 0.0));
+      }
+    ));
 
     new RunCommand(() -> {
       Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
