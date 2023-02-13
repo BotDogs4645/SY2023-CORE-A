@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
+import frc.bdlib.misc.BDManager;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
@@ -155,8 +156,13 @@ public class RobotContainer {
   }
 
   public void configureControllerController() {
+    // vision settings
     manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
     .onTrue(new SetVisionSettings(manipulator, vision));
+
+    // get data analysis report
+    manipulator.getJoystickButton(JoystickButtonID.kLeftBumper)
+    .onTrue(new InstantCommand(() -> BDManager.getInstance().update()));
   }
 
   private void configureAutonomous() {
