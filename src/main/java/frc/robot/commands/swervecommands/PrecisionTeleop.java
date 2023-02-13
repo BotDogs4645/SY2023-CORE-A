@@ -12,32 +12,33 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.util.swervehelper.SwerveSettings;
 
 public class PrecisionTeleop extends CommandBase {
   Swerve s_Swerve;
-  JoystickAxisAIO translateX;
+  JoystickAxisAIO translateY;
   ProfiledPIDController pid;
 
   double closestHeading = 0;
-  double[] headings = new double[] {0, 90, 180, 270};
+  double[] headings = new double[] {0, Math.PI / 2, Math.PI, -Math.PI / 2};
 
   /** Creates a new PrecisionTeleop. */
   public PrecisionTeleop(
     Swerve s_Swerve,
-    JoystickAxisAIO translateX
+    JoystickAxisAIO translateY
   ) {
     this.s_Swerve = s_Swerve;
-    this.translateX = translateX;
+    this.translateY = translateY;
 
     this.pid = new ProfiledPIDController(
-      0.2,
+      6.0,
       0.0,
       0.0,
       new TrapezoidProfile.Constraints(.2, .1)
     );
 
     pid.setTolerance(Math.toRadians(10), Math.toRadians(1));
-    pid.enableContinuousInput(0, Math.PI);
+    pid.enableContinuousInput(-Math.PI, Math.PI);
 
     addRequirements(s_Swerve);
   }
@@ -46,7 +47,7 @@ public class PrecisionTeleop extends CommandBase {
   @Override
   public void initialize() {
     // get the rotation of the Robot's pose
-    double robotRotation = s_Swerve.getPose().getRotation().getDegrees();
+    double robotRotation = s_Swerve.getPose().getRotation().getRadians();
 
     // see which is closer, 180 degrees or 0
     double lowestDifference = Math.abs(robotRotation - headings[0]);
@@ -66,26 +67,16 @@ public class PrecisionTeleop extends CommandBase {
     TrapezoidProfile.State finalState = new TrapezoidProfile.State(closestHeading, 0);
     double newRotationInput = pid.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
 
-    if (pid.atGoal()) {
-      // allow movement
-      s_Swerve.drive(
-        s_Swerve.generateRequest(
-          new Pose2d(new Translation2d(), Rotation2d.fromRadians(newRotationInput)),
-          true,
-          .3
-        )
-      );
-
-    } else {
-      s_Swerve.drive(
-        s_Swerve.generateRequest(
-          new Pose2d(new Translation2d(), Rotation2d.fromRadians(newRotationInput)),
-          true,
-          1.0
-        )
-      );
-
-    }
+    Translation2d translation = new Translation2d(0, translateY.getValue())
+      .times(SwerveSettings.driver.maxSpeed() * 0.3);
+    
+    s_Swerve.drive(
+      s_Swerve.generateRequest(
+        new Pose2d(translation, Rotation2d.fromRadians(newRotationInput)),
+        false, 
+        1.0
+      )
+    );
   }
 
   // public Translation2d getMovement() {
