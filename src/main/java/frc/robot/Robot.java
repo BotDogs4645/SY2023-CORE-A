@@ -30,6 +30,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     BDManager.initialize();
     m_robotContainer = new RobotContainer();
+    addPeriodic(() -> BDManager.getInstance().update(), 2, .1);
   }
 
   /**
