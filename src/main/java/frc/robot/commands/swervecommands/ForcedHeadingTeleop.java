@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
@@ -50,10 +49,6 @@ public class ForcedHeadingTeleop extends CommandBase {
 
     rotationPID.setTolerance(Math.toRadians(1), Math.toRadians(1));
     rotationPID.enableContinuousInput(-Math.PI, Math.PI);
-
-    Shuffleboard.getTab("tab").addDouble("rotation want" + headingSupplier, () -> newRotationInput);
-    Shuffleboard.getTab("tab").addDouble("rotation current" + headingSupplier, () -> s_Swerve.getPose().getRotation().getRadians());
-
     addRequirements(s_Swerve);
   }
 
@@ -71,7 +66,7 @@ public class ForcedHeadingTeleop extends CommandBase {
     Translation2d translation = new Translation2d(
       -translateY.getValue(),
       -translateX.getValue()
-    ).times(SwerveSettings.driver.maxSpeed());
+    ).times(SwerveSettings.driver.maxSpeed() * baseSpeed + ((1.0 - baseSpeed) * (redKey.getValue() > .5 ? 1.0 : 0.0)));
 
     TrapezoidProfile.State finalState = new TrapezoidProfile.State(headingSupplier, 0);
     newRotationInput = rotationPID.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
@@ -80,7 +75,7 @@ public class ForcedHeadingTeleop extends CommandBase {
       s_Swerve.generateRequest(
         new Pose2d(translation, Rotation2d.fromRadians(newRotationInput)),
         true,
-        1.5
+        1
       )
     );
   }
