@@ -42,10 +42,10 @@ public class ForcedHeadingTeleop extends CommandBase {
     this.headingSupplier = headingSupplier;
 
     this.rotationPID = new ProfiledPIDController(
-      6,
+      6.0,
       0.0,
-      0,
-      new TrapezoidProfile.Constraints(Math.toRadians(90), Math.toRadians(60))
+      0.0,
+      new TrapezoidProfile.Constraints(Math.toRadians(220), Math.toRadians(160))
     );
 
     rotationPID.setTolerance(Math.toRadians(1), Math.toRadians(1));
@@ -61,7 +61,7 @@ public class ForcedHeadingTeleop extends CommandBase {
   @Override
   public void initialize() {
     rotationPID.reset(
-      new State(s_Swerve.getPose().getRotation().getRadians(), 0)
+      new State(s_Swerve.getPose().getRotation().getRadians(), s_Swerve.speedVector.omegaRadiansPerSecond)
     );
   }
 
@@ -80,7 +80,7 @@ public class ForcedHeadingTeleop extends CommandBase {
       s_Swerve.generateRequest(
         new Pose2d(translation, Rotation2d.fromRadians(newRotationInput)),
         true,
-        1.0
+        1.5
       )
     );
   }

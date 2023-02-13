@@ -18,7 +18,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableValue;
@@ -72,7 +71,7 @@ public class Swerve extends SubsystemBase {
     private SwerveDriveOdometry swerveOdometry;
     private SwerveModule[] mSwerveMods;
     private WPI_Pigeon2 gyro;
-    private ShuffleboardTab sub_tab;
+    private ShuffleboardTab subsystemTab;
     private SwerveAutoBuilder builder;
     private double chassis_speed; // meters / second
     private Field2d field;
@@ -96,16 +95,16 @@ public class Swerve extends SubsystemBase {
         this.chassis_speed = 0.0;
 
         // Gets us the swerve tab.
-        this.sub_tab = Shuffleboard.getTab("swerve_tab");
+        this.subsystemTab = Shuffleboard.getTab("swerve_tab");
 
         // These are our swerve modules. Each module has it's own constants
         // We also port the subsystem tab straight there so they can add their own information
         // We store them in an array so we can iterate through at any point.
         mSwerveMods = new SwerveModule[] {
-            new SwerveModule(0, SwerveDriveTrain.Mod0.constants, sub_tab),
-            new SwerveModule(1, SwerveDriveTrain.Mod1.constants, sub_tab),
-            new SwerveModule(2, SwerveDriveTrain.Mod2.constants, sub_tab),
-            new SwerveModule(3, SwerveDriveTrain.Mod3.constants, sub_tab)
+            new SwerveModule(0, SwerveDriveTrain.Mod0.constants, subsystemTab),
+            new SwerveModule(1, SwerveDriveTrain.Mod1.constants, subsystemTab),
+            new SwerveModule(2, SwerveDriveTrain.Mod2.constants, subsystemTab),
+            new SwerveModule(3, SwerveDriveTrain.Mod3.constants, subsystemTab)
         };
 
         // SwerveDrivePoseEstimator instances are used to calculate and keep track of the Robot's
@@ -128,13 +127,13 @@ public class Swerve extends SubsystemBase {
 
         // Gyro initialization, we use a Pigeon and we want the Yaw in degrees so we can directly
         // show it on Shuffleboard.
-        sub_tab.add("Pigeon IMU", gyro)
+        subsystemTab.add("Pigeon IMU", gyro)
         .withSize(2, 3)
         .withPosition(4, 3)
         .withWidget(BuiltInWidgets.kGyro);
 
         // Our speedometer, uses the chassis_speed variable.
-        sub_tab.addDouble("Chassis Speedometer: MPS", this::getChassisSpeed)
+        subsystemTab.addDouble("Chassis Speedometer: MPS", this::getChassisSpeed)
         .withWidget(BuiltInWidgets.kDial)
         .withProperties(Map.of("Min", 0.0, "Max", SwerveSettings.driver.maxSpeed(), "Show value", true))
         .withSize(4, 3)
@@ -151,7 +150,7 @@ public class Swerve extends SubsystemBase {
         for (int i = 0; i < mSwerveMods.length; i++) {
             SwerveModule cur = mSwerveMods[i];
             BoardPlacement placement = BoardPlacement.valueOf("RPM" + i);
-            ShuffleboardLayout layout = sub_tab.getLayout("mod " + cur.moduleNumber, BuiltInLayouts.kGrid)
+            ShuffleboardLayout layout = subsystemTab.getLayout("mod " + cur.moduleNumber, BuiltInLayouts.kGrid)
             .withProperties(Map.of("Number of columns", 1, "Number of rows", 2, "Label Position", "TOP"))
             .withPosition(placement.getX(), placement.getY())
             .withSize(2, 3);
@@ -204,7 +203,6 @@ public class Swerve extends SubsystemBase {
      * means it can be used with a joystick.
      * @param desiredStates Array of module states
      * @param isOpenLoop Determines if it uses PID
-     * 
      */
     public void setModuleStates(SwerveModuleState[] desiredStates, boolean isOpenLoop, double powerPercentage) {
         nTable.putValue(

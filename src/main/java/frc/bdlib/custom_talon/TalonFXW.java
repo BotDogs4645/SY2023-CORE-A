@@ -53,7 +53,7 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
         // Retain default value
         this.sensor_units = sensor_units == null ? SensorUnits.CTRE : sensor_units;
 
-        BDManager.getInstance().register(this);
+        //BDManager.getInstance().register(this);
     }
 
     /**
