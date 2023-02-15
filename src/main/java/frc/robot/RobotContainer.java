@@ -47,6 +47,7 @@ public class RobotContainer {
   /* Subsystems */
   private final Swerve swerve = new Swerve();
   private final Vision vision = new Vision();
+  private final Claw claw = new Claw();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -115,6 +116,10 @@ public class RobotContainer {
     /* Manipulator Buttons */
     manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
       .onTrue(new SetVisionSettings(manipulator, vision));
+
+    manipulator.getJoystickButton(null) // TODO
+      .onTrue(new RunCommand(claw::close))
+      .onFalse(new RunCommand(claw::open));
 
     // Vision bindings
 

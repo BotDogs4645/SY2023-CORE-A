@@ -28,6 +28,15 @@ public final class Constants {
     public static final boolean testing = true;
     public static final NetworkTable LogTable = NetworkTableInstance.getDefault().getTable("Loggables");
 
+    public static class ClawConstants {
+
+        public static final int motorDeviceId = 1; // TODO: Get actual value
+
+        public static final double closeSpeed = -0.25; // TODO: Calibrate a good value
+        public static final double openSpeed = 0.25; // TODO: Calibrate a good value
+
+    }
+
     public static class CameraConstants {
         // "x+" = Pigeon2 orientation dependent ;p - check which direction points forward.. x+ can be technically defined as the x+ from a pose
         // defined from the origin of the robot chassis facing the "front face" of the robot. Or atleast it should be.
