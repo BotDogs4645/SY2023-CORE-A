@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.bdlib.custom_talon.SensorUnits;
 import frc.bdlib.custom_talon.TalonFXW;
+import frc.bdlib.misc.BDManager;
+import frc.robot.Constants;
 import frc.robot.util.swervehelper.CTREConfigs;
 import frc.robot.util.swervehelper.CTREModuleState;
 import frc.robot.util.swervehelper.Conversions;
@@ -71,14 +73,14 @@ public class SwerveModule {
         layout.addDouble("Drive Temp", () -> mDriveMotor.getTemperature());
 
         // Place super specific fault analysis. Make sure to turn on testing to get these values.
-        // ShuffleboardTab tab = BDManager.getInstance().getInstanceManagerialTab();
+        ShuffleboardTab tab = BDManager.getInstance().getInstanceManagerialTab();
 
-        // if (Constants.testing) {
-        //     ShuffleboardLayout lay = tab.getLayout("module " + moduleNumber, BuiltInLayouts.kGrid)
-        //     .withProperties(Map.of("Number of columns", 1, "Number of rows", 2));
-        //     lay.addDouble("Cancoder", () -> getCanCoder().getDegrees());
-        //     lay.addDouble("Integrated", () -> getState().angle.getDegrees());
-        // }
+        if (Constants.testing) {
+            ShuffleboardLayout lay = tab.getLayout("module " + moduleNumber, BuiltInLayouts.kGrid)
+            .withProperties(Map.of("Number of columns", 1, "Number of rows", 2));
+            lay.addDouble("Cancoder", () -> getCanCoder().getDegrees());
+            lay.addDouble("Integrated", () -> getState().angle.getDegrees());
+        }
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop, double powerPercentage) {

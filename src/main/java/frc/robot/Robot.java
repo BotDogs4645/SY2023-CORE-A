@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -30,7 +31,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     BDManager.initialize();
     m_robotContainer = new RobotContainer();
-    addPeriodic(() -> BDManager.getInstance().update(), 2, .1);
+    //addPeriodic(() -> BDManager.getInstance().update(), 2, .1);
   }
 
   /**
