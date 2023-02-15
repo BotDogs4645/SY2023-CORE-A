@@ -29,7 +29,10 @@ public class ToPoseFromSnapshot extends CommandBase {
   private ProfiledPIDController rotateOmegaController;
 
   /** Creates a new ToPoseFromSnapshotGroup. */
-  public ToPoseFromSnapshot(Swerve swerve, Vision vision) {
+  public ToPoseFromSnapshot(
+      Swerve swerve,
+      Vision vision
+    ) {
     translateXController = new ProfiledPIDController(
       2.5, 0, 0,
       new TrapezoidProfile.Constraints(2, 1)
@@ -41,7 +44,7 @@ public class ToPoseFromSnapshot extends CommandBase {
     );
 
     rotateOmegaController = new ProfiledPIDController(
-      0.5, 0,0,
+      6.0, 0,0,
       new TrapezoidProfile.Constraints(Math.toRadians(20), Math.toRadians(10))
     );
 

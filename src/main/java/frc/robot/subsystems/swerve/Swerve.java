@@ -73,7 +73,6 @@ public class Swerve extends SubsystemBase {
     private WPI_Pigeon2 gyro;
     private ShuffleboardTab subsystemTab;
     private SwerveAutoBuilder builder;
-    private double chassisSpeed; // meters / second
     private Field2d field;
 
     public ChassisSpeeds speedVector;
@@ -90,9 +89,6 @@ public class Swerve extends SubsystemBase {
         gyro.configFactoryDefault();
 
         zeroGyro();
-
-        // Used in the chassis speed calculation, check update() for more info
-        this.chassisSpeed = 0.0;
 
         // Gets us the swerve tab.
         this.subsystemTab = Shuffleboard.getTab("swerve_tab");
@@ -255,7 +251,7 @@ public class Swerve extends SubsystemBase {
      * @return chassis speed in meters / second
      */
     public double getChassisSpeed() {
-        return chassisSpeed;
+        return Math.sqrt(Math.pow(speedVector.vxMetersPerSecond, 2) + Math.pow(speedVector.vyMetersPerSecond, 2));
     }
 
     /**
@@ -361,9 +357,5 @@ public class Swerve extends SubsystemBase {
             SwerveDriveTrain.swerveKinematics.toChassisSpeeds(
                 currentStates
             );
-        
-        // considering x and y are orthogonal, we can just use the pythagorean theorem
-        // to add the vectors together and get the chassis_speed in m/s.
-        chassisSpeed = Math.sqrt(Math.pow(speedVector.vxMetersPerSecond, 2) + Math.pow(speedVector.vyMetersPerSecond, 2));
     }
 }

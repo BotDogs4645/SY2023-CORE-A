@@ -15,12 +15,12 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
 
 public class PrecisionTeleop extends CommandBase {
-  Swerve s_Swerve;
-  JoystickAxisAIO translateY;
-  ProfiledPIDController pid;
+  private Swerve s_Swerve;
+  private JoystickAxisAIO translateY;
+  private ProfiledPIDController pid;
 
-  double closestHeading = 0;
-  double[] headings = new double[] {0, Math.PI / 2, Math.PI, -Math.PI / 2};
+  private double closestHeading = 0;
+  private double[] headings = new double[] {0, Math.PI / 2, Math.PI, -Math.PI / 2};
 
   /** Creates a new PrecisionTeleop. */
   public PrecisionTeleop(
@@ -73,7 +73,7 @@ public class PrecisionTeleop extends CommandBase {
     s_Swerve.drive(
       s_Swerve.generateRequest(
         new Pose2d(translation, Rotation2d.fromRadians(newRotationInput)),
-        false, 
+        true, 
         1.0
       )
     );

@@ -4,15 +4,25 @@
 
 package frc.robot.commands.swervecommands;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.util.swervehelper.SwerveSettings;
 
 public class SnakeTeleop extends CommandBase {
   private Swerve s_Swerve;
   private JoystickAxisAIO translateX;
   private JoystickAxisAIO translateY;
   private JoystickAxisAIO redKey;
+  private double baseSpeed = 0.6;
+
+  private ProfiledPIDController pid;
 
   /** Creates a new SnakeTeleop. */
   public SnakeTeleop(
@@ -26,17 +36,75 @@ public class SnakeTeleop extends CommandBase {
     this.translateY = translateY;
     this.redKey = redKey;
 
+    this.pid = new ProfiledPIDController(
+      6.0,
+      0.0,
+      0.0,
+      new TrapezoidProfile.Constraints(.2, .1)
+    );
+
+    pid.setTolerance(Math.toRadians(10), Math.toRadians(1));
+    pid.enableContinuousInput(-Math.PI, Math.PI);
+
     addRequirements(s_Swerve);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    pid.reset(
+      new State(s_Swerve.getPose().getRotation().getRadians(), s_Swerve.speedVector.omegaRadiansPerSecond)
+    );
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // convert speed vector -> polar vector
+    // rotate robot to face that vector
+    // ezpz
+
+    Translation2d translation = new Translation2d(
+      -translateY.getValue(),
+      -translateX.getValue()
+    ).times(SwerveSettings.driver.maxSpeed() * baseSpeed + ((1.0 - baseSpeed) * (redKey.getValue() > .5 ? 1.0 : 0.0)));
+
+    if (s_Swerve.getChassisSpeed() > 0.1) {
+      snake(translation);
+    } else {
+      normalDrive(translation);
+    }
+  }
+
+  private void snake(Translation2d translation) {
+    Rotation2d currentVelocityDirection = Rotation2d.fromRadians(Math.tan(
+      s_Swerve.speedVector.vyMetersPerSecond / s_Swerve.speedVector.vxMetersPerSecond
+    ));
+
+    TrapezoidProfile.State finalState = new TrapezoidProfile.State(currentVelocityDirection.getRadians(), 0);
+    double newRotationInput = pid.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
+
+    s_Swerve.drive(
+      s_Swerve.generateRequest(
+        new Pose2d(translation, Rotation2d.fromRadians(newRotationInput)),
+        true, 
+        1.0
+      )
+    );
+  }
+
+  private void normalDrive(Translation2d translation) {
+    pid.reset(
+      new State(s_Swerve.getPose().getRotation().getRadians(), s_Swerve.speedVector.omegaRadiansPerSecond)
+    );
     
+    s_Swerve.drive(
+      s_Swerve.generateRequest(
+        new Pose2d(translation, Rotation2d.fromRadians(0)), // do not rotate.
+        true, 
+        1.0
+      )
+    );
   }
 
   // Called once the command ends or is interrupted.
