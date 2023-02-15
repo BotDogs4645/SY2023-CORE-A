@@ -12,7 +12,6 @@ import frc.bdlib.custom_talon.TalonFXW;
 import frc.bdlib.misc.BDManager;
 import frc.robot.Constants;
 import frc.robot.util.swervehelper.CTREConfigs;
-import frc.robot.util.swervehelper.CTREModuleState;
 import frc.robot.util.swervehelper.Conversions;
 import frc.robot.util.swervehelper.SwerveSettings;
 import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BoardPlacement;
@@ -84,7 +83,14 @@ public class SwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop, double powerPercentage) {
-        desiredState = CTREModuleState.optimize(desiredState, getState().angle); //Custom optimize command, since default WPILib optimize assumes continuous controller which CTRE is not
+        // desiredState = CTREModuleState.optimize(desiredState, getState().angle); //Custom optimize command, since default WPILib optimize assumes continuous controller which CTRE is not
+
+        desiredState = new SwerveModuleState(desiredState.speedMetersPerSecond,
+            Rotation2d.fromRadians(
+                mAngleMotor.getShaftRotationsInRadians()
+                + ((getOptimizedRotation(desiredState).getRadians() - getTurningPosition()) % (2 * Math.PI))
+            )
+        );
 
         if(isOpenLoop) {
             double percentOutput = (desiredState.speedMetersPerSecond / SwerveSettings.driver.maxSpeed()) * powerPercentage;
@@ -95,7 +101,7 @@ public class SwerveModule {
             mDriveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward, feedforward.calculate(desiredState.speedMetersPerSecond));
         }
 
-        double angle = ((Math.abs(desiredState.speedMetersPerSecond) <= (SwerveSettings.driver.maxSpeed() * 0.02)) ? lastAngle : desiredState.angle.getDegrees()); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
+        double angle = ((Math.abs(desiredState.speedMetersPerSecond) <= (SwerveSettings.driver.maxSpeed() * 0.04)) ? lastAngle : desiredState.angle.getDegrees()); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
         mAngleMotor.set(ControlMode.Position, Conversions.degreesToFalcon(angle, SwerveSettings.SwerveDriveTrain.angleGearRatio)); 
         lastAngle = angle;
     }
@@ -116,6 +122,16 @@ public class SwerveModule {
         mAngleMotor.setInverted(SwerveSettings.SwerveDriveTrain.angleMotorInvert);
         mAngleMotor.setNeutralMode(SwerveSettings.SwerveDriveTrain.angleNeutralMode);
         resetToAbsolute();
+    }
+
+    private double getTurningPosition() {
+        return mAngleMotor.getShaftRotationsInRadians() % (2 * Math.PI);
+    }
+
+    private Rotation2d getOptimizedRotation(SwerveModuleState wanted) {
+        return 
+            (SwerveModuleState.optimize(wanted, Rotation2d.fromRadians(mAngleMotor.getShaftRotationsInRadians())))
+            .angle;
     }
 
     private void configDriveMotor() {        
@@ -141,4 +157,14 @@ public class SwerveModule {
         return new SwerveModulePosition(mDriveMotor.getObjectTotalDistanceTraveled(), angle);
     }
 
+    public static double[] getModuleStatesExpanded(SwerveModuleState[] moduleStates) {
+        double[] expandedStates = new double[8];
+        int counter = 0;
+        for (int i = 0; i < expandedStates.length; i += 2) {
+            expandedStates[i] = moduleStates[counter].angle.getDegrees();
+            expandedStates[i + 1] = moduleStates[counter].speedMetersPerSecond;
+            counter++;
+        }
+        return expandedStates;
+      } 
 }

@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.util.swervehelper.CTREModuleState;
 import frc.robot.util.swervehelper.SwerveSettings;
 import frc.robot.util.swervehelper.SwerveSettings.PathList;
 import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain;
@@ -203,7 +202,7 @@ public class Swerve extends SubsystemBase {
     public void setModuleStates(SwerveModuleState[] desiredStates, boolean isOpenLoop, double powerPercentage) {
         nTable.putValue(
             "Swerve Desired States",
-            NetworkTableValue.makeDoubleArray(CTREModuleState.getModuleStatesExpanded(desiredStates))
+            NetworkTableValue.makeDoubleArray(SwerveModule.getModuleStatesExpanded(desiredStates))
         );
 
         for(SwerveModule mod : mSwerveMods){
@@ -348,7 +347,7 @@ public class Swerve extends SubsystemBase {
 
         nTable.putValue(
             "Swerve Current States",
-            NetworkTableValue.makeDoubleArray(CTREModuleState.getModuleStatesExpanded(currentStates))
+            NetworkTableValue.makeDoubleArray(SwerveModule.getModuleStatesExpanded(currentStates))
         );
 
         nTable.putValue("Yaw", NetworkTableValue.makeDouble(getYaw().getDegrees()));
