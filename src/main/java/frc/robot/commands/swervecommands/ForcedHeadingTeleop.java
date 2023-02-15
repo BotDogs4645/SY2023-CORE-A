@@ -47,7 +47,7 @@ public class ForcedHeadingTeleop extends CommandBase {
       new TrapezoidProfile.Constraints(Math.toRadians(220), Math.toRadians(160))
     );
 
-    rotationPID.setTolerance(Math.toRadians(1), Math.toRadians(1));
+    rotationPID.setTolerance(Math.toRadians(.05), Math.toRadians(.5));
     rotationPID.enableContinuousInput(-Math.PI, Math.PI);
     addRequirements(s_Swerve);
   }
