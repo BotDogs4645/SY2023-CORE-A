@@ -7,6 +7,7 @@ package frc.robot.commands.swervecommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
@@ -19,6 +20,8 @@ public class NormalTeleop extends CommandBase {
   private JoystickAxisAIO rotationTheta;
   private JoystickAxisAIO eBrake;
   private JoystickAxisAIO redKey;
+
+  Rotation2d currentVelocityDirection = new Rotation2d();
 
   private double baseSpeed = .6;
 
@@ -72,18 +75,19 @@ public class NormalTeleop extends CommandBase {
   }
 
   public void brake() {
-    Rotation2d currentVelocityDirection = Rotation2d.fromRadians(Math.tan(
-      s_Swerve.speedVector.vyMetersPerSecond / s_Swerve.speedVector.vxMetersPerSecond
-    )).plus(Rotation2d.fromRadians(Math.PI / 2));
-    
-    if (s_Swerve.getChassisSpeed() > .1) {
-      s_Swerve.drive(
-        s_Swerve.generateRequest(
-          new Pose2d(new Translation2d(.05, currentVelocityDirection), new Rotation2d()),
-          true,
-          1.0
-        )
-      );
+    if (s_Swerve.getChassisSpeed() > .5) {
+      currentVelocityDirection = Rotation2d.fromRadians(Math.tan(
+        s_Swerve.speedVector.vyMetersPerSecond / s_Swerve.speedVector.vxMetersPerSecond
+      )).plus(Rotation2d.fromRadians(Math.PI / 2));
     }
+    s_Swerve.nTable.putValue("velo", NetworkTableValue.makeDouble(currentVelocityDirection.getDegrees()));
+    
+    s_Swerve.drive(
+      s_Swerve.generateRequest(
+        new Pose2d(new Translation2d(.1, currentVelocityDirection), new Rotation2d()),
+        true,
+        1.0
+      )
+    );
   }
 }

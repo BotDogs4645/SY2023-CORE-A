@@ -357,5 +357,8 @@ public class Swerve extends SubsystemBase {
             SwerveDriveTrain.swerveKinematics.toChassisSpeeds(
                 currentStates
             );
+
+        nTable.putValue("vectors", NetworkTableValue.makeDoubleArray(new Double[] {speedVector.vxMetersPerSecond, speedVector.vyMetersPerSecond}));
+        
     }
 }

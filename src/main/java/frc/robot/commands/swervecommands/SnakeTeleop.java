@@ -37,13 +37,13 @@ public class SnakeTeleop extends CommandBase {
     this.redKey = redKey;
 
     this.pid = new ProfiledPIDController(
-      6.0,
+      5.0,
       0.0,
       0.0,
-      new TrapezoidProfile.Constraints(.2, .1)
+      new TrapezoidProfile.Constraints(Math.toRadians(120), Math.toRadians(60))
     );
 
-    pid.setTolerance(Math.toRadians(10), Math.toRadians(1));
+    pid.setTolerance(Math.toRadians(.05), Math.toRadians(1));
     pid.enableContinuousInput(-Math.PI, Math.PI);
 
     addRequirements(s_Swerve);
@@ -69,7 +69,7 @@ public class SnakeTeleop extends CommandBase {
       -translateX.getValue()
     ).times(SwerveSettings.driver.maxSpeed() * baseSpeed + ((1.0 - baseSpeed) * (redKey.getValue() > .5 ? 1.0 : 0.0)));
 
-    if (s_Swerve.getChassisSpeed() > 0.1) {
+    if (s_Swerve.getChassisSpeed() > 0.25) {
       snake(translation);
     } else {
       normalDrive(translation);
@@ -77,11 +77,11 @@ public class SnakeTeleop extends CommandBase {
   }
 
   private void snake(Translation2d translation) {
-    Rotation2d currentVelocityDirection = Rotation2d.fromRadians(Math.tan(
-      s_Swerve.speedVector.vyMetersPerSecond / s_Swerve.speedVector.vxMetersPerSecond
-    ));
+    double currentVelocityDirection = Rotation2d.fromRadians(Math.PI / 2).minus(Rotation2d.fromRadians(Math.atan(
+      s_Swerve.speedVector.vxMetersPerSecond / s_Swerve.speedVector.vyMetersPerSecond
+    ))).getRadians();
 
-    TrapezoidProfile.State finalState = new TrapezoidProfile.State(currentVelocityDirection.getRadians(), 0);
+    TrapezoidProfile.State finalState = new TrapezoidProfile.State(currentVelocityDirection, 0);
     double newRotationInput = pid.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
 
     s_Swerve.drive(

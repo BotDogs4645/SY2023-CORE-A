@@ -25,6 +25,7 @@ import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
 import frc.robot.commands.swervecommands.ForcedHeadingTeleop;
 import frc.robot.commands.swervecommands.NormalTeleop;
+import frc.robot.commands.swervecommands.SnakeTeleop;
 import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
@@ -139,6 +140,11 @@ public class RobotContainer {
     driver.getJoystickButton(JoystickButtonID.kX)
       .whileTrue(
         new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, Math.PI / 2)
+      );
+
+    driver.getJoystickButton(JoystickButtonID.kRightBumper)
+      .whileTrue(
+        new SnakeTeleop(swerve, leftXAxis, leftYAxis, rightTrigger)
       );
 
     // Other types of modes
