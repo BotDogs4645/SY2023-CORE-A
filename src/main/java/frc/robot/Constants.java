@@ -36,13 +36,13 @@ public final class Constants {
             Idle(-Math.PI / 2),
             Straight(0),
             ;
-            private TrapezoidProfile.State angle;
+            private double angle;
 
             private PendulumCommand(double position) {
-                this.angle = new TrapezoidProfile.State(position, 0);
+                this.angle = position;
             }
 
-            public TrapezoidProfile.State get() {
+            public double get() {
                 return angle;
             }
         }

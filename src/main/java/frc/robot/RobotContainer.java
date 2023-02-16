@@ -80,7 +80,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     /* Axis Controllers */
     JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, SwerveSettings.driver.leftX());
-    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.rightX());
+    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.leftY());
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
 
     /* Driver Buttons */
@@ -130,7 +130,7 @@ public class RobotContainer {
     pendulum.setDefaultCommand(
       new InstantCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Idle.get().position, 0.0));
+        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Idle.get(), 0.0));
       }
     ));
 
