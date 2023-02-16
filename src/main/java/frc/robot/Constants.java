@@ -58,14 +58,15 @@ public final class Constants {
         public static final double cancoderOffset = 0.0;
 
         /* State Space Settings */
+        public static double measurementDelay = 0.0;
 
         // Characterization
         public static final double kS = 0.0;
         public static final double kV = 0.0;
-        public static final double kA = 0.0;      
+        public static final double kA = 0.0;
         
         // Other
-        public static final double momentOfInertia = 0.0;
+        public static final double momentOfInertia = 45.88 / 14.0;
         public static final double gearing = 48.0 / 1.0; // output / input
         public static final TrapezoidProfile.Constraints pendulumConstraints =
             new TrapezoidProfile.Constraints(

@@ -10,6 +10,7 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import edu.wpi.first.math.numbers.*;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
@@ -45,7 +46,13 @@ public class Pendulum extends SubsystemBase {
         Rotation2d.fromRadians(-Math.PI)
       );
 
-      pendulumRotationAngle = new TrapezoidProfile.State(Math.asin(endEffector.getZ() - PendulumConstants.heightOfAxis / PendulumConstants.armLength), 0);
+      pendulumRotationAngle = new TrapezoidProfile.State(
+        MathUtil.clamp(
+          Math.asin(endEffector.getZ() - PendulumConstants.heightOfAxis / PendulumConstants.armLength),
+          -Math.PI / 2,
+          Math.PI / 2
+        ),
+        0);
     }
 
     public Pose2d getRobotPosition() {
@@ -112,6 +119,7 @@ public class Pendulum extends SubsystemBase {
     );
 
     this.controlLoop = new LinearSystemLoop<>(pendulumPlant, LQR, observer, 12.0, 0.020);
+    LQR.latencyCompensate(pendulumPlant, 0.020, PendulumConstants.measurementDelay);
     zero();
 
     lastProfiledReference = new TrapezoidProfile.State(plantMotor.getShaftRotationsInRadians(), plantMotor.getShaftVelocityInRadians());
