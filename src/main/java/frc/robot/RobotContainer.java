@@ -21,6 +21,7 @@ import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
+import frc.robot.Constants.PendulumConstants.PendulumCommand;
 import frc.robot.commands.AutoPlaceCommand;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
@@ -129,7 +130,7 @@ public class RobotContainer {
     pendulum.setDefaultCommand(
       new InstantCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.move(new TrapezoidProfile.State(-Math.PI / 2, 0.0));
+        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Idle.get().position, 0.0));
       }
     ));
 

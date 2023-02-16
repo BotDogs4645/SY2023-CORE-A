@@ -30,6 +30,23 @@ public final class Constants {
     public static final NetworkTable LogTable = NetworkTableInstance.getDefault().getTable("Loggables");
 
     public static class PendulumConstants {
+        // picture for reference
+        // 
+        public static enum PendulumCommand {
+            Idle(-Math.PI / 2),
+            Straight(0),
+            ;
+            private TrapezoidProfile.State angle;
+
+            private PendulumCommand(double position) {
+                this.angle = new TrapezoidProfile.State(position, 0);
+            }
+
+            public TrapezoidProfile.State get() {
+                return angle;
+            }
+        }
+
         public static final TalonFXW.FXWConfig pendulumFalconsConfig = new TalonFXW.FXWConfig(0, 0);
         public static final int numOfMotors = 3;
 
