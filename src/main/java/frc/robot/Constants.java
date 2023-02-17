@@ -4,17 +4,12 @@
 
 package frc.robot;
 
-import java.util.Map;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
+
+import java.util.Map;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -34,6 +29,11 @@ public final class Constants {
 
         public static final double closeSpeed = -0.25; // TODO: Calibrate a good value
         public static final double openSpeed = 0.25; // TODO: Calibrate a good value
+
+        public static final JoystickButtonID buttonOpen = null; // TODO: Find a good button
+        public static final JoystickButtonID buttonClose = null; // TODO: Find a good button
+
+        public static final int limitSwitchChannel = 1; // TODO: Get actual value
 
     }
 

@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import java.util.Optional;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -26,7 +23,8 @@ import frc.robot.commands.autos.ExampleCommand;
 import frc.robot.commands.swervecommands.TeleopSwerve;
 import frc.robot.commands.swervecommands.TeleopSwerveAroundPoint;
 import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
-import frc.robot.subsystems.*;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
 
@@ -93,15 +91,10 @@ public class RobotContainer {
       );
     
     driver.getJoystickButton(JoystickButtonID.kA)
-      .onTrue(new InstantCommand(() -> {
-        swerve.zeroGyro();
-      }));
+            .onTrue(new InstantCommand(swerve::zeroGyro));
 
-    // driver.getJoystickButton(JoystickButtonID.kY)
-    // .toggleOnTrue(new OrientationFlipCommand(
-    // swerve, leftXAxis, leftYAxis
-    // )
-    // );
+//     driver.getJoystickButton(JoystickButtonID.kY)
+//             .toggleOnTrue(new OrientationFlipCommand(swerve, leftXAxis, leftYAxis));
 
     driver.getJoystickButton(JoystickButtonID.kY)
       .toggleOnTrue(new TeleopSwerveAroundPoint(swerve, leftXAxis, leftYAxis, rightXAxis)
@@ -115,29 +108,26 @@ public class RobotContainer {
 
     /* Manipulator Buttons */
     manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
-      .onTrue(new SetVisionSettings(manipulator, vision));
+            .onTrue(new SetVisionSettings(manipulator, vision));
 
-    manipulator.getJoystickButton(null) // TODO
-      .onTrue(new RunCommand(claw::close))
-      .onFalse(new RunCommand(claw::open));
+    manipulator.getJoystickButton(Constants.ClawConstants.buttonOpen)
+            .onTrue(new RunCommand(claw::open))
+            .onFalse(new RunCommand(claw::stop));
 
-    // Vision bindings
+    manipulator.getJoystickButton(Constants.ClawConstants.buttonClose)
+            .onTrue(new RunCommand(claw::close))
+            .onFalse(new RunCommand(claw::stop));
+
+    /* Vision Bindings */
+    new RunCommand(() -> vision.getRobotPoseContributor().ifPresent(swerve::provideVisionInformation))
+            .ignoringDisable(true)
+            .schedule();
 
     /* Default Commands */
-    swerve.setDefaultCommand(
-      new TeleopSwerve(
-        swerve, leftXAxis, leftYAxis, rightXAxis, false
-      )
-    );
+    swerve.setDefaultCommand(new TeleopSwerve(swerve, leftXAxis, leftYAxis, rightXAxis, false));
 
-    new RunCommand(() -> {
-      Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
-      if (possible_pose.isPresent()) {
-        swerve.provideVisionInformation(possible_pose.get());
-      }
-    })
-    .ignoringDisable(true)
-    .schedule();
+    claw.setDefaultCommand(new RunCommand(claw::updateNeutral));
+
   }
 
   private void configureAutonomous() {
