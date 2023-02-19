@@ -18,11 +18,15 @@ import frc.bdlib.custom_talon.TalonFXW;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants. This class should not be used for any other purpose. All constants should be declared
+ * The Constants class provides a convenient place for teams to hold robot-wide
+ * numerical or boolean
+ * constants. This class should not be used for any other purpose. All constants
+ * should be declared
  * globally (i.e. public static). Do not put anything functional in this class.
  *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
+ * <p>
+ * It is advised to statically import this class (or one of its inner classes)
+ * wherever the
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
@@ -31,11 +35,12 @@ public final class Constants {
 
     public static class PendulumConstants {
         // picture for reference
-        // 
+        //
         public static enum PendulumCommand {
             Idle(-Math.PI / 2),
             Straight(0),
             ;
+
             private double angle;
 
             private PendulumCommand(double position) {
@@ -48,7 +53,7 @@ public final class Constants {
         }
 
         public static final TalonFXW.FXWConfig pendulumFalconsConfig = new TalonFXW.FXWConfig(0, 0);
-        public static final int numOfMotors = 3;
+        public static final int numOfMotors = 2;
 
         // TODO: find ids
         public static final int controllerId = 1;
@@ -64,29 +69,30 @@ public final class Constants {
         public static final double kS = 0.0;
         public static final double kV = 0.0;
         public static final double kA = 0.0;
-        
+
         // Other
         public static final double momentOfInertia = 45.88 / 14.0;
         public static final double gearing = 48.0 / 1.0; // output / input
-        public static final TrapezoidProfile.Constraints pendulumConstraints =
-            new TrapezoidProfile.Constraints(
+        public static final TrapezoidProfile.Constraints pendulumConstraints = new TrapezoidProfile.Constraints(
                 Units.degreesToRadians(45),
-                Units.degreesToRadians(90)
-            ); // Max arm speed and acceleration.
-        
-        public static final double heightOfAxis =  Units.inchesToMeters(0.0);
+                Units.degreesToRadians(90)); // Max arm speed and acceleration.
+
+        public static final double heightOfAxis = Units.inchesToMeters(51.2); // gathered from CAD
         public static final double armLength = Units.inchesToMeters(40.5);
 
     }
 
     public static class CameraConstants {
-        // "x+" = Pigeon2 orientation dependent ;p - check which direction points forward.. x+ can be technically defined as the x+ from a pose
-        // defined from the origin of the robot chassis facing the "front face" of the robot. Or atleast it should be.
+        // "x+" = Pigeon2 orientation dependent ;p - check which direction points
+        // forward.. x+ can be technically defined as the x+ from a pose
+        // defined from the origin of the robot chassis facing the "front face" of the
+        // robot. Or atleast it should be.
         public static enum CameraDefaults {
             MountOne(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, 0.0)),
             MountTwo(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, 0.0));
 
             Transform3d overallTransform;
+
             private CameraDefaults(Translation3d translation, Rotation3d rotation) {
                 this.overallTransform = new Transform3d(translation, rotation);
             }
@@ -100,17 +106,20 @@ public final class Constants {
     public static class AutoPositionConstants {
         public static enum AprilTagTransformDirection {
             // note: no rotation transformation should be required
-            // this direction should only move the apriltag pose left, center, or right, so the Y coord
-            // That coord should basically be aligned w/ the apriltag pose in the Z dimension 
+            // this direction should only move the apriltag pose left, center, or right, so
+            // the Y coord
+            // That coord should basically be aligned w/ the apriltag pose in the Z
+            // dimension
             // just translated to the left, center or right.
-            // TODO: find translational values
+            // found from CAD btw
 
-            // Transforms the april tag to a position to the.. 
-            LEFT(new Translation3d(0, -3.2, 0), new Rotation3d()),
+            // Transforms the april tag to a position to the..
+            LEFT(new Translation3d(0, Units.inchesToMeters(22), 0), new Rotation3d()),
             CENTER(new Translation3d(0, 0, 0), new Rotation3d()),
-            RIGHT(new Translation3d(0, 3.2, 0), new Rotation3d()); 
+            RIGHT(new Translation3d(0, Units.inchesToMeters(-22), 0), new Rotation3d());
 
             Transform3d transform;
+
             private AprilTagTransformDirection(Translation3d translate, Rotation3d heading) {
                 this.transform = new Transform3d(translate, heading);
             }
@@ -121,34 +130,26 @@ public final class Constants {
         }
 
         public static enum GamePiecePlacementLevel {
-            BOTTOM(new Translation3d(0, 0, 0), new Rotation3d()),
-            MIDDLE(new Translation3d(0, 0, 0), new Rotation3d()),
-            TOP(new Translation3d(0, 0, 0), new Rotation3d())
-            ;
+            // Z in this case literally represents the Z transformation from the floor, not the apriltag
+            BOTTOM(new Translation3d(Units.inchesToMeters(6.77500), 0, Units.inchesToMeters(-14.53)), new Rotation3d()),
+            MIDDLE(new Translation3d(Units.inchesToMeters(-8.9125), 0, Units.inchesToMeters(17.5)), new Rotation3d()),
+            TOP(new Translation3d(Units.inchesToMeters(-25.9256), 0, Units.inchesToMeters(29.845)), new Rotation3d());
 
-            /* args depend on what method we use to determine what type of inputs we grab here.
-             * For example, if we:
-             * do an arm: These will be Pose3ds that the end affector has to move to.
-             * do an elevator with telescoping arm: These will be xz coordinates with a Y scalar to represent length
-             * other stuff: idk lol
-             */
+            Transform3d transform;
 
-            
-             Transform3d transform;
-             private GamePiecePlacementLevel(Translation3d translate, Rotation3d heading) {
-                 this.transform = new Transform3d(translate, heading);
-             }
- 
-             public Transform3d getTransform() {
-                 return transform;
-             }
+            private GamePiecePlacementLevel(Translation3d translate, Rotation3d heading) {
+                this.transform = new Transform3d(translate, heading);
+            }
+
+            public Transform3d getTransform() {
+                return transform;
+            }
         }
 
         public static Map<JoystickButtonID, GamePiecePlacementLevel> placementButtons = Map.of(
-            JoystickButtonID.kA, GamePiecePlacementLevel.BOTTOM,
-            JoystickButtonID.kX, GamePiecePlacementLevel.MIDDLE,
-            JoystickButtonID.kY, GamePiecePlacementLevel.TOP
-        );
+                JoystickButtonID.kA, GamePiecePlacementLevel.BOTTOM,
+                JoystickButtonID.kX, GamePiecePlacementLevel.MIDDLE,
+                JoystickButtonID.kY, GamePiecePlacementLevel.TOP);
 
         public static AprilTagTransformDirection getPoseAlignmentFromNumber(int number) {
             return switch (number) {
@@ -160,14 +161,15 @@ public final class Constants {
             };
         }
     }
-    // 
-    public static final double FIELD_ZERO_MAGNETIC_HEADING = 0;
 
+    //
+    public static final double FIELD_ZERO_MAGNETIC_HEADING = 0;
 
     public static enum AlignedPose {
         ;
-        
+
         Translation2d aligned_pose;
+
         private AlignedPose(double x, double y) {
             aligned_pose = new Translation2d(x, y);
         }

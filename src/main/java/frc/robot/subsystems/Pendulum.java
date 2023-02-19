@@ -43,14 +43,14 @@ public class Pendulum extends SubsystemBase {
 
       robotPosition = new Pose2d(
         new Translation2d(endEffector.getX() + distanceXFromEndEffector, endEffector.getY()),
-        Rotation2d.fromRadians(-Math.PI)
+        Rotation2d.fromRadians(0)
       );
 
       pendulumRotationAngle = new TrapezoidProfile.State(
         MathUtil.clamp(
           Math.asin(endEffector.getZ() - PendulumConstants.heightOfAxis / PendulumConstants.armLength),
           -Math.PI / 2,
-          Math.PI / 2
+          Math.PI * 2 / 9
         ),
         0);
     }

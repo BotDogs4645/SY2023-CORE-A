@@ -68,9 +68,8 @@ public class AutoPlaceCommand extends CommandBase {
     // Use final target as the snapshot and determine the end effector pose
     Pose3d endEffector = 
       vision.getAprilTagPose(finalTarget.getFiducialId()) // get the AprilTag's pose
-      .transformBy(vision.getSelectedAprilTagTransform().getTransform()) // move the pose left, not at all or right
-      .transformBy(vision.getLocationToPlace().getTransform()) // move the pose to the placement position
-    ;
+      .transformBy(vision.getSelectedAprilTagTransform().getTransform())
+      .transformBy(vision.getLocationToPlace().getTransform());
 
     PendulumControlRequest goal = new PendulumControlRequest(endEffector);
 
