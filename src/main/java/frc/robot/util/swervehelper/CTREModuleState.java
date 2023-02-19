@@ -1,5 +1,6 @@
 package frc.robot.util.swervehelper;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
@@ -40,12 +41,9 @@ public class CTREModuleState {
           upperBound = scopeReference - lowerOffset;
           lowerBound = scopeReference - (360 + lowerOffset);
       }
-      while (newAngle < lowerBound) {
-          newAngle += 360;
-      }
-      while (newAngle > upperBound) {
-          newAngle -= 360;
-      }
+
+      newAngle = MathUtil.inputModulus(newAngle, lowerBound, upperBound);
+
       if (newAngle - scopeReference > 180) {
           newAngle -= 360;
       } else if (newAngle - scopeReference < -180) {
