@@ -130,7 +130,6 @@ public final class Constants {
         }
 
         public static enum GamePiecePlacementLevel {
-            // Z in this case literally represents the Z transformation from the floor, not the apriltag
             BOTTOM(new Translation3d(Units.inchesToMeters(6.77500), 0, Units.inchesToMeters(-14.53)), new Rotation3d()),
             MIDDLE(new Translation3d(Units.inchesToMeters(-8.9125), 0, Units.inchesToMeters(17.5)), new Rotation3d()),
             TOP(new Translation3d(Units.inchesToMeters(-25.9256), 0, Units.inchesToMeters(29.845)), new Rotation3d());
