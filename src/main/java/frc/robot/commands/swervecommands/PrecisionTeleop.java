@@ -68,9 +68,9 @@ public class PrecisionTeleop extends CommandBase {
     double newRotationInput = pid.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
 
     Translation2d translation = new Translation2d(0, 0);
-    
+
     if (pid.atGoal()) {
-      if ((closestHeading == headings[0] || closestHeading == headings[2])) {
+      if (closestHeading == headings[0] || closestHeading == headings[2]) {
         translation = new Translation2d(0, translateY.getValue())
           .times(SwerveSettings.driver.maxSpeed() * 0.3);
       } else {
@@ -87,10 +87,6 @@ public class PrecisionTeleop extends CommandBase {
       )
     );
   }
-
-  // public Translation2d getMovement() {
-
-  // }
 
   // Called once the command ends or is interrupted.
   @Override
