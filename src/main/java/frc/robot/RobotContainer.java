@@ -23,6 +23,7 @@ import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
 import frc.robot.commands.swervecommands.NormalTeleop;
+import frc.robot.commands.swervecommands.PrecisionTeleop;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
@@ -105,9 +106,13 @@ public class RobotContainer {
     );
 
     // Other types of modes
-    // Snake mode
-
     // Precision mode
+    driver.getJoystickButton(JoystickButtonID.kX)
+      .whileTrue(
+        new PrecisionTeleop(swerve, leftYAxis)
+      );
+
+    // Recenter gyro mode
     driver.getJoystickButton(JoystickButtonID.kBack)
       .toggleOnTrue(new InstantCommand(() -> {
         swerve.zeroGyro();

@@ -49,7 +49,7 @@ public class PrecisionTeleop extends CommandBase {
     // get the rotation of the Robot's pose
     double robotRotation = s_Swerve.getPose().getRotation().getRadians();
 
-    // see which is closer, 180 degrees or 0
+    // see which is closer: 0, 90, 180, or 270 degrees
     double lowestDifference = Math.abs(robotRotation - headings[0]);
     closestHeading = 0;
     for (double dub: headings) {
@@ -67,9 +67,16 @@ public class PrecisionTeleop extends CommandBase {
     TrapezoidProfile.State finalState = new TrapezoidProfile.State(closestHeading, 0);
     double newRotationInput = pid.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
 
-    Translation2d translation = new Translation2d(0, translateY.getValue())
-      .times(SwerveSettings.driver.maxSpeed() * 0.3);
-    
+    Translation2d translation = new Translation2d(0, 0);
+
+    if (pid.atGoal() && (closestHeading == headings[0] || closestHeading == headings[2])) {
+      translation = new Translation2d(0, translateY.getValue())
+        .times(SwerveSettings.driver.maxSpeed() * 0.3);
+    } else if(pid.atGoal() && (closestHeading == headings[1] || closestHeading == headings[3])) {
+      translation = new Translation2d(translateY.getValue(), 0)
+        .times(SwerveSettings.driver.maxSpeed() * 0.3);
+    }
+
     s_Swerve.drive(
       s_Swerve.generateRequest(
         new Pose2d(translation, Rotation2d.fromRadians(newRotationInput)),
