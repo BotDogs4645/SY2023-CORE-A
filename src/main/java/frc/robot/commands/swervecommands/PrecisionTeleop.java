@@ -68,13 +68,15 @@ public class PrecisionTeleop extends CommandBase {
     double newRotationInput = pid.calculate(s_Swerve.getPose().getRotation().getRadians(), finalState);
 
     Translation2d translation = new Translation2d(0, 0);
-
-    if (pid.atGoal() && (closestHeading == headings[0] || closestHeading == headings[2])) {
-      translation = new Translation2d(0, translateY.getValue())
-        .times(SwerveSettings.driver.maxSpeed() * 0.3);
-    } else if(pid.atGoal() && (closestHeading == headings[1] || closestHeading == headings[3])) {
-      translation = new Translation2d(translateY.getValue(), 0)
-        .times(SwerveSettings.driver.maxSpeed() * 0.3);
+    
+    if (pid.atGoal()) {
+      if ((closestHeading == headings[0] || closestHeading == headings[2])) {
+        translation = new Translation2d(0, translateY.getValue())
+          .times(SwerveSettings.driver.maxSpeed() * 0.3);
+      } else {
+        translation = new Translation2d(translateY.getValue(), 0)
+          .times(SwerveSettings.driver.maxSpeed() * 0.3);
+      }
     }
 
     s_Swerve.drive(
