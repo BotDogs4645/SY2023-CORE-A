@@ -21,8 +21,6 @@ public class NormalTeleop extends CommandBase {
   private JoystickButton disableFOC;
   private JoystickAxisAIO redKey;
 
-  Rotation2d currentVelocityDirection = new Rotation2d();
-
   private double baseSpeed = .6;
 
   /** Creates a new TeleopController. */
@@ -47,7 +45,7 @@ public class NormalTeleop extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (disableFOC.getAsBoolean()) {
+    if (!disableFOC.getAsBoolean()) {
       move();
     } else {
       moveNoFOC();

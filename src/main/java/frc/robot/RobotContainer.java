@@ -110,7 +110,7 @@ public class RobotContainer {
     // Precision mode
     driver.getJoystickButton(JoystickButtonID.kX)
       .whileTrue(
-        new PrecisionTeleop(swerve, leftYAxis)
+        new PrecisionTeleop(swerve, leftXAxis)
       );
 
     // Recenter gyro mode
