@@ -19,8 +19,8 @@ public class CTREModuleState {
     double targetSpeed = desiredState.speedMetersPerSecond;
     double delta = targetAngle - currentAngle.getDegrees();
     if (Math.abs(delta) > 90){
-        targetSpeed = -targetSpeed;
-        targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);
+      targetSpeed = -targetSpeed;
+      targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);
     }        
     return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
   }
@@ -35,19 +35,19 @@ public class CTREModuleState {
       double upperBound;
       double lowerOffset = scopeReference % 360;
       if (lowerOffset >= 0) {
-          lowerBound = scopeReference - lowerOffset;
-          upperBound = scopeReference + (360 - lowerOffset);
+        lowerBound = scopeReference - lowerOffset;
+        upperBound = scopeReference + (360 - lowerOffset);
       } else {
-          upperBound = scopeReference - lowerOffset;
-          lowerBound = scopeReference - (360 + lowerOffset);
+        upperBound = scopeReference - lowerOffset;
+        lowerBound = scopeReference - (360 + lowerOffset);
       }
 
       newAngle = MathUtil.inputModulus(newAngle, lowerBound, upperBound);
 
       if (newAngle - scopeReference > 180) {
-          newAngle -= 360;
+        newAngle -= 360;
       } else if (newAngle - scopeReference < -180) {
-          newAngle += 360;
+        newAngle += 360;
       }
       return newAngle;
   }
@@ -56,9 +56,9 @@ public class CTREModuleState {
     double[] expandedStates = new double[8];
     int counter = 0;
     for (int i = 0; i < expandedStates.length; i += 2) {
-        expandedStates[i] = moduleStates[counter].angle.getDegrees();
-        expandedStates[i + 1] = moduleStates[counter].speedMetersPerSecond;
-        counter++;
+      expandedStates[i] = moduleStates[counter].angle.getDegrees();
+      expandedStates[i + 1] = moduleStates[counter].speedMetersPerSecond;
+      counter++;
     }
     return expandedStates;
   } 
