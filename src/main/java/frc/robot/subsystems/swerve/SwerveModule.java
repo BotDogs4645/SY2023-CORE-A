@@ -15,7 +15,7 @@ import frc.robot.util.swervehelper.CTREConfigs;
 import frc.robot.util.swervehelper.CTREModuleState;
 import frc.robot.util.swervehelper.Conversions;
 import frc.robot.util.swervehelper.SwerveSettings;
-import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BOARD_PLACEMENT;
+import frc.robot.util.swervehelper.SwerveSettings.ShuffleboardConstants.BoardPlacement;
 import frc.robot.util.swervehelper.SwerveSettings.SwerveDriveTrain.SwerveModuleConstants;
 
 import java.util.Map;
@@ -61,7 +61,7 @@ public class SwerveModule {
         lastAngle = getState().angle.getDegrees();
 
         // gets the placement of the board via the Shuffleboard placement enumerator
-        BOARD_PLACEMENT placement = BOARD_PLACEMENT.valueOf("TEMP" + moduleNumber);
+        BoardPlacement placement = BoardPlacement.valueOf("TEMP" + moduleNumber);
 
         // Placing stuff on the shuffleboard layout
         layout = sub_tab.getLayout("m" + moduleNumber, BuiltInLayouts.kGrid)
@@ -83,11 +83,11 @@ public class SwerveModule {
         }
     }
 
-    public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {
+    public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop, double powerPercentage) {
         desiredState = CTREModuleState.optimize(desiredState, getState().angle); //Custom optimize command, since default WPILib optimize assumes continuous controller which CTRE is not
 
         if(isOpenLoop) {
-            double percentOutput = desiredState.speedMetersPerSecond / SwerveSettings.driver.maxSpeed();
+            double percentOutput = (desiredState.speedMetersPerSecond / SwerveSettings.driver.maxSpeed()) * powerPercentage;
             mDriveMotor.set(ControlMode.PercentOutput, percentOutput);
         }
         else {
@@ -95,7 +95,7 @@ public class SwerveModule {
             mDriveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward, feedforward.calculate(desiredState.speedMetersPerSecond));
         }
 
-        double angle = (Math.abs(desiredState.speedMetersPerSecond) <= (SwerveSettings.driver.maxSpeed() * 0.011)) ? lastAngle : desiredState.angle.getDegrees(); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
+        double angle = ((Math.abs(desiredState.speedMetersPerSecond) <= (SwerveSettings.driver.maxSpeed() * 0.02)) ? lastAngle : desiredState.angle.getDegrees()); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
         mAngleMotor.set(ControlMode.Position, Conversions.degreesToFalcon(angle, SwerveSettings.SwerveDriveTrain.angleGearRatio)); 
         lastAngle = angle;
     }

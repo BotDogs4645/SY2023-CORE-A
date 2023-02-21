@@ -108,4 +108,10 @@ public final class Constants {
             aligned_pose = new Translation2d(x, y);
         }
     }
+
+    public static enum DriveMode {
+        NORMAL,
+        FORCED_HEADING,
+        SNAKE
+    }
 }

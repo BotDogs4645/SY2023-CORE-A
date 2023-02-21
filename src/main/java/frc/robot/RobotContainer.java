@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.bdlib.driver.ControllerAIO;
@@ -23,9 +22,8 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
-import frc.robot.commands.swervecommands.TeleopSwerve;
-import frc.robot.commands.swervecommands.TeleopSwerveAroundPoint;
-import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
+import frc.robot.commands.swervecommands.NormalTeleop;
+import frc.robot.commands.swervecommands.PrecisionTeleop;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
@@ -46,6 +44,7 @@ public class RobotContainer {
 
   /* Subsystems */
   private final Swerve swerve = new Swerve();
+
   private final Vision vision = new Vision();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -57,8 +56,6 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
 
     Shuffleboard.getTab("auto").add(autoChooser);
-    // JoyRumbler rumbler = new JoyRumbler(driver, driver.getToggleBooleanSupplier(JoystickButtonID.kX, 2));
-    // rumbler.addRumbleScenario(() -> true, RumblerType.LEFT_SHAKER);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -75,64 +72,59 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    /* Axis Controllers */
-    JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, SwerveSettings.driver.leftX());
-    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.rightX());
-    JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
-
-    /* Driver Buttons */
-    ToPoseFromSnapshot toPoseFromSnapshotCommand = new ToPoseFromSnapshot(swerve, vision);
-    driver.getJoystickButton(JoystickButtonID.kX)
-      .toggleOnTrue(
-        new ConditionalCommand(
-            toPoseFromSnapshotCommand,
-            new InstantCommand(),
-            vision::hasTargets
-          )
-      );
-    
-    driver.getJoystickButton(JoystickButtonID.kA)
-      .onTrue(new InstantCommand(() -> {
-        swerve.zeroGyro();
-      }));
-
-    // driver.getJoystickButton(JoystickButtonID.kY)
-    // .toggleOnTrue(new OrientationFlipCommand(
-    // swerve, leftXAxis, leftYAxis
-    // )
-    // );
-
-    driver.getJoystickButton(JoystickButtonID.kY)
-      .toggleOnTrue(new TeleopSwerveAroundPoint(swerve, leftXAxis, leftYAxis, rightXAxis)
-    );
-
-    // driver.getJoystickButton(JoystickButtonID.kY)
-    // .toggleOnTrue(new RotateAroundAbsolutePoint(
-    // swerve, leftXAxis, leftYAxis, rightXAxis,
-    // () -> {return new Translation2d();}
-    // ));
-
     /* Manipulator Buttons */
-    manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
-      .onTrue(new SetVisionSettings(manipulator, vision));
+    configureDriverController();
+    configureManipulatorController();
 
     // Vision bindings
-
-    /* Default Commands */
-    swerve.setDefaultCommand(
-      new TeleopSwerve(
-        swerve, leftXAxis, leftYAxis, rightXAxis, false
-      )
-    );
-
     new RunCommand(() -> {
       Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
       if (possible_pose.isPresent()) {
         swerve.provideVisionInformation(possible_pose.get());
       }
     })
-    .ignoringDisable(true)
-    .schedule();
+      .ignoringDisable(true)
+      .schedule();
+  }
+
+  public void configureDriverController() {
+    /* Axis Controllers */
+    JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, SwerveSettings.driver.leftX());
+    JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.leftY());
+    JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
+    JoystickAxisAIO rightTrigger = driver.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
+
+    driver.getJoystickButton(JoystickButtonID.kA)
+      .onTrue(new InstantCommand(() -> {
+        swerve.zeroGyro();
+      })
+    );
+
+    /* Driver Mode Semantics */
+    // Set the normal teleop command.
+    swerve.setDefaultCommand(new NormalTeleop(swerve, leftXAxis, leftYAxis, rightXAxis,
+      driver.getJoystickButton(JoystickButtonID.kRightBumper), rightTrigger)
+    );
+
+    // Other types of modes
+    // Precision mode
+    driver.getJoystickButton(JoystickButtonID.kX)
+      .whileTrue(
+        new PrecisionTeleop(swerve, leftXAxis)
+      );
+
+    // Recenter gyro mode
+    driver.getJoystickButton(JoystickButtonID.kBack)
+      .toggleOnTrue(new InstantCommand(() -> {
+        swerve.zeroGyro();
+      })
+    );
+  }
+
+  public void configureManipulatorController() {
+    // vision settings
+    manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
+      .onTrue(new SetVisionSettings(manipulator, vision));
   }
 
   private void configureAutonomous() {

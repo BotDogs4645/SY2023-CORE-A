@@ -43,7 +43,7 @@ public class SetVisionSettings extends InstantCommand {
           },
             // If there were no buttons pressed, deal with that here
           () -> {
-            // Set it to middle row (cube) & middle row.
+            // Set it to middle column (cube) & middle row.
             vision.setPlacementSettings(
               GamePiecePlacementLevel.MIDDLE,
               AprilTagTransformDirection.CENTER
