@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
@@ -18,7 +19,7 @@ public class NormalTeleop extends CommandBase {
   private JoystickAxisAIO translateX;
   private JoystickAxisAIO translateY;
   private JoystickAxisAIO rotationTheta;
-  private JoystickAxisAIO eBrake;
+  private JoystickButton eBrake;
   private JoystickAxisAIO redKey;
 
   Rotation2d currentVelocityDirection = new Rotation2d();
@@ -31,7 +32,7 @@ public class NormalTeleop extends CommandBase {
       JoystickAxisAIO translateX,
       JoystickAxisAIO translateY,
       JoystickAxisAIO rotationTheta,
-      JoystickAxisAIO eBrake,
+      JoystickButton eBrake,
       JoystickAxisAIO redKey
     ) {
     this.s_Swerve = s_Swerve;
@@ -48,7 +49,7 @@ public class NormalTeleop extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (eBrake.getValue() < .5) {
+    if (eBrake.getAsBoolean()) {
       move(); 
     } else {
       brake();
