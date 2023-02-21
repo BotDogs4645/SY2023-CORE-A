@@ -23,9 +23,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
-import frc.robot.commands.swervecommands.ForcedHeadingTeleop;
 import frc.robot.commands.swervecommands.NormalTeleop;
-import frc.robot.commands.swervecommands.SnakeTeleop;
 import frc.robot.commands.swervecommands.ToPoseFromSnapshot;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
@@ -119,38 +117,9 @@ public class RobotContainer {
     // Set the normal teleop command.
     swerve.setDefaultCommand(new NormalTeleop(swerve, leftXAxis, leftYAxis, rightXAxis, leftTrigger, rightTrigger));
 
-    // Face cardinal direction commands
-    driver.getJoystickButton(JoystickButtonID.kY)
-      .whileTrue(
-        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, 0)
-      );
-
-    driver.getJoystickButton(JoystickButtonID.kB)
-      .whileTrue(
-        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, -Math.PI / 2)
-      );
-
-    Shuffleboard.getTab("tab").add(swerve);
-
-    driver.getJoystickButton(JoystickButtonID.kA)
-      .whileTrue(
-        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, -Math.PI)
-      );
-
-    driver.getJoystickButton(JoystickButtonID.kX)
-      .whileTrue(
-        new ForcedHeadingTeleop(swerve, leftXAxis, leftYAxis, rightTrigger, Math.PI / 2)
-      );
-
-    driver.getJoystickButton(JoystickButtonID.kRightBumper)
-      .whileTrue(
-        new SnakeTeleop(swerve, leftXAxis, leftYAxis, rightTrigger)
-      );
-
     // Other types of modes
     // Snake mode
-    driver.getJoystickButton(JoystickButtonID.kStart)
-      .whileTrue(new InstantCommand());
+
     
     // Precision mode
     driver.getJoystickButton(JoystickButtonID.kBack)
