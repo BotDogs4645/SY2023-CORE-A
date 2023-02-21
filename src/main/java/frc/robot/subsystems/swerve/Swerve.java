@@ -183,6 +183,18 @@ public class Swerve extends SubsystemBase {
         setModuleStates(request.getRequestInStates(), request.openLoop(), request.power());
     }
 
+    public void driveNoFOC(Pose2d posReq, double powerPercentage) {
+        SwerveModuleState[] states = SwerveDriveTrain.swerveKinematics.toSwerveModuleStates(
+            new ChassisSpeeds(
+                posReq.getX(),
+                posReq.getY(),
+                posReq.getRotation().getRadians()
+            )
+        );
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveSettings.driver.maxSpeed());
+        setModuleStates(states, false, powerPercentage);
+    }
+
     /**
      * Sets each module state, requires all states. This version always has openLoop at false,
      * because it is used for autonomous, which requires PID.

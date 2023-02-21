@@ -34,10 +34,10 @@ public class PrecisionTeleop extends CommandBase {
       6.0,
       0.0,
       0.0,
-      new TrapezoidProfile.Constraints(.2, .1)
+      new TrapezoidProfile.Constraints(Math.toRadians(90), Math.toRadians(60))
     );
 
-    pid.setTolerance(Math.toRadians(10), Math.toRadians(1));
+    pid.setTolerance(Math.toRadians(5), Math.toRadians(0.5));
     pid.enableContinuousInput(-Math.PI, Math.PI);
 
     addRequirements(s_Swerve);

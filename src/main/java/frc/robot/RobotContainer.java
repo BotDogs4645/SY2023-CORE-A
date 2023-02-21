@@ -97,7 +97,8 @@ public class RobotContainer {
     driver.getJoystickButton(JoystickButtonID.kA)
       .onTrue(new InstantCommand(() -> {
         swerve.zeroGyro();
-      }));
+      })
+    );
 
     /* Driver Mode Semantics */
     // Set the normal teleop command.
@@ -116,8 +117,8 @@ public class RobotContainer {
     driver.getJoystickButton(JoystickButtonID.kBack)
       .toggleOnTrue(new InstantCommand(() -> {
         swerve.zeroGyro();
-      }));
-
+      })
+    );
   }
 
   public void configureManipulatorController() {

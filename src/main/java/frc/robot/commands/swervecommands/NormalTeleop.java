@@ -7,7 +7,6 @@ package frc.robot.commands.swervecommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.bdlib.driver.JoystickAxisAIO;
@@ -19,7 +18,7 @@ public class NormalTeleop extends CommandBase {
   private JoystickAxisAIO translateX;
   private JoystickAxisAIO translateY;
   private JoystickAxisAIO rotationTheta;
-  private JoystickButton eBrake;
+  private JoystickButton disableFOC;
   private JoystickAxisAIO redKey;
 
   Rotation2d currentVelocityDirection = new Rotation2d();
@@ -32,14 +31,13 @@ public class NormalTeleop extends CommandBase {
       JoystickAxisAIO translateX,
       JoystickAxisAIO translateY,
       JoystickAxisAIO rotationTheta,
-      JoystickButton eBrake,
-      JoystickAxisAIO redKey
-    ) {
+      JoystickButton disableFOC,
+      JoystickAxisAIO redKey) {
     this.s_Swerve = s_Swerve;
     this.translateX = translateX;
     this.translateY = translateY;
     this.rotationTheta = rotationTheta;
-    this.eBrake = eBrake;
+    this.disableFOC = disableFOC;
     this.redKey = redKey;
 
     // Use addRequirements() here to declare subsystem dependencies.
@@ -49,46 +47,42 @@ public class NormalTeleop extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (eBrake.getAsBoolean()) {
-      move(); 
+    if (disableFOC.getAsBoolean()) {
+      move();
     } else {
-      brake();
+      moveNoFOC();
     }
   }
 
   public void move() {
     Translation2d translation = new Translation2d(
       -translateY.getValue(),
-      -translateX.getValue()
-    ).times(SwerveSettings.driver.maxSpeed());
+      -translateX.getValue()).times(SwerveSettings.driver.maxSpeed());
 
     Rotation2d rotation = Rotation2d.fromRadians(
-      -rotationTheta.getValue() * SwerveSettings.driver.maxRotationSpeed()
-    );
+      -rotationTheta.getValue() * SwerveSettings.driver.maxRotationSpeed());
 
     s_Swerve.drive(
       s_Swerve.generateRequest(
         new Pose2d(translation, rotation),
         true,
-        baseSpeed + ((1.0 - baseSpeed) * (redKey.getValue() > .5 ? 1.0 : 0.0))
-      )
+        baseSpeed + ((1.0 - baseSpeed) * (redKey.getValue() > .5 ? 1.0 : 0.0)))
     );
   }
 
-  public void brake() {
-    if (s_Swerve.getChassisSpeed() > .5) {
-      currentVelocityDirection = Rotation2d.fromRadians(Math.tan(
-        s_Swerve.speedVector.vyMetersPerSecond / s_Swerve.speedVector.vxMetersPerSecond
-      )).plus(Rotation2d.fromRadians(Math.PI / 2));
-    }
-    s_Swerve.nTable.putValue("velo", NetworkTableValue.makeDouble(currentVelocityDirection.getDegrees()));
-    
-    s_Swerve.drive(
-      s_Swerve.generateRequest(
-        new Pose2d(new Translation2d(.1, currentVelocityDirection), new Rotation2d()),
-        true,
-        1.0
-      )
+  public void moveNoFOC() {
+    Translation2d translation = new Translation2d(
+      -translateY.getValue(),
+      -translateX.getValue()).times(SwerveSettings.driver.maxSpeed()
+    );
+
+    Rotation2d rotation = Rotation2d.fromRadians(
+      -rotationTheta.getValue() * SwerveSettings.driver.maxRotationSpeed()
+    );
+
+    s_Swerve.driveNoFOC(
+      new Pose2d(translation, rotation),
+      baseSpeed + ((1.0 - baseSpeed) * (redKey.getValue() > .5 ? 1.0 : 0.0))
     );
   }
 }
