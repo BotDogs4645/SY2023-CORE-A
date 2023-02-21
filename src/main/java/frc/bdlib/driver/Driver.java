@@ -6,7 +6,7 @@ import frc.bdlib.driver.JoystickAxisAIO.AxisSettings;
 
 public class Driver {
     public static final double maxChassisSpeed = 3.96;
-    public static final double maxRotationSpeed = 4; // radians per segund
+    public static final double maxRotationSpeed = 6.6; // radians per segund
     public static final AxisSettings normal = AxisSettings.of(JoystickAxisAIO.GENTLE, .15);
 
     public static final record DriverInfo(
@@ -19,14 +19,14 @@ public class Driver {
     public static enum Profile {
         Average(new DriverInfo(
             normal, normal, normal,
-            0.8 * maxRotationSpeed, 0.5 * maxChassisSpeed,
+            0.8 * maxChassisSpeed, 0.5 * maxRotationSpeed,
             NeutralMode.Coast,
             0
         )),
 
         LittleDrew(new DriverInfo(
             normal, normal, normal,
-            0.8 * maxRotationSpeed, 0.5 * maxChassisSpeed,
+            0.8 * maxChassisSpeed, 0.5 * maxRotationSpeed,
             NeutralMode.Coast,
             0
         ))
