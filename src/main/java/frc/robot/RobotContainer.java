@@ -25,6 +25,7 @@ import frc.robot.commands.autos.ExampleCommand;
 import frc.robot.commands.swervecommands.NormalTeleop;
 import frc.robot.commands.swervecommands.PrecisionTeleop;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.bit.BITManager;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
 
@@ -44,8 +45,8 @@ public class RobotContainer {
 
   /* Subsystems */
   private final Swerve swerve = new Swerve();
-
   private final Vision vision = new Vision();
+  private final BITManager BIT = new BITManager(swerve, vision);
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -144,5 +145,9 @@ public class RobotContainer {
   public Command getChooser() {
     // An ExampleCommand will run in autonomous
     return autoChooser.getSelected();
+  }
+
+  public BITManager getBITManager() {
+    return BIT;
   }
 }
