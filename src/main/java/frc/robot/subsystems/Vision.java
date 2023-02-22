@@ -1,14 +1,12 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
@@ -24,7 +22,6 @@ import frc.robot.Constants.AutoPositionConstants.GamePiecePlacementLevel;
 import frc.robot.Constants.CameraConstants.CameraDefaults;
 
 public class Vision extends SubsystemBase {
-
     private PhotonCamera driver_cam;
     private PhotonCamera apriltag_cam;
     private Transform3d centerToAprilTagCamera;
@@ -47,7 +44,7 @@ public class Vision extends SubsystemBase {
 
         // assume that we are testing within our own facilities while testing, else use the current field resource file.
         if (Constants.testing) {
-            tag_locations = new AprilTagFieldLayout(new ArrayList<AprilTag>(), 0, 0);
+            tag_locations = new AprilTagFieldLayout(Constants.tags, 0, 0);
         } else {
             try {
                 tag_locations = new AprilTagFieldLayout(AprilTagFields.k2023ChargedUp.m_resourceFile);

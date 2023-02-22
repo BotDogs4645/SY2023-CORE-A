@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.bit.tests.GyroSettingsTest;
 import frc.robot.subsystems.swerve.Swerve;
 
 /** Add your docs here. */
@@ -24,8 +25,12 @@ public class BITManager {
     private Swerve swerve;
     private Vision vision;
 
+    private SendableChooser<Command> testPicker;
+
+    private boolean available = true;
     private ShuffleboardTab testingTab;
     private SimpleWidget messageWidget;
+    private SimpleWidget isTestingWidget;
 
     public BITManager(Swerve swerve, Vision vision) {
         this.swerve = swerve;
@@ -36,20 +41,42 @@ public class BITManager {
         this.testingTab = Shuffleboard.getTab("Built in Tests");
         this.messageWidget = testingTab.add("Message", "yes")
             .withWidget(BuiltInWidgets.kTextView);
-        SendableChooser<Command> testPicker = new SendableChooser<>();
-        
+        this.testPicker = new SendableChooser<>();
+
+        populatePicker();
+
         testingTab.add(testPicker);
 
         GenericEntry listener = testingTab.add("Run test", false)
             .getEntry();
+
+        this.isTestingWidget = testingTab.add("Test Active", false);
         
         NetworkTableListener.createListener(listener, EnumSet.of(Kind.kPublish),
         (value) -> {
-            if (value.valueData.value.getBoolean()) {
+            if (value.valueData.value.getBoolean() && available) {
                 // activate
                 testPicker.getSelected().schedule();
                 listener.accept(NetworkTableValue.makeBoolean(false));
+            } else {
+                listener.accept(NetworkTableValue.makeBoolean(false));
             }
         });
+    }
+    
+    public SimpleWidget getIndicatorWidget() {
+        return isTestingWidget;
+    }
+
+    public GenericEntry getInstructionsNT() {
+        return messageWidget.getEntry();
+    }
+
+    private void populatePicker() {
+        testPicker.addOption("Gyro Settings Test", new GyroSettingsTest(this, swerve));
+    }
+
+    public void setCanUse(boolean canUse) {
+        available = canUse;
     }
 }

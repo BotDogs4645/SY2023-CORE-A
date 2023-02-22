@@ -4,8 +4,12 @@
 
 package frc.robot;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -27,6 +31,9 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 public final class Constants {
     public static final boolean testing = true;
     public static final NetworkTable LogTable = NetworkTableInstance.getDefault().getTable("Loggables");
+    public static final List<AprilTag> tags = List.of(
+        new AprilTag(0, null)
+    );
 
     public static class CameraConstants {
         // "x+" = Pigeon2 orientation dependent ;p - check which direction points forward.. x+ can be technically defined as the x+ from a pose
