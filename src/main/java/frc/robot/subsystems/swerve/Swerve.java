@@ -41,13 +41,6 @@ public class Swerve extends SubsystemBase {
         static SwerveModuleState[] states;
 
         public ChassisControlRequest {
-            // Second order kinematics - kind of
-            // Twist2d requestedRobotPose = posReq.log(new Pose2d(
-            //     swerve.speedVector.vxMetersPerSecond * 0.020,
-            //     swerve.speedVector.vyMetersPerSecond * 0.020,
-            //     Rotation2d.fromRadians(swerve.speedVector.omegaRadiansPerSecond * 0.020)
-            // ));
-
             states = SwerveDriveTrain.swerveKinematics.toSwerveModuleStates(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                     posReq.getX(),
@@ -74,8 +67,6 @@ public class Swerve extends SubsystemBase {
     private ShuffleboardTab subsystemTab;
     private SwerveAutoBuilder builder;
     private Field2d field;
-
-    public ChassisSpeeds speedVector;
 
     /**
      * A swerve implementation using MK4 SDS modules, with full field oriented features.<p>
@@ -263,6 +254,7 @@ public class Swerve extends SubsystemBase {
      * @return chassis speed in meters / second
      */
     public double getChassisSpeed() {
+        ChassisSpeeds speedVector = getSpeedVector();
         return Math.sqrt(Math.pow(speedVector.vxMetersPerSecond, 2) + Math.pow(speedVector.vyMetersPerSecond, 2));
     }
 
@@ -345,32 +337,19 @@ public class Swerve extends SubsystemBase {
         return new ChassisControlRequest(this, posReq, openLoop, power);
     }
 
-    @Override
-    public void periodic() {
-        // updates our global swerve odometry, making them fully available for use throughout the sub.
-        swerveOdometry.update(getYaw(), getModulePositions());
-
-        field.setRobotPose(getPose());
-
-        // state collection
+    public ChassisSpeeds getSpeedVector() {
         SwerveModuleState currentStates[] = new SwerveModuleState[mSwerveMods.length];
         for (int i = 0; i < mSwerveMods.length; i++) {
             currentStates[i] = mSwerveMods[i].getState();
         }
 
-        nTable.putValue(
-            "Swerve Current States",
-            NetworkTableValue.makeDoubleArray(CTREModuleState.getModuleStatesExpanded(currentStates))
-        );
+        return SwerveDriveTrain.swerveKinematics.toChassisSpeeds(currentStates);
+    }
 
-        nTable.putValue("Yaw", NetworkTableValue.makeDouble(getYaw().getDegrees()));
-
-        this.speedVector = 
-            SwerveDriveTrain.swerveKinematics.toChassisSpeeds(
-                currentStates
-            );
-
-        nTable.putValue("vectors", NetworkTableValue.makeDoubleArray(new Double[] {speedVector.vxMetersPerSecond, speedVector.vyMetersPerSecond}));
-        
+    @Override
+    public void periodic() {
+        // updates our global swerve odometry, making them fully available for use throughout the sub.
+        swerveOdometry.update(getYaw(), getModulePositions());
+        field.setRobotPose(getPose());
     }
 }
