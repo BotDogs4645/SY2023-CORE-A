@@ -26,9 +26,9 @@ import frc.robot.Constants.PendulumConstants.PendulumCommand;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
 import frc.robot.commands.pendulumcommands.AutoPlaceCommand;
+import frc.robot.commands.pendulumcommands.MoveToCapturePosition;
 import frc.robot.commands.pendulumcommands.SetVisionSettings;
 import frc.robot.commands.swervecommands.TeleopSwerve;
-import frc.robot.commands.swervecommands.TeleopSwerveAroundPoint;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
@@ -85,7 +85,9 @@ public class RobotContainer {
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
 
     /* Driver Buttons */
-    driver.getJoystickButton(JoystickButtonID.kX)
+    // TODO: fix semantics here
+    JoystickAxisAIO autoPlaceTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
+    new Trigger(autoPlaceTrigger.axisHigherThan(.5))
       .onTrue(
         new ConditionalCommand(
             new AutoPlaceCommand(pendulum, swerve, vision, driver),
@@ -94,31 +96,16 @@ public class RobotContainer {
           )
       );
     
-    driver.getJoystickButton(JoystickButtonID.kA)
-      .onTrue(new InstantCommand(() -> {
-        swerve.zeroGyro();
-      }));
+    driver.getJoystickButton(JoystickButtonID.kB)
+      .onTrue(
+        new MoveToCapturePosition(swerve, pendulum)
+      );
 
-    // driver.getJoystickButton(JoystickButtonID.kY)
-    // .toggleOnTrue(new OrientationFlipCommand(
-    // swerve, leftXAxis, leftYAxis
-    // )
-    // );
-
-    driver.getJoystickButton(JoystickButtonID.kY)
-      .toggleOnTrue(new TeleopSwerveAroundPoint(swerve, leftXAxis, leftYAxis, rightXAxis)
-    );
-
-    // driver.getJoystickButton(JoystickButtonID.kY)
-    // .toggleOnTrue(new RotateAroundAbsolutePoint(
-    // swerve, leftXAxis, leftYAxis, rightXAxis,
-    // () -> {return new Translation2d();}
-    // ));
 
     /* Manipulator Buttons */
     // TODO: put in manipulator setup in other branch
-    JoystickAxisAIO trigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
-    new Trigger(trigger.axisHigherThan(.5))
+    JoystickAxisAIO settingsChangeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
+    new Trigger(settingsChangeTrigger.axisHigherThan(.5))
       .onTrue(new SetVisionSettings(manipulator, vision));
 
     // Vision bindings
