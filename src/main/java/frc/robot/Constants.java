@@ -37,8 +37,10 @@ public final class Constants {
         // picture for reference
         //
         public static enum PendulumCommand {
+            IdleWithPiece(-Math.PI / 4),
             Idle(-Math.PI / 2),
             Straight(0),
+            RetrieveAngle(0), // TODO: find retrieve angle
             ;
 
             private double angle;
