@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.Optional;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -13,7 +14,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.bdlib.driver.ControllerAIO;
@@ -23,6 +23,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
+import frc.robot.commands.claw.AttemptClawGrab;
 import frc.robot.commands.swervecommands.NormalTeleop;
 import frc.robot.commands.swervecommands.PrecisionTeleop;
 import frc.robot.subsystems.*;
@@ -86,6 +87,12 @@ public class RobotContainer {
     })
       .ignoringDisable(true)
       .schedule();
+
+    // Claw ticker
+    new RunCommand(claw::tickNeutral)
+            .ignoringDisable(true)
+            .schedule();
+
   }
 
   public void configureDriverController() {
@@ -104,6 +111,15 @@ public class RobotContainer {
     swerve.setDefaultCommand(new NormalTeleop(swerve, leftXAxis, leftYAxis, rightXAxis,
       driver.getJoystickButton(JoystickButtonID.kRightBumper), rightTrigger)
     );
+
+    // Attempt Capture
+    manipulator.getJoystickButton(JoystickButtonID.kLeftBumper)
+                    .onTrue(new AttemptClawGrab(claw, 1000, 0.25, 1000, 0.25));
+
+    // Override Release Gripper
+    manipulator.getJoystickButton(JoystickButtonID.kA)
+            .onTrue(new RunCommand(() -> claw.modeOverride(NeutralMode.Coast)))
+            .onFalse(new RunCommand(() -> claw.modeOverride(NeutralMode.Brake)));
 
     // Other types of modes
     // Precision mode
