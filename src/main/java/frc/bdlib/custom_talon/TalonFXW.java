@@ -184,9 +184,9 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
     }
 
     public String getStatus() {
-        Faults current_faults = new Faults();
-        super.getFaults(current_faults);
+        Faults currentFaults = new Faults();
+        super.getFaults(currentFaults);
 
-        return current_faults.hasAnyFault() ? current_faults.toString() : "OK";
+        return currentFaults.hasAnyFault() ? currentFaults.toString() : "OK";
     }
 }

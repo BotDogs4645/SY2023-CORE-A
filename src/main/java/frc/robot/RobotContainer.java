@@ -25,10 +25,11 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.Constants.PendulumConstants.PendulumCommand;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
+import frc.robot.commands.swervecommands.NormalTeleop;
+import frc.robot.commands.swervecommands.PrecisionTeleop;
 import frc.robot.commands.pendulumcommands.AutoPlaceCommand;
 import frc.robot.commands.pendulumcommands.MoveToCapturePosition;
 import frc.robot.commands.pendulumcommands.SetVisionSettings;
-import frc.robot.commands.swervecommands.TeleopSwerve;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
@@ -50,6 +51,7 @@ public class RobotContainer {
   /* Subsystems */
   private final Swerve swerve = new Swerve();
   private final Pendulum pendulum = new Pendulum();
+
   private final Vision vision = new Vision();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -61,8 +63,6 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
 
     Shuffleboard.getTab("auto").add(autoChooser);
-    // JoyRumbler rumbler = new JoyRumbler(driver, driver.getToggleBooleanSupplier(JoystickButtonID.kX, 2));
-    // rumbler.addRumbleScenario(() -> true, RumblerType.LEFT_SHAKER);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -79,6 +79,22 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    /* Manipulator Buttons */
+    configureDriverController();
+    configureManipulatorController();
+
+    // Vision bindings
+    new RunCommand(() -> {
+      Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
+      if (possible_pose.isPresent()) {
+        swerve.provideVisionInformation(possible_pose.get());
+      }
+    })
+      .ignoringDisable(true)
+      .schedule();
+  }
+
+  public void configureDriverController() {
     /* Axis Controllers */
     JoystickAxisAIO leftXAxis = driver.getAxis(JoystickAxisID.kLeftX, SwerveSettings.driver.leftX());
     JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.leftY());
@@ -101,8 +117,23 @@ public class RobotContainer {
         new MoveToCapturePosition(swerve, pendulum)
       );
 
+    // Other types of modes
+    // Precision mode
+    driver.getJoystickButton(JoystickButtonID.kX)
+      .whileTrue(
+        new PrecisionTeleop(swerve, leftXAxis)
+      );
 
-    /* Manipulator Buttons */
+    // Recenter gyro mode
+    driver.getJoystickButton(JoystickButtonID.kBack)
+      .toggleOnTrue(new InstantCommand(() -> {
+        swerve.zeroGyro();
+      })
+    );
+  }
+
+  public void configureManipulatorController() {
+    // vision settings
     // TODO: put in manipulator setup in other branch
     JoystickAxisAIO settingsChangeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
     new Trigger(settingsChangeTrigger.axisHigherThan(.5))
@@ -111,18 +142,6 @@ public class RobotContainer {
     // Vision bindings
 
     /* Default Commands */
-    swerve.setDefaultCommand(
-      new TeleopSwerve(
-        swerve, leftXAxis, leftYAxis, rightXAxis, false
-      )
-    );
-
-    pendulum.setDefaultCommand(
-      new InstantCommand(() -> {
-        // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Idle.get(), 0.0));
-      }, pendulum
-    ));
 
     new RunCommand(() -> {
       Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
