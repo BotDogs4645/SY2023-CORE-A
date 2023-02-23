@@ -77,7 +77,7 @@ public final class Constants {
                 Units.degreesToRadians(45),
                 Units.degreesToRadians(90)); // Max arm speed and acceleration.
 
-        public static final double heightOfAxis = Units.inchesToMeters(50.847); // gathered from CAD
+        public static final double heightOfAxis = Units.inchesToMeters(50.847); // from Drew
         public static final double armLength = Units.inchesToMeters(45.011);
 
     }
