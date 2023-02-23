@@ -60,7 +60,7 @@ public class PrecisionTeleop extends CommandBase {
       }
     }
 
-    pid.reset(new TrapezoidProfile.State(closestHeading, 0));
+    pid.reset(new TrapezoidProfile.State(robotRotation, 0));
   }
 
   // Called every time the scheduler runs while the command is scheduled.

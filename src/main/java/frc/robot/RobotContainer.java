@@ -139,7 +139,7 @@ public class RobotContainer {
 
     driver.getJoystickButton(JoystickButtonID.kB)
       .onTrue(
-        new MoveToCapturePosition(swerve, pendulum)
+        new MoveToCapturePosition(swerve, pendulum, leftXAxis, leftYAxis)
       );
 
     // Recenter gyro mode
