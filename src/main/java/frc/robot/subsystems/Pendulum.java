@@ -48,7 +48,7 @@ public class Pendulum extends SubsystemBase {
 
       pendulumRotationAngle = new TrapezoidProfile.State(
         MathUtil.clamp(
-          Math.asin(endEffector.getZ() - PendulumConstants.heightOfAxis / PendulumConstants.armLength),
+          Math.asin((endEffector.getZ() - PendulumConstants.heightOfAxis) / PendulumConstants.armLength),
           -Math.PI / 2,
           Math.PI * 2 / 9
         ),
