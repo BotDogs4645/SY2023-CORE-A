@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
@@ -115,7 +116,9 @@ public class RobotContainer {
     // ));
 
     /* Manipulator Buttons */
-    manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
+    // TODO: put in manipulator setup in other branch
+    JoystickAxisAIO trigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
+    new Trigger(trigger.axisHigherThan(.5))
       .onTrue(new SetVisionSettings(manipulator, vision));
 
     // Vision bindings

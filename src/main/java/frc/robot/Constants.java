@@ -148,6 +148,7 @@ public final class Constants {
         public static Map<JoystickButtonID, GamePiecePlacementLevel> placementButtons = Map.of(
                 JoystickButtonID.kA, GamePiecePlacementLevel.BOTTOM,
                 JoystickButtonID.kX, GamePiecePlacementLevel.MIDDLE,
+                JoystickButtonID.kB, GamePiecePlacementLevel.MIDDLE,
                 JoystickButtonID.kY, GamePiecePlacementLevel.TOP);
 
         public static AprilTagTransformDirection getPoseAlignmentFromNumber(int number) {
