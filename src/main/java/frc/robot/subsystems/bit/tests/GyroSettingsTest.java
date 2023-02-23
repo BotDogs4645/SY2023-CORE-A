@@ -48,6 +48,8 @@ public class GyroSettingsTest extends CommandBase {
     manager.getIndicatorWidget().getEntry().accept(NetworkTableValue.makeBoolean(true));
     if (endRotation > 0) {
       System.out.println("pass");
+    } else {
+      System.out.println("fail");
     }
   }
 

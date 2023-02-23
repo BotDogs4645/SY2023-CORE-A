@@ -52,12 +52,11 @@ public class BITManager {
 
         this.isTestingWidget = testingTab.add("Test Active", false);
         
-        NetworkTableListener.createListener(listener, EnumSet.of(Kind.kPublish),
+        NetworkTableListener.createListener(listener, EnumSet.of(Kind.kPublish, Kind.kValueRemote),
         (value) -> {
             if (value.valueData.value.getBoolean() && available) {
                 // activate
                 testPicker.getSelected().schedule();
-                listener.accept(NetworkTableValue.makeBoolean(false));
             } else {
                 listener.accept(NetworkTableValue.makeBoolean(false));
             }
