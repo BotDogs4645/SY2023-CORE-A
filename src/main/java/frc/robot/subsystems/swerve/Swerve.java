@@ -14,14 +14,15 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -42,7 +43,7 @@ public class Swerve extends SubsystemBase {
 
     private HashMap<String, Command> events = new HashMap<String, Command>();
     private HashMap<PathList, PathPlannerTrajectory> trajectories = new HashMap<PathList, PathPlannerTrajectory>();
-    private SwerveDriveOdometry swerveOdometry;
+    private SwerveDrivePoseEstimator swerveOdometry;
     private SwerveModule[] mSwerveMods;
     private WPI_Pigeon2 gyro;
     private ShuffleboardTab sub_tab;
@@ -81,7 +82,7 @@ public class Swerve extends SubsystemBase {
 
         // SwerveDrivePoseEstimator instances are used to calculate and keep track of the Robot's
         // pose, which is essentially the coordinates and orientation of the robot.
-        this.swerveOdometry = new SwerveDriveOdometry(SwerveDriveTrain.swerveKinematics, getYaw(), getModulePositions());
+        this.swerveOdometry = new SwerveDrivePoseEstimator(SwerveDriveTrain.swerveKinematics, getYaw(), getModulePositions(), new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
 
         // The SwerveAutoBuilder is used to create paths for this particular swerve drive.
         // All the PID is contained here, and no other commands relating to PathPlanner have to be created.
@@ -224,7 +225,7 @@ public class Swerve extends SubsystemBase {
      * @return the current pose in meters
      */
     public Pose2d getPose() {
-        return swerveOdometry.getPoseMeters();
+        return swerveOdometry.getEstimatedPosition();
     }
 
     /**
@@ -333,7 +334,7 @@ public class Swerve extends SubsystemBase {
     public void provideVisionInformation(Pose2d suspected_pose) {
         if (suspected_pose.getTranslation().getDistance(getPose().getTranslation()) < 1) {
             // seems close enough
-            //swerveOdometry.addVisionMeasurement(suspected_pose, Timer.getFPGATimestamp());
+            swerveOdometry.addVisionMeasurement(suspected_pose, Timer.getFPGATimestamp());
         }
     }
 
