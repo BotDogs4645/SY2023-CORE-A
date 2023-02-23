@@ -23,6 +23,7 @@ import frc.bdlib.driver.ControllerAIO;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Pendulum.PendulumControlRequest;
+import frc.robot.subsystems.Vision.CameraType;
 import frc.robot.subsystems.swerve.Swerve;
 
 
@@ -98,6 +99,8 @@ public class AutoPlaceCommand extends CommandBase {
     rotateOmegaController.reset(currentPose.getRotation().getRadians());
 
     pendulum.zero();
+
+    vision.setDriverCamera(CameraType.Arm);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -143,7 +146,9 @@ public class AutoPlaceCommand extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    vision.setDriverCamera(CameraType.Robot);
+  }
 
   // Returns true when the command should end.
   @Override
