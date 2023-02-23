@@ -7,6 +7,7 @@ package frc.robot.commands.pendulumcommands;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.PendulumConstants.PendulumCommand;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.swerve.Swerve;
 
@@ -40,7 +41,7 @@ public class MoveToCapturePosition extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    
+    pendulum.move(new TrapezoidProfile.State(PendulumCommand.Idle.get(), 0.0));
   }
 
   // Called once the command ends or is interrupted.
