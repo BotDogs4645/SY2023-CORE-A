@@ -65,20 +65,6 @@ public class Claw extends SubsystemBase {
     }
 
     /**
-     * Opens the claw at the speed specified in {@link ClawConstants#openSpeed}.
-     */
-    public void open() {
-        setSpeed(ClawConstants.openSpeed);
-    }
-
-    /**
-     * Closes the claw at the speed specified in {@link ClawConstants#closeSpeed}.
-     */
-    public void close() {
-        setSpeed(ClawConstants.closeSpeed);
-    }
-
-    /**
      * Stops the claw by setting its speed to zero.
      */
     public void stop() {

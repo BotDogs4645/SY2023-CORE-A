@@ -27,9 +27,6 @@ public final class Constants {
 
         public static final int motorDeviceId = 1; // TODO: Get actual value
 
-        public static final double closeSpeed = -0.25; // TODO: Calibrate a good value
-        public static final double openSpeed = 0.25; // TODO: Calibrate a good value
-
         public static final int limitSwitchChannel = 1; // TODO: Get actual value
 
     }
