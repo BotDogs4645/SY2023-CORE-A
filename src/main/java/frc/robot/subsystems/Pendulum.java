@@ -166,6 +166,18 @@ public class Pendulum extends SubsystemBase {
     // might not be required cuz the defaultcommand is to move, so the model is 
     // updated no matter what.. but still. 
   }
+
+  public double getError() {
+    return controlLoop.getError(0);
+  }
+
+  public double getInput() {
+    return controlLoop.getU(0);
+  }
+
+  public double getCurrent() {
+    return controlLoop.getXHat(0);
+  }
   
   @Override
   public void periodic() {}

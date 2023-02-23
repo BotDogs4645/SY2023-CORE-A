@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.ControllerAIO;
 import frc.robot.subsystems.Pendulum;
@@ -53,7 +54,7 @@ public class AutoPlaceCommand extends CommandBase {
     );
 
     rotateOmegaController = new ProfiledPIDController(
-      0.5, 0, 0,
+      5.0, 0, 0,
       new TrapezoidProfile.Constraints(Math.toRadians(20), Math.toRadians(10))
     );
 
@@ -126,6 +127,18 @@ public class AutoPlaceCommand extends CommandBase {
 
     swerve.drive(swerve.generateRequest(new Pose2d(translation, rotation), false, 1.0));
     pendulum.move(currentRequest.getPendulumRotation());
+
+    if (
+      Math.abs(pendulum.getError()) < .25 &&
+      translateXController.atGoal() && 
+      translateYController.atGoal() &&
+      rotateOmegaController.atGoal()
+    ) {
+      // we are at the setpoint!
+      aio.setRumble(RumbleType.kBothRumble, 1.0);
+    } else {
+      aio.setRumble(RumbleType.kBothRumble, 0.0);
+    }
   }
 
   // Called once the command ends or is interrupted.

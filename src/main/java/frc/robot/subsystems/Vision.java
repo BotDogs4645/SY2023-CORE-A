@@ -12,6 +12,10 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -30,8 +34,9 @@ public class Vision extends SubsystemBase {
         Arm
     }
 
-    private PhotonCamera driverCam;
-    private PhotonCamera armCamera;
+    private VideoSink cameraServer;
+    private UsbCamera driverCam;
+    private UsbCamera armCamera;
     private PhotonCamera apriltagCam;
     private Transform3d centerToAprilTagCamera;
 
@@ -44,12 +49,13 @@ public class Vision extends SubsystemBase {
 
     public Vision() {
         PhotonCamera.setVersionCheckEnabled(false);
+        this.cameraServer = CameraServer.getServer();
 
-        this.driverCam = new PhotonCamera("drivervision");
-        driverCam.setDriverMode(true);
+        this.driverCam = CameraServer.startAutomaticCapture(0);
+        driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-        this.armCamera = new PhotonCamera("armvision");
-        armCamera.setDriverMode(true);
+        this.armCamera = CameraServer.startAutomaticCapture(1);
+        driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
         this.apriltagCam = new PhotonCamera("apriltagvision");
         apriltagCam.setDriverMode(false);
@@ -89,8 +95,12 @@ public class Vision extends SubsystemBase {
     public void periodic() {
         if (cameraWantedToDisplay != cameraCurrentlyDisplayed) {
             cameraCurrentlyDisplayed = cameraWantedToDisplay;
-
-
+            if (cameraCurrentlyDisplayed == CameraType.Arm) {
+                cameraServer.setSource(armCamera);
+            }
+            if (cameraCurrentlyDisplayed == CameraType.Robot) {
+                cameraServer.setSource(driverCam);
+            }
         }
     }
     
