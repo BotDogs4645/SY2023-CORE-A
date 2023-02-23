@@ -24,26 +24,43 @@ import frc.robot.Constants.AutoPositionConstants.GamePiecePlacementLevel;
 import frc.robot.Constants.CameraConstants.CameraDefaults;
 
 public class Vision extends SubsystemBase {
+    public enum CameraType {
+        None,
+        Robot,
+        Arm
+    }
 
-    private PhotonCamera driver_cam;
-    private PhotonCamera apriltag_cam;
+    private PhotonCamera driverCam;
+    private PhotonCamera armCamera;
+    private PhotonCamera apriltagCam;
     private Transform3d centerToAprilTagCamera;
 
     private AprilTagFieldLayout tag_locations;
     private AprilTagTransformDirection selectedRobotTransform;
     private GamePiecePlacementLevel levelToPlace;
 
-    public Vision() {
-        this.driver_cam = new PhotonCamera("drivervision");
-        driver_cam.setDriverMode(true);
+    private CameraType cameraWantedToDisplay;
+    private CameraType cameraCurrentlyDisplayed;
 
-        this.apriltag_cam = new PhotonCamera("apriltagvision");
-        apriltag_cam.setDriverMode(false);
+    public Vision() {
         PhotonCamera.setVersionCheckEnabled(false);
+
+        this.driverCam = new PhotonCamera("drivervision");
+        driverCam.setDriverMode(true);
+
+        this.armCamera = new PhotonCamera("armvision");
+        armCamera.setDriverMode(true);
+
+        this.apriltagCam = new PhotonCamera("apriltagvision");
+        apriltagCam.setDriverMode(false);
+
         this.centerToAprilTagCamera = CameraDefaults.MountOne.getTransformation();
 
         this.selectedRobotTransform = AprilTagTransformDirection.CENTER;
         this.levelToPlace = GamePiecePlacementLevel.MIDDLE;
+
+        this.cameraCurrentlyDisplayed = CameraType.None;
+        this.cameraWantedToDisplay = CameraType.Robot;
 
         // assume that we are testing within our own facilities while testing, else use the current field resource file.
         if (Constants.testing) {
@@ -61,10 +78,21 @@ public class Vision extends SubsystemBase {
         } else {
             tag_locations.setOrigin(OriginPosition.kRedAllianceWallRightSide);
         }
+
+        // this.subsystemTab = Shuffleboard.getTab("Vision");
+        // subsystemTab.add(CameraServer.startAutomaticCapture())
+        // .withSize(6, 6)
+        // .withPosition(0, 0);
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+        if (cameraWantedToDisplay != cameraCurrentlyDisplayed) {
+            cameraCurrentlyDisplayed = cameraWantedToDisplay;
+
+
+        }
+    }
     
     // uses optionals for optimal handling outside of the method.
     public Optional<Pose2d> getRobotPoseContributor() {
@@ -86,7 +114,7 @@ public class Vision extends SubsystemBase {
     }
 
     public PhotonPipelineResult getCurrentCaptures() {
-        return apriltag_cam.getLatestResult();
+        return apriltagCam.getLatestResult();
     }
 
     public boolean hasTargets() {
@@ -108,5 +136,9 @@ public class Vision extends SubsystemBase {
 
     public AprilTagTransformDirection getSelectedAprilTagTransform() {
         return selectedRobotTransform;
+    }
+
+    public void setDriverCamera(CameraType camera) {
+        cameraWantedToDisplay = camera;
     }
 }

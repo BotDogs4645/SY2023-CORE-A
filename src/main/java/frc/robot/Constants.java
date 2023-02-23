@@ -52,14 +52,14 @@ public final class Constants {
             }
         }
 
-        public static final TalonFXW.FXWConfig pendulumFalconsConfig = new TalonFXW.FXWConfig(0, 0);
+        public static final TalonFXW.FXWConfig pendulumFalconsConfig = new TalonFXW.FXWConfig(48.1, 0);
         public static final int numOfMotors = 2;
 
         // TODO: find ids
-        public static final int controllerId = 1;
-        public static final int followerId = 2;
+        public static final int controllerId = 20;
+        public static final int followerId = 21;
 
-        public static final int cancoderId = 0;
+        public static final int cancoderId = 23;
         public static final double cancoderOffset = 0.0;
 
         /* State Space Settings */

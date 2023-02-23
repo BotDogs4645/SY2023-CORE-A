@@ -10,10 +10,14 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.bdlib.driver.ControllerAIO;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Pendulum.PendulumControlRequest;
@@ -24,14 +28,19 @@ public class AutoPlaceCommand extends CommandBase {
   private Swerve swerve;
   private Pendulum pendulum;
   private Vision vision;
+  private ControllerAIO aio;
+
+  private Pose3d currentEndEffector;
+  private PendulumControlRequest currentRequest;
 
   private ProfiledPIDController translateXController;
   private ProfiledPIDController translateYController;
   private ProfiledPIDController rotateOmegaController;
-  private TrapezoidProfile.State pendulumAngle;
+
+  private double maxMetersChangePerSecond = 0.25;
 
   /** Creates a new ToPoseFromSnapshotGroup. */
-  public AutoPlaceCommand(Pendulum pendulum, Swerve swerve, Vision vision) {
+  public AutoPlaceCommand(Pendulum pendulum, Swerve swerve, Vision vision, ControllerAIO aio) {
     translateXController = new ProfiledPIDController(
       2.5, 0, 0,
       new TrapezoidProfile.Constraints(2, 1)
@@ -66,18 +75,18 @@ public class AutoPlaceCommand extends CommandBase {
     PhotonTrackedTarget finalTarget = result.getBestTarget();
     
     // Use final target as the snapshot and determine the end effector pose
-    Pose3d endEffector = 
+    currentEndEffector = 
       vision.getAprilTagPose(finalTarget.getFiducialId()) // get the AprilTag's pose
       .transformBy(vision.getSelectedAprilTagTransform().getTransform())
       .transformBy(vision.getLocationToPlace().getTransform());
 
-    PendulumControlRequest goal = new PendulumControlRequest(endEffector);
+    currentRequest = new PendulumControlRequest(currentEndEffector);
 
     // Set the goal.
-    translateXController.setGoal(new State(goal.getRobotPosition().getX(), 0));
-    translateYController.setGoal(new State(goal.getRobotPosition().getY(), 0));
-    rotateOmegaController.setGoal(new State(goal.getRobotPosition().getRotation().getRadians(), 0));
-    pendulumAngle = goal.getPendulumRotation();
+    translateXController.setGoal(new State(currentRequest.getRobotPosition().getX(), 0));
+    translateYController.setGoal(new State(currentRequest.getRobotPosition().getY(), 0));
+    rotateOmegaController.setGoal(new State(currentRequest.getRobotPosition().getRotation().getRadians(), 0));
+    pendulum.move(currentRequest.getPendulumRotation());
 
     // Grab the original pose. The reset() method of PIDControllers is always the **position**, not the velocity.
     // Velocity is something it calculates.
@@ -92,13 +101,22 @@ public class AutoPlaceCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (aio.getPOV() != -1) {
+      // yeah they want to change the end effector.. bruh..
+      double rads = Math.toRadians(aio.getPOV());
+      double changeInX = -(Math.cos(rads) * 0.020) * maxMetersChangePerSecond; // ask dave if u wanna know why this is negative
+      double changeInY = (Math.sin(rads) * 0.020) * maxMetersChangePerSecond;
+      currentEndEffector = currentEndEffector.plus(new Transform3d(new Translation3d(changeInX, changeInY, 0), new Rotation3d()));
+      currentRequest = new PendulumControlRequest(currentEndEffector);
+    }
+
     Translation2d translation = new Translation2d(
-      translateXController.calculate(swerve.getPose().getX()),
-      translateYController.calculate(swerve.getPose().getY())
+      translateXController.calculate(swerve.getPose().getX(), new State(currentRequest.getRobotPosition().getX(), 0)),
+      translateYController.calculate(swerve.getPose().getY(), new State(currentRequest.getRobotPosition().getY(), 0))
     );
 
-    swerve.drive(translation, rotateOmegaController.calculate(swerve.getYaw().getRadians()), false);
-    pendulum.move(pendulumAngle);
+    swerve.drive(translation, rotateOmegaController.calculate(swerve.getYaw().getRadians(), new State(currentRequest.getRobotPosition().getRotation().getRadians(), 0)), false);
+    pendulum.move(currentRequest.getPendulumRotation());
   }
 
   // Called once the command ends or is interrupted.
@@ -108,8 +126,6 @@ public class AutoPlaceCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return translateXController.atSetpoint() && 
-        translateYController.atSetpoint() && 
-        rotateOmegaController.atSetpoint();
+    return false;
   }
 }

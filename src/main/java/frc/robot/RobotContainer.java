@@ -88,7 +88,7 @@ public class RobotContainer {
     driver.getJoystickButton(JoystickButtonID.kX)
       .onTrue(
         new ConditionalCommand(
-            new AutoPlaceCommand(pendulum, swerve, vision),
+            new AutoPlaceCommand(pendulum, swerve, vision, driver),
             new InstantCommand(),
             vision::hasTargets
           )
@@ -134,7 +134,7 @@ public class RobotContainer {
       new InstantCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
         pendulum.move(new TrapezoidProfile.State(PendulumCommand.Idle.get(), 0.0));
-      }
+      }, pendulum
     ));
 
     new RunCommand(() -> {
