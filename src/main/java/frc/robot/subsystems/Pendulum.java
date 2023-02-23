@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -83,6 +84,9 @@ public class Pendulum extends SubsystemBase {
 
     plantMotor.setInverted(TalonFXInvertType.CounterClockwise);
     followerMotor.setInverted(TalonFXInvertType.Clockwise);
+
+    plantMotor.setNeutralMode(NeutralMode.Brake);
+    followerMotor.setNeutralMode(NeutralMode.Brake);
 
     this.absoluteEncoder = new CANCoder(PendulumConstants.cancoderId);
     // we go -180 to 180 to represent the negative as below the horizon
