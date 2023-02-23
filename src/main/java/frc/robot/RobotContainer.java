@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
+import frc.bdlib.driver.ToggleBooleanSupplier;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.Constants.PendulumConstants.PendulumCommand;
@@ -99,12 +100,13 @@ public class RobotContainer {
     JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.leftY());
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
     JoystickAxisAIO rightTrigger = driver.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
+    ToggleBooleanSupplier booleanSupplier = driver.getToggleBooleanSupplier(JoystickButtonID.kY, 0.5);
 
     JoystickAxisAIO autoPlaceTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
     new Trigger(autoPlaceTrigger.axisHigherThan(.5))
       .onTrue(
         new ConditionalCommand(
-            new AutoPlaceCommand(pendulum, swerve, vision, driver),
+            new AutoPlaceCommand(pendulum, swerve, vision, driver, booleanSupplier),
             new InstantCommand(),
             vision::hasTargets
           )

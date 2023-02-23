@@ -20,6 +20,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.ControllerAIO;
+import frc.bdlib.driver.ToggleBooleanSupplier;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Pendulum.PendulumControlRequest;
@@ -32,6 +33,7 @@ public class AutoPlaceCommand extends CommandBase {
   private Pendulum pendulum;
   private Vision vision;
   private ControllerAIO aio;
+  private ToggleBooleanSupplier rumbleMuter;
 
   private Pose3d currentEndEffector;
   private PendulumControlRequest currentRequest;
@@ -43,7 +45,7 @@ public class AutoPlaceCommand extends CommandBase {
   private double maxMetersChangePerSecond = 0.25;
 
   /** Creates a new ToPoseFromSnapshotGroup. */
-  public AutoPlaceCommand(Pendulum pendulum, Swerve swerve, Vision vision, ControllerAIO aio) {
+  public AutoPlaceCommand(Pendulum pendulum, Swerve swerve, Vision vision, ControllerAIO aio, ToggleBooleanSupplier rumbleMuter) {
     translateXController = new ProfiledPIDController(
       2.5, 0, 0,
       new TrapezoidProfile.Constraints(2, 1)
@@ -61,6 +63,7 @@ public class AutoPlaceCommand extends CommandBase {
 
     this.swerve = swerve;
     this.pendulum = pendulum;
+    this.rumbleMuter = rumbleMuter;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(swerve, pendulum);
@@ -101,6 +104,7 @@ public class AutoPlaceCommand extends CommandBase {
     pendulum.zero();
 
     vision.setDriverCamera(CameraType.Arm);
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -132,6 +136,7 @@ public class AutoPlaceCommand extends CommandBase {
     pendulum.move(currentRequest.getPendulumRotation());
 
     if (
+      !rumbleMuter.getValue() &&
       Math.abs(pendulum.getError()) < .25 &&
       translateXController.atGoal() && 
       translateYController.atGoal() &&
