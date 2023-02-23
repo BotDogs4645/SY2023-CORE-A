@@ -23,7 +23,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
-import frc.robot.commands.claw.AttemptClawGrab;
+import frc.robot.commands.claw.BasicClawControl;
 import frc.robot.commands.swervecommands.NormalTeleop;
 import frc.robot.commands.swervecommands.PrecisionTeleop;
 import frc.robot.subsystems.*;
@@ -114,7 +114,13 @@ public class RobotContainer {
 
     // Attempt Capture
     manipulator.getJoystickButton(JoystickButtonID.kLeftBumper)
-                    .onTrue(new AttemptClawGrab(claw, 1000, 0.25, 1000, 0.25));
+            .onTrue(new InstantCommand(() -> claw.setSpeed(0.25)))
+            .onFalse(new InstantCommand(() -> {
+              if (!claw.switchPressed()) {
+                new BasicClawControl(claw, 1000, 0.25)
+                        .schedule();
+              }
+            }));
 
     // Override Release Gripper
     manipulator.getJoystickButton(JoystickButtonID.kA)
