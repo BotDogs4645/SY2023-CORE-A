@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import java.util.Optional;
-
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -23,12 +20,14 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.SetVisionSettings;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
-import frc.robot.commands.claw.BasicClawControl;
 import frc.robot.commands.swervecommands.NormalTeleop;
 import frc.robot.commands.swervecommands.PrecisionTeleop;
-import frc.robot.subsystems.*;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
+
+import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -88,11 +87,6 @@ public class RobotContainer {
       .ignoringDisable(true)
       .schedule();
 
-    // Claw ticker
-    new RunCommand(claw::tickNeutral)
-            .ignoringDisable(true)
-            .schedule();
-
   }
 
   public void configureDriverController() {
@@ -112,20 +106,20 @@ public class RobotContainer {
       driver.getJoystickButton(JoystickButtonID.kRightBumper), rightTrigger)
     );
 
-    // Attempt Capture
-    manipulator.getJoystickButton(JoystickButtonID.kLeftBumper)
-            .onTrue(new InstantCommand(() -> claw.setSpeed(0.25)))
-            .onFalse(new InstantCommand(() -> {
-              if (!claw.switchPressed()) {
-                new BasicClawControl(claw, 1000, 0.25)
-                        .schedule();
-              }
-            }));
+    var closeButton = manipulator.getJoystickButton(JoystickButtonID.kLeftBumper);
+    var override = manipulator.getJoystickButton(JoystickButtonID.kA);
 
-    // Override Release Gripper
-    manipulator.getJoystickButton(JoystickButtonID.kA)
-            .onTrue(new RunCommand(() -> claw.modeOverride(NeutralMode.Coast)))
-            .onFalse(new RunCommand(() -> claw.modeOverride(NeutralMode.Brake)));
+    new RunCommand(() -> {
+      // If the switch is pressed or we're currently closing, we should close
+      boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
+      if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
+        claw.setSpeed(0.5);
+      } else {
+        claw.setSpeed(-0.5);
+      }
+    })
+            .ignoringDisable(true)
+            .schedule();
 
     // Other types of modes
     // Precision mode
