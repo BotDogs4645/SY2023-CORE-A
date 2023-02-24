@@ -8,7 +8,6 @@ import java.util.Map;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -162,24 +161,5 @@ public final class Constants {
                 default -> AprilTagTransformDirection.CENTER;
             };
         }
-    }
-
-    //
-    public static final double FIELD_ZERO_MAGNETIC_HEADING = 0;
-
-    public static enum AlignedPose {
-        ;
-
-        Translation2d aligned_pose;
-
-        private AlignedPose(double x, double y) {
-            aligned_pose = new Translation2d(x, y);
-        }
-    }
-
-    public static enum DriveMode {
-        NORMAL,
-        FORCED_HEADING,
-        SNAKE
     }
 }
