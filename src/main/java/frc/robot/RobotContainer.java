@@ -126,7 +126,7 @@ public class RobotContainer {
 
     // Sets the normal teleop command
     pendulum.setDefaultCommand(
-      new InstantCommand(() -> {
+      new RunCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
         pendulum.move(new TrapezoidProfile.State(PendulumCommand.IdleWithPiece.get(), 0.0));
       }, pendulum

@@ -26,6 +26,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.bdlib.custom_talon.TalonFXW;
 import frc.robot.Constants.PendulumConstants;
@@ -75,6 +77,8 @@ public class Pendulum extends SubsystemBase {
 
   private TrapezoidProfile.State lastProfiledReference;
   private LinearSystemLoop<N2, N1, N1> controlLoop;
+
+  private ShuffleboardTab tab;
 
   public Pendulum() {
     /* Motor declarations - keep it CTRE && on RIO can bus ("") */
@@ -131,6 +135,13 @@ public class Pendulum extends SubsystemBase {
     zero();
 
     lastProfiledReference = new TrapezoidProfile.State(getPendulumPosition(), getPendulumVelocity());
+
+    this.tab = Shuffleboard.getTab("Arm");
+    tab.addNumber("Arm Absolute Angle (degrees)", () -> absoluteEncoder.getAbsolutePosition());
+    tab.addNumber("Arm velo (degrees / second)", () -> absoluteEncoder.getVelocity());
+    tab.addNumber("Arm error (radians)", () -> getError() * (180 / Math.PI));
+    tab.addNumber("Arm input (volts)", () -> getInput());
+    tab.addNumber("Arm input (volts)", () -> getCurrent());
   }
 
   public void zero() {
