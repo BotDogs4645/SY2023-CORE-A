@@ -29,7 +29,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.bdlib.custom_talon.TalonFXW;
 import frc.robot.Constants.PendulumConstants;
-import frc.robot.util.swervehelper.Conversions;
 
 public class Pendulum extends SubsystemBase {
   public static record PendulumControlRequest(Pose3d endEffector) {
@@ -88,10 +87,15 @@ public class Pendulum extends SubsystemBase {
     plantMotor.setNeutralMode(NeutralMode.Brake);
     followerMotor.setNeutralMode(NeutralMode.Brake);
 
+    followerMotor.follow(plantMotor);
+
+    followerMotor.setInverted(TalonFXInvertType.OpposeMaster);
+
     this.absoluteEncoder = new CANCoder(PendulumConstants.cancoderId);
     // we go -180 to 180 to represent the negative as below the horizon
     absoluteEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     absoluteEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
+    absoluteEncoder.setPositionToAbsolute();
 
     /* State space stuff */
     // Pendulum arm model
@@ -126,30 +130,22 @@ public class Pendulum extends SubsystemBase {
     LQR.latencyCompensate(pendulumPlant, 0.020, PendulumConstants.measurementDelay);
     zero();
 
-    lastProfiledReference = new TrapezoidProfile.State(plantMotor.getShaftRotationsInRadians(), plantMotor.getShaftVelocityInRadians());
+    lastProfiledReference = new TrapezoidProfile.State(getPendulumPosition(), getPendulumVelocity());
   }
 
   public void zero() {
-    double absoluteRotationPosition = Conversions.degreesToFalcon(
-      Rotation2d.fromDegrees(absoluteEncoder.getAbsolutePosition()).getDegrees() - PendulumConstants.cancoderOffset, 
-      PendulumConstants.gearing
-    );
-    plantMotor.setSelectedSensorPosition(absoluteRotationPosition);
-    followerMotor.setSelectedSensorPosition(absoluteRotationPosition);
-
     controlLoop.reset(
       VecBuilder.fill(
-        plantMotor.getShaftRotationsInRadians(),
-        plantMotor.getShaftVelocityInRadians()
+        getPendulumPosition(),
+        getPendulumVelocity()
       )
     );
 
-    lastProfiledReference = new TrapezoidProfile.State(plantMotor.getShaftRotationsInRadians(), plantMotor.getShaftVelocityInRadians());
+    lastProfiledReference = new TrapezoidProfile.State(getPendulumPosition(), getPendulumVelocity());
   }
 
   public void set(double voltage) {
     plantMotor.setVoltage(voltage);
-    followerMotor.setVoltage(voltage); 
   }
 
   public void move(TrapezoidProfile.State angle) {
@@ -157,7 +153,7 @@ public class Pendulum extends SubsystemBase {
       (new TrapezoidProfile(PendulumConstants.pendulumConstraints, angle, lastProfiledReference)).calculate(0.020);
     controlLoop.setNextR(lastProfiledReference.position, lastProfiledReference.velocity);
 
-    controlLoop.correct(VecBuilder.fill(plantMotor.getShaftRotationsInRadians()));
+    controlLoop.correct(VecBuilder.fill(getPendulumPosition()));
 
     controlLoop.predict(0.020);
 
@@ -179,6 +175,14 @@ public class Pendulum extends SubsystemBase {
     return controlLoop.getXHat(0);
   }
   
+  public double getPendulumPosition() {
+    return absoluteEncoder.getAbsolutePosition() * (Math.PI / 180.0);
+  }
+
+  public double getPendulumVelocity() {
+    return absoluteEncoder.getVelocity() * (Math.PI / 180.0);
+  }
+
   @Override
   public void periodic() {}
 }
