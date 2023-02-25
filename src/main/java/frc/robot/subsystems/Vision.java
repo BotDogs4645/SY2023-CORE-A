@@ -49,13 +49,13 @@ public class Vision extends SubsystemBase {
 
     public Vision() {
         PhotonCamera.setVersionCheckEnabled(false);
-        this.cameraServer = CameraServer.getServer();
+        // this.cameraServer = CameraServer.getServer();
 
-        this.driverCam = CameraServer.startAutomaticCapture(0);
-        driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        // this.driverCam = CameraServer.startAutomaticCapture(0);
+        // driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-        this.armCamera = CameraServer.startAutomaticCapture(1);
-        driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        // this.armCamera = CameraServer.startAutomaticCapture(1);
+        // driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
         this.apriltagCam = new PhotonCamera("apriltagvision");
         apriltagCam.setDriverMode(false);
@@ -93,15 +93,15 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (cameraWantedToDisplay != cameraCurrentlyDisplayed) {
-            cameraCurrentlyDisplayed = cameraWantedToDisplay;
-            if (cameraCurrentlyDisplayed == CameraType.Arm) {
-                cameraServer.setSource(armCamera);
-            }
-            if (cameraCurrentlyDisplayed == CameraType.Robot) {
-                cameraServer.setSource(driverCam);
-            }
-        }
+        // if (cameraWantedToDisplay != cameraCurrentlyDisplayed) {
+        //     cameraCurrentlyDisplayed = cameraWantedToDisplay;
+        //     if (cameraCurrentlyDisplayed == CameraType.Arm) {
+        //         cameraServer.setSource(armCamera);
+        //     }
+        //     if (cameraCurrentlyDisplayed == CameraType.Robot) {
+        //         cameraServer.setSource(driverCam);
+        //     }
+        // }
     }
     
     // uses optionals for optimal handling outside of the method.

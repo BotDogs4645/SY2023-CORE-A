@@ -128,7 +128,7 @@ public class RobotContainer {
     pendulum.setDefaultCommand(
       new InstantCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Idle.get(), 0.0));
+        pendulum.move(new TrapezoidProfile.State(PendulumCommand.IdleWithPiece.get(), 0.0));
       }, pendulum
     ));
 

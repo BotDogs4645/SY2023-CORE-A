@@ -53,23 +53,23 @@ public final class Constants {
             }
         }
 
-        public static final TalonFXW.FXWConfig pendulumFalconsConfig = new TalonFXW.FXWConfig(48.1, 0);
+        public static final TalonFXW.FXWConfig pendulumFalconsConfig = new TalonFXW.FXWConfig(48, 0);
         public static final int numOfMotors = 2;
 
         // TODO: find ids
-        public static final int controllerId = 20;
-        public static final int followerId = 21;
+        public static final int controllerId = 14;
+        public static final int followerId = 15;
 
-        public static final int cancoderId = 23;
-        public static final double cancoderOffset = 0.0;
+        public static final int cancoderId = 16;
+        public static final double cancoderOffset = 25;
 
         /* State Space Settings */
-        public static double measurementDelay = 0.0;
+        public static double measurementDelay = 203.39;
 
         // Characterization
-        public static final double kS = 0.0;
-        public static final double kV = 0.0;
-        public static final double kA = 0.0;
+        public static final double kS = 0.084424;
+        public static final double kV = 0.67768;
+        public static final double kA = 0.13784;
 
         // Other
         public static final double momentOfInertia = 45.88 / 14.0;
