@@ -4,17 +4,12 @@
 
 package frc.robot;
 
-import java.util.Map;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
+
+import java.util.Map;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -27,6 +22,14 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 public final class Constants {
     public static final boolean testing = true;
     public static final NetworkTable LogTable = NetworkTableInstance.getDefault().getTable("Loggables");
+
+    public static class ClawConstants {
+
+        public static final int motorDeviceId = 1; // TODO: Get actual value
+
+        public static final int limitSwitchChannel = 1; // TODO: Get actual value
+
+    }
 
     public static class CameraConstants {
         // "x+" = Pigeon2 orientation dependent ;p - check which direction points forward.. x+ can be technically defined as the x+ from a pose
