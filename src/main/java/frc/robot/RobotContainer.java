@@ -109,17 +109,16 @@ public class RobotContainer {
     var closeButton = manipulator.getJoystickButton(JoystickButtonID.kLeftBumper);
     var override = manipulator.getJoystickButton(JoystickButtonID.kA);
 
-    new RunCommand(() -> {
-      // If the switch is pressed or we're currently closing, we should close
-      boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
-      if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
-        claw.setSpeed(0.5);
-      } else {
-        claw.setSpeed(-0.5);
-      }
-    })
-            .ignoringDisable(true)
-            .schedule();
+    claw.setDefaultCommand(
+      new RunCommand(() -> {
+        // If the switch is pressed or we're currently closing, we should close
+        boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
+        if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
+          claw.setSpeed(0.5);
+        } else {
+          claw.setSpeed(-0.5);
+        }
+    }, claw));
 
     // Other types of modes
     // Precision mode
