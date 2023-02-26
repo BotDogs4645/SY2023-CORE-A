@@ -4,30 +4,40 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import java.util.List;
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
+
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
+import frc.bdlib.driver.ToggleBooleanSupplier;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
-import frc.robot.commands.SetVisionSettings;
+import frc.robot.Constants.PendulumConstants.PendulumCommand;
 import frc.robot.commands.autos.ExampleAuto1;
 import frc.robot.commands.autos.ExampleCommand;
-import frc.robot.commands.swervecommands.NormalTeleop;
-import frc.robot.commands.swervecommands.PrecisionTeleop;
+import frc.robot.commands.pendulum.AutoPlaceCommand;
+import frc.robot.commands.pendulum.MoveToCapturePosition;
+import frc.robot.commands.pendulum.SetVisionSettings;
+import frc.robot.commands.swerve.NormalTeleop;
+import frc.robot.commands.swerve.PrecisionTeleop;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
-
-import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -46,6 +56,7 @@ public class RobotContainer {
   /* Subsystems */
   private final Swerve swerve = new Swerve();
   private final Vision vision = new Vision();
+  private final Pendulum pendulum = new Pendulum();
   private final Claw claw = new Claw();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -79,10 +90,10 @@ public class RobotContainer {
 
     // Vision bindings
     new RunCommand(() -> {
-      Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
-      if (possible_pose.isPresent()) {
-        swerve.provideVisionInformation(possible_pose.get());
-      }
+      List<Optional<EstimatedRobotPose>> possiblePoses = vision.getRobotPoseContributor();
+      swerve.provideVisionInformation(
+        possiblePoses.stream().filter((item) -> item.isPresent()).map((item) -> item.get()).toList()
+      );
     })
       .ignoringDisable(true)
       .schedule();
@@ -95,7 +106,18 @@ public class RobotContainer {
     JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.leftY());
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
     JoystickAxisAIO rightTrigger = driver.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
+    ToggleBooleanSupplier booleanSupplier = driver.getToggleBooleanSupplier(JoystickButtonID.kY, 0.5);
 
+    JoystickAxisAIO autoPlaceTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
+    new Trigger(autoPlaceTrigger.axisHigherThan(.5))
+      .onTrue(
+        new ConditionalCommand(
+            new AutoPlaceCommand(pendulum, swerve, vision, driver, booleanSupplier),
+            new InstantCommand(),
+            vision::hasTargets
+          )
+      );
+    
     driver.getJoystickButton(JoystickButtonID.kA)
       .onTrue(new InstantCommand(swerve::zeroGyro)
     );
@@ -106,25 +128,24 @@ public class RobotContainer {
       driver.getJoystickButton(JoystickButtonID.kRightBumper), rightTrigger)
     );
 
-    var closeButton = manipulator.getJoystickButton(JoystickButtonID.kLeftBumper);
-    var override = manipulator.getJoystickButton(JoystickButtonID.kA);
-
-    claw.setDefaultCommand(
+    // Sets the normal teleop command
+    pendulum.setDefaultCommand(
       new RunCommand(() -> {
-        // If the switch is pressed or we're currently closing, we should close
-        boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
-        if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
-          claw.setSpeed(0.5);
-        } else {
-          claw.setSpeed(-0.5);
-        }
-    }, claw));
+        // default position is arm facing down @ velocity 0, waiting for position commands
+        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(9), 0.0));
+      }, pendulum
+    ));
 
     // Other types of modes
     // Precision mode
     driver.getJoystickButton(JoystickButtonID.kX)
       .whileTrue(
         new PrecisionTeleop(swerve, leftXAxis)
+      );
+
+    driver.getJoystickButton(JoystickButtonID.kB)
+      .onTrue(
+        new MoveToCapturePosition(swerve, pendulum, leftXAxis, leftYAxis)
       );
 
     // Recenter gyro mode
@@ -137,8 +158,22 @@ public class RobotContainer {
 
   public void configureManipulatorController() {
     // vision settings
-    manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
+    JoystickAxisAIO settingsChangeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
+    new Trigger(settingsChangeTrigger.axisHigherThan(.5))
       .onTrue(new SetVisionSettings(manipulator, vision));
+
+    var closeButton = manipulator.getJoystickButton(JoystickButtonID.kLeftBumper);
+    var override = manipulator.getJoystickButton(JoystickButtonID.kA);
+    claw.setDefaultCommand(
+      new RunCommand(() -> {
+      // If the switch is pressed or we're currently closing, we should close
+      boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
+      if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
+        claw.setSpeed(0.5);
+      } else {
+        claw.setSpeed(-0.5);
+      }
+    }, claw));
   }
 
   private void configureAutonomous() {

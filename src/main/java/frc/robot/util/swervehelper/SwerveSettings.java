@@ -25,7 +25,7 @@ public final class SwerveSettings {
         public static final double wheelDiameter = Units.inchesToMeters(4);
         public static final double wheelCircumference = wheelDiameter * Math.PI;
 
-        public static final double openLoopRamp = 0.25;
+        public static final double openLoopRamp = 0.125;
         public static final double closedLoopRamp = 0.0;
 
         public static final double driveGearRatio = (8.14 / 1.0); //6.86:1

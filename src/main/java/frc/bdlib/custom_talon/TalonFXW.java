@@ -89,14 +89,28 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
      * @return How many rotations the shaft has made.
     */
     public double getShaftRotations() {
-        return super.getSelectedSensorPosition() / 2048;
+        return super.getSelectedSensorPosition() / 2048.0;
     }
     
     /**
      * @return How many full rotations the shaft makes every 100ms
     */
     public double getShaftVelocity() {
-        return super.getSelectedSensorVelocity() / 2048;
+        return super.getSelectedSensorVelocity() / 2048.0;
+    }
+
+    /**
+     * @return How many radians the shaft has rotated
+     */
+    public double getShaftRotationsInRadians() {
+        return super.getSelectedSensorPosition() * (Math.PI * 2 / 2048.0);
+    }
+
+    /**
+     * @return How many radians the shaft rotates per second
+     */
+    public double getShaftVelocityInRadians() {
+        return (super.getSelectedSensorVelocity() * 10) * (Math.PI * 2 / 2048.0);
     }
 
     /**
@@ -110,7 +124,7 @@ public class TalonFXW extends WPI_TalonFX implements BDUpdatable {
      * @return How many rotations the object, through gearing, makes per minute.
     */
     public double getObjectRotationsPerMinute() {
-        return getObjectRotationsPerSecond() * 60;
+        return getObjectRotationsPerSecond() * 60.0;
     }
 
     public double getObjectTotalRotations() {

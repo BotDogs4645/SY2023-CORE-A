@@ -46,15 +46,15 @@ public class SwerveModule {
         
         // More config
         /* Angle Encoder Config */
-        angleEncoder = new CANCoder(moduleConstants.canCoderID());
+        angleEncoder = new CANCoder(moduleConstants.canCoderID(), "canivore");
         configAngleEncoder();
 
         /* Angle Motor Config */
-        mAngleMotor = new TalonFXW(moduleConstants.angleMotorID(), CTRE.angleFXWConfig, SensorUnits.METRIC);
+        mAngleMotor = new TalonFXW(moduleConstants.angleMotorID(), "canivore", CTRE.angleFXWConfig, SensorUnits.METRIC);
         configAngleMotor();
 
         /* Drive Motor Config */
-        mDriveMotor = new TalonFXW(moduleConstants.driveMotorID(), CTRE.driveFXWConfig, SensorUnits.METRIC);
+        mDriveMotor = new TalonFXW(moduleConstants.driveMotorID(), "canivore", CTRE.driveFXWConfig, SensorUnits.METRIC);
         configDriveMotor();
 
         // gets the last angle for jitter analysis

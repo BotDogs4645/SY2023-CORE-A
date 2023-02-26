@@ -2,17 +2,21 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -24,26 +28,54 @@ import frc.robot.Constants.AutoPositionConstants.GamePiecePlacementLevel;
 import frc.robot.Constants.CameraConstants.CameraDefaults;
 
 public class Vision extends SubsystemBase {
+    public enum CameraType {
+        None,
+        Robot,
+        Arm
+    }
 
-    private PhotonCamera driver_cam;
-    private PhotonCamera apriltag_cam;
+    private VideoSink cameraServer;
+    private UsbCamera driverCam;
+    private UsbCamera armCamera;
+
+    private PhotonCamera apriltagCamLeft;
+    private PhotonPoseEstimator estimatorLeft;
+
+    private PhotonCamera apriltagCamRight;
+    private PhotonPoseEstimator estimatorRight;
+
     private Transform3d centerToAprilTagCamera;
 
     private AprilTagFieldLayout tag_locations;
     private AprilTagTransformDirection selectedRobotTransform;
     private GamePiecePlacementLevel levelToPlace;
 
-    public Vision() {
-        this.driver_cam = new PhotonCamera("drivervision");
-        driver_cam.setDriverMode(true);
+    private CameraType cameraWantedToDisplay;
+    private CameraType cameraCurrentlyDisplayed;
 
-        this.apriltag_cam = new PhotonCamera("apriltagvision");
-        apriltag_cam.setDriverMode(false);
+    public Vision() {
         PhotonCamera.setVersionCheckEnabled(false);
+        // this.cameraServer = CameraServer.getServer();
+
+        // this.driverCam = CameraServer.startAutomaticCapture(0);
+        // driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+        // this.armCamera = CameraServer.startAutomaticCapture(1);
+        // driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+        this.apriltagCamLeft = new PhotonCamera("apriltagvisionleft");
+        apriltagCamLeft.setDriverMode(false);
+
+        this.apriltagCamRight = new PhotonCamera("apriltagvisionright");
+        apriltagCamRight.setDriverMode(false);
+
         this.centerToAprilTagCamera = CameraDefaults.MountOne.getTransformation();
 
         this.selectedRobotTransform = AprilTagTransformDirection.CENTER;
         this.levelToPlace = GamePiecePlacementLevel.MIDDLE;
+
+        this.cameraCurrentlyDisplayed = CameraType.None;
+        this.cameraWantedToDisplay = CameraType.Robot;
 
         // assume that we are testing within our own facilities while testing, else use the current field resource file.
         if (Constants.testing) {
@@ -61,32 +93,36 @@ public class Vision extends SubsystemBase {
         } else {
             tag_locations.setOrigin(OriginPosition.kRedAllianceWallRightSide);
         }
+
+        this.estimatorLeft = new PhotonPoseEstimator(tag_locations, PoseStrategy.MULTI_TAG_PNP, apriltagCamRight, centerToAprilTagCamera.inverse());
+        this.estimatorRight = new PhotonPoseEstimator(tag_locations, PoseStrategy.MULTI_TAG_PNP, apriltagCamLeft, centerToAprilTagCamera.inverse());
+
+        // this.subsystemTab = Shuffleboard.getTab("Vision");
+        // subsystemTab.add(CameraServer.startAutomaticCapture())
+        // .withSize(6, 6)
+        // .withPosition(0, 0);
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+        // if (cameraWantedToDisplay != cameraCurrentlyDisplayed) {
+        //     cameraCurrentlyDisplayed = cameraWantedToDisplay;
+        //     if (cameraCurrentlyDisplayed == CameraType.Arm) {
+        //         cameraServer.setSource(armCamera);
+        //     }
+        //     if (cameraCurrentlyDisplayed == CameraType.Robot) {
+        //         cameraServer.setSource(driverCam);
+        //     }
+        // }
+    }
     
     // uses optionals for optimal handling outside of the method.
-    public Optional<Pose2d> getRobotPoseContributor() {
-        PhotonPipelineResult results = getCurrentCaptures();
-        if (results.hasTargets()) {
-            PhotonTrackedTarget bestTarget = results.getBestTarget();
-            if (bestTarget.getPoseAmbiguity() < .1) {
-                // good capture
-                Pose3d fieldRelativeAprilTagPose = tag_locations.getTagPose(bestTarget.getFiducialId()).get();
-                Pose2d calculatedRobotPose = 
-                    fieldRelativeAprilTagPose
-                        .transformBy(bestTarget.getBestCameraToTarget().inverse())
-                        .transformBy(centerToAprilTagCamera.inverse())
-                        .toPose2d();
-                return Optional.of(calculatedRobotPose);
-            }
-        }
-        return Optional.empty();
+    public List<Optional<EstimatedRobotPose>> getRobotPoseContributor() {
+        return List.of(estimatorLeft.update(), estimatorRight.update());
     }
 
     public PhotonPipelineResult getCurrentCaptures() {
-        return apriltag_cam.getLatestResult();
+        return apriltagCamLeft.getLatestResult();
     }
 
     public boolean hasTargets() {
@@ -108,5 +144,9 @@ public class Vision extends SubsystemBase {
 
     public AprilTagTransformDirection getSelectedAprilTagTransform() {
         return selectedRobotTransform;
+    }
+
+    public void setDriverCamera(CameraType camera) {
+        cameraWantedToDisplay = camera;
     }
 }
