@@ -6,15 +6,15 @@ package frc.robot;
 
 import java.util.Map;
 
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.bdlib.custom_talon.TalonFXW;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
+
+import java.util.Map;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -80,6 +80,13 @@ public final class Constants {
 
         public static final double heightOfAxis = Units.inchesToMeters(50.847); // from Drew
         public static final double armLength = Units.inchesToMeters(45.011);
+    }
+    
+    public static class ClawConstants {
+
+        public static final int motorDeviceId = 1; // TODO: Get actual value
+
+        public static final int limitSwitchChannel = 1; // TODO: Get actual value
 
     }
 

@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -33,7 +34,9 @@ import frc.robot.commands.pendulumcommands.MoveToCapturePosition;
 import frc.robot.commands.pendulumcommands.SetVisionSettings;
 import frc.robot.commands.swervecommands.NormalTeleop;
 import frc.robot.commands.swervecommands.PrecisionTeleop;
-import frc.robot.subsystems.*;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Pendulum;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
 
@@ -55,6 +58,7 @@ public class RobotContainer {
   private final Swerve swerve = new Swerve();
   private final Vision vision = new Vision();
   private final Pendulum pendulum = new Pendulum();
+  private final Claw claw = new Claw();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -94,6 +98,7 @@ public class RobotContainer {
     })
       .ignoringDisable(true)
       .schedule();
+
   }
 
   public void configureDriverController() {
@@ -115,9 +120,7 @@ public class RobotContainer {
       );
     
     driver.getJoystickButton(JoystickButtonID.kA)
-      .onTrue(new InstantCommand(() -> {
-        swerve.zeroGyro();
-      })
+      .onTrue(new InstantCommand(swerve::zeroGyro)
     );
 
     /* Driver Mode Semantics */
@@ -133,6 +136,19 @@ public class RobotContainer {
         pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(9), 0.0));
       }, pendulum
     ));
+    var closeButton = manipulator.getJoystickButton(JoystickButtonID.kLeftBumper);
+    var override = manipulator.getJoystickButton(JoystickButtonID.kA);
+
+    claw.setDefaultCommand(
+      new RunCommand(() -> {
+        // If the switch is pressed or we're currently closing, we should close
+        boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
+        if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
+          claw.setSpeed(0.5);
+        } else {
+          claw.setSpeed(-0.5);
+        }
+    }, claw));
 
     // Other types of modes
     // Precision mode
