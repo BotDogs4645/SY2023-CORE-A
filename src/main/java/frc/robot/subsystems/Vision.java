@@ -2,21 +2,21 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSink;
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -37,7 +37,13 @@ public class Vision extends SubsystemBase {
     private VideoSink cameraServer;
     private UsbCamera driverCam;
     private UsbCamera armCamera;
-    private PhotonCamera apriltagCam;
+
+    private PhotonCamera apriltagCamLeft;
+    private PhotonPoseEstimator estimatorLeft;
+
+    private PhotonCamera apriltagCamRight;
+    private PhotonPoseEstimator estimatorRight;
+
     private Transform3d centerToAprilTagCamera;
 
     private AprilTagFieldLayout tag_locations;
@@ -57,8 +63,11 @@ public class Vision extends SubsystemBase {
         // this.armCamera = CameraServer.startAutomaticCapture(1);
         // driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-        this.apriltagCam = new PhotonCamera("apriltagvision");
-        apriltagCam.setDriverMode(false);
+        this.apriltagCamLeft = new PhotonCamera("apriltagvisionleft");
+        apriltagCamLeft.setDriverMode(false);
+
+        this.apriltagCamRight = new PhotonCamera("apriltagvisionright");
+        apriltagCamRight.setDriverMode(false);
 
         this.centerToAprilTagCamera = CameraDefaults.MountOne.getTransformation();
 
@@ -85,6 +94,9 @@ public class Vision extends SubsystemBase {
             tag_locations.setOrigin(OriginPosition.kRedAllianceWallRightSide);
         }
 
+        this.estimatorLeft = new PhotonPoseEstimator(tag_locations, PoseStrategy.MULTI_TAG_PNP, apriltagCamRight, centerToAprilTagCamera.inverse());
+        this.estimatorRight = new PhotonPoseEstimator(tag_locations, PoseStrategy.MULTI_TAG_PNP, apriltagCamLeft, centerToAprilTagCamera.inverse());
+
         // this.subsystemTab = Shuffleboard.getTab("Vision");
         // subsystemTab.add(CameraServer.startAutomaticCapture())
         // .withSize(6, 6)
@@ -105,22 +117,8 @@ public class Vision extends SubsystemBase {
     }
     
     // uses optionals for optimal handling outside of the method.
-    public Optional<Pose2d> getRobotPoseContributor() {
-        PhotonPipelineResult results = getCurrentCaptures();
-        if (results.hasTargets()) {
-            PhotonTrackedTarget bestTarget = results.getBestTarget();
-            if (bestTarget.getPoseAmbiguity() < .1) {
-                // good capture
-                Pose3d fieldRelativeAprilTagPose = tag_locations.getTagPose(bestTarget.getFiducialId()).get();
-                Pose2d calculatedRobotPose = 
-                    fieldRelativeAprilTagPose
-                        .transformBy(bestTarget.getBestCameraToTarget().inverse())
-                        .transformBy(centerToAprilTagCamera.inverse())
-                        .toPose2d();
-                return Optional.of(calculatedRobotPose);
-            }
-        }
-        return Optional.empty();
+    public List<Optional<EstimatedRobotPose>> getRobotPoseContributor() {
+        return List.of(estimatorLeft.update(), estimatorRight.update());
     }
 
     public PhotonPipelineResult getCurrentCaptures() {

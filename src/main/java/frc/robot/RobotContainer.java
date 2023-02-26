@@ -4,9 +4,11 @@
 
 package frc.robot;
 
+import java.util.List;
 import java.util.Optional;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import org.photonvision.EstimatedRobotPose;
+
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -85,10 +87,10 @@ public class RobotContainer {
 
     // Vision bindings
     new RunCommand(() -> {
-      Optional<Pose2d> possible_pose = vision.getRobotPoseContributor();
-      if (possible_pose.isPresent()) {
-        swerve.provideVisionInformation(possible_pose.get());
-      }
+      List<Optional<EstimatedRobotPose>> possiblePoses = vision.getRobotPoseContributor();
+      swerve.provideVisionInformation(
+        possiblePoses.stream().filter((item) -> item.isPresent()).map((item) -> item.get()).toList()
+      );
     })
       .ignoringDisable(true)
       .schedule();
