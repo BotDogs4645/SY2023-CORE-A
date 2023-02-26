@@ -132,6 +132,7 @@ public class Pendulum extends SubsystemBase {
 
     this.controlLoop = new LinearSystemLoop<>(pendulumPlant, LQR, observer, 12.0, 0.020);
     LQR.latencyCompensate(pendulumPlant, 0.020, PendulumConstants.measurementDelay);
+    
     zero();
 
     lastProfiledReference = new TrapezoidProfile.State(getPendulumPosition(), getPendulumVelocity());
@@ -139,9 +140,9 @@ public class Pendulum extends SubsystemBase {
     this.tab = Shuffleboard.getTab("Arm");
     tab.addNumber("Arm Absolute Angle (degrees)", () -> absoluteEncoder.getAbsolutePosition());
     tab.addNumber("Arm velo (degrees / second)", () -> absoluteEncoder.getVelocity());
-    tab.addNumber("Arm error (radians)", () -> getError() * (180 / Math.PI));
+    tab.addNumber("Arm error (degrees)", () -> getError() * (180 / Math.PI));
     tab.addNumber("Arm input (volts)", () -> getInput());
-    tab.addNumber("Arm input (volts)", () -> getCurrent());
+    tab.addNumber("Arm state estimate (degrees)", () -> getCurrent() * (180 / Math.PI));
   }
 
   public void zero() {
