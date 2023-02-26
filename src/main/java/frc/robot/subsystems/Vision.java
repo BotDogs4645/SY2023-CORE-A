@@ -122,7 +122,7 @@ public class Vision extends SubsystemBase {
     }
 
     public PhotonPipelineResult getCurrentCaptures() {
-        return apriltagCam.getLatestResult();
+        return apriltagCamLeft.getLatestResult();
     }
 
     public boolean hasTargets() {
