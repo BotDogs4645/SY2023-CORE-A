@@ -135,8 +135,6 @@ public class Pendulum extends SubsystemBase {
     );
 
     this.controlLoop = new LinearSystemLoop<>(pendulumPlant, LQR, observer, 12.0, 0.020);
-    //LQR.latencyCompensate(pendulumPlant, 0.020, PendulumConstants.measurementDelay);
-    LQR.latencyCompensate(pendulumPlant, 0.020, PendulumConstants.measurementDelay);
     
     zero();
 
@@ -148,7 +146,6 @@ public class Pendulum extends SubsystemBase {
     tab.addNumber("Arm error (degrees)", () -> getError() * (180 / Math.PI));
     tab.addNumber("Arm input (volts)", () -> getInput());
     tab.addNumber("Arm state estimate (degrees)", () -> getCurrent() * (180 / Math.PI));
-    tab.addNumber("Arm output (volts)", () -> getCurrent());
     tab.addNumber("motor left amps", () -> plantMotor.getStatorCurrent());
     tab.addNumber("motor right amps", () -> followerMotor.getStatorCurrent());
     tab.add(this);
