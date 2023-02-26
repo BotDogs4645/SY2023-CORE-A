@@ -64,7 +64,7 @@ public final class Constants {
         public static final double cancoderOffset = 25;
 
         /* State Space Settings */
-        public static double measurementDelay = 203.39;
+        public static double measurementDelay = 0.10339;
 
         // Characterization
         public static final double kS = 0.084424;
@@ -72,7 +72,7 @@ public final class Constants {
         public static final double kA = 0.13784;
 
         // Other
-        public static final double momentOfInertia = 45.88 / 14.0;
+        public static final double momentOfInertia = 17.43589;
         public static final double gearing = 48.0 / 1.0; // output / input
         public static final TrapezoidProfile.Constraints pendulumConstraints = new TrapezoidProfile.Constraints(
                 Units.degreesToRadians(45),

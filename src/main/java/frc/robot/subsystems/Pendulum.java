@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -91,6 +92,10 @@ public class Pendulum extends SubsystemBase {
     plantMotor.setNeutralMode(NeutralMode.Brake);
     followerMotor.setNeutralMode(NeutralMode.Brake);
 
+    // plantMotor.configStatorCurrentLimit(
+    //   new StatorCurrentLimitConfiguration(true, 18.5, 20.0, 2.5)
+    // );
+
     followerMotor.follow(plantMotor);
 
     followerMotor.setInverted(TalonFXInvertType.OpposeMaster);
@@ -102,11 +107,10 @@ public class Pendulum extends SubsystemBase {
     absoluteEncoder.setPositionToAbsolute();
 
     /* State space stuff */
-    // Pendulum arm model
-    this.pendulumPlant = LinearSystemId.createSingleJointedArmSystem(
-      DCMotor.getFalcon500(1),
-      PendulumConstants.momentOfInertia,
-      PendulumConstants.gearing
+     this.pendulumPlant = LinearSystemId.createSingleJointedArmSystem(
+       DCMotor.getFalcon500(2),
+       PendulumConstants.momentOfInertia,
+       PendulumConstants.gearing
     );
 
     // Observer. Rejects noise as much as possible using a KalmanFilter
@@ -114,14 +118,14 @@ public class Pendulum extends SubsystemBase {
       Nat.N2(),
       Nat.N1(),
       pendulumPlant,
-      VecBuilder.fill(0.015, 0.17), // model accuracy std dev.
-      VecBuilder.fill(0.001), // encoder accuracy std dev. low because we trust it
+      VecBuilder.fill(0.01, 0.12), // model accuracy std dev.
+      VecBuilder.fill(0.0001), // encoder accuracy std dev. low because we trust it
       0.020
     );
     
     this.LQR = new LinearQuadraticRegulator<>(
       pendulumPlant,
-      VecBuilder.fill(Units.degreesToRadians(1.0), Units.degreesToRadians(10.0)), // qelms.
+      VecBuilder.fill(Units.degreesToRadians(2.0), Units.degreesToRadians(5.0)), // qelms.
       // Position and velocity error tolerances, in radians and radians per second. Decrease
       // this to more heavily penalize state excursion, or make the controller behave more
       // aggressively.
@@ -131,6 +135,7 @@ public class Pendulum extends SubsystemBase {
     );
 
     this.controlLoop = new LinearSystemLoop<>(pendulumPlant, LQR, observer, 12.0, 0.020);
+    //LQR.latencyCompensate(pendulumPlant, 0.020, PendulumConstants.measurementDelay);
     LQR.latencyCompensate(pendulumPlant, 0.020, PendulumConstants.measurementDelay);
     
     zero();
@@ -143,6 +148,10 @@ public class Pendulum extends SubsystemBase {
     tab.addNumber("Arm error (degrees)", () -> getError() * (180 / Math.PI));
     tab.addNumber("Arm input (volts)", () -> getInput());
     tab.addNumber("Arm state estimate (degrees)", () -> getCurrent() * (180 / Math.PI));
+    tab.addNumber("Arm output (volts)", () -> getCurrent());
+    tab.addNumber("motor left amps", () -> plantMotor.getStatorCurrent());
+    tab.addNumber("motor right amps", () -> followerMotor.getStatorCurrent());
+    tab.add(this);
   }
 
   public void zero() {
