@@ -14,7 +14,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.bdlib.custom_talon.TalonFXW;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 
-import java.util.Map;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -81,7 +80,7 @@ public final class Constants {
         public static final double heightOfAxis = Units.inchesToMeters(50.847); // from Drew
         public static final double armLength = Units.inchesToMeters(45.011);
     }
-    
+
     public static class ClawConstants {
 
         public static final int motorDeviceId = 1; // TODO: Get actual value
