@@ -7,6 +7,7 @@ package frc.robot.commands.pendulum;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -19,8 +20,10 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.ToggleBooleanSupplier;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Pendulum.PendulumControlRequest;
@@ -32,46 +35,62 @@ public class AutoPlaceCommand extends CommandBase {
   private Swerve swerve;
   private Pendulum pendulum;
   private Vision vision;
+  private Claw claw;
   private ControllerAIO aio;
   private ToggleBooleanSupplier rumbleMuter;
 
   private Pose3d currentEndEffector;
   private PendulumControlRequest currentRequest;
 
-  private ProfiledPIDController translateXController;
-  private ProfiledPIDController translateYController;
+  private PIDController translateXController;
+  private PIDController translateYController;
   private ProfiledPIDController rotateOmegaController;
 
   private double maxMetersChangePerSecond = 0.25;
+  private boolean canDrop = false;
 
   /** Creates a new ToPoseFromSnapshotGroup. */
-  public AutoPlaceCommand(Pendulum pendulum, Swerve swerve, Vision vision, ControllerAIO aio, ToggleBooleanSupplier rumbleMuter) {
-    translateXController = new ProfiledPIDController(
-      2.5, 0, 0,
-      new TrapezoidProfile.Constraints(2, 1)
+  public AutoPlaceCommand(
+      Pendulum pendulum, 
+      Swerve swerve, 
+      Vision vision, 
+      Claw claw, 
+      ControllerAIO aio, 
+      ToggleBooleanSupplier rumbleMuter
+    ) {
+    translateXController = new PIDController(
+      2.5, 0, 0
     );
     
-    translateYController = new ProfiledPIDController(
-      2.5, 0, 0,
-      new TrapezoidProfile.Constraints(2, 1)
+    translateYController = new PIDController(
+      2.5, 0, 0
     );
 
     rotateOmegaController = new ProfiledPIDController(
       5.0, 0, 0,
-      new TrapezoidProfile.Constraints(Math.toRadians(20), Math.toRadians(10))
+      new TrapezoidProfile.Constraints(Math.toRadians(90), Math.toRadians(60))
     );
 
     this.swerve = swerve;
     this.pendulum = pendulum;
+    this.claw = claw;
     this.rumbleMuter = rumbleMuter;
 
+    translateXController.setTolerance(0.5, 0.05);
+    translateYController.setTolerance(0.5, 0.05);
+
+    rotateOmegaController.setTolerance(Math.toRadians(1), Math.toRadians(10));
+    rotateOmegaController.enableContinuousInput(-Math.PI, Math.PI);
+
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(swerve, pendulum);
+    addRequirements(swerve, pendulum, claw);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    canDrop = false;
+
     // Grab most recent result
     PhotonPipelineResult result = vision.getCurrentCaptures();
 
@@ -89,22 +108,21 @@ public class AutoPlaceCommand extends CommandBase {
     currentRequest = new PendulumControlRequest(currentEndEffector);
 
     // Set the goal.
-    translateXController.setGoal(new State(currentRequest.getRobotPosition().getX(), 0));
-    translateYController.setGoal(new State(currentRequest.getRobotPosition().getY(), 0));
+    translateXController.setSetpoint(currentRequest.getRobotPosition().getX());
+    translateYController.setSetpoint(currentRequest.getRobotPosition().getY());
     rotateOmegaController.setGoal(new State(currentRequest.getRobotPosition().getRotation().getRadians(), 0));
     pendulum.move(currentRequest.getPendulumRotation());
 
     // Grab the original pose. The reset() method of PIDControllers is always the **position**, not the velocity.
     // Velocity is something it calculates.
     Pose2d currentPose = swerve.getPose();
-    translateXController.reset(currentPose.getX());
-    translateYController.reset(currentPose.getY());
+    translateXController.reset();
+    translateYController.reset();
     rotateOmegaController.reset(currentPose.getRotation().getRadians());
 
     pendulum.zero();
 
     vision.setDriverCamera(CameraType.Arm);
-    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -120,8 +138,8 @@ public class AutoPlaceCommand extends CommandBase {
     }
 
     Translation2d translation = new Translation2d(
-      translateXController.calculate(swerve.getPose().getX(), new State(currentRequest.getRobotPosition().getX(), 0)),
-      translateYController.calculate(swerve.getPose().getY(), new State(currentRequest.getRobotPosition().getY(), 0))
+      translateXController.calculate(swerve.getPose().getX(), currentRequest.getRobotPosition().getX()),
+      translateYController.calculate(swerve.getPose().getY(), currentRequest.getRobotPosition().getY())
     );
 
     Rotation2d rotation = Rotation2d.fromRadians(
@@ -134,16 +152,18 @@ public class AutoPlaceCommand extends CommandBase {
 
     swerve.drive(swerve.generateRequest(new Pose2d(translation, rotation), false, 1.0));
     pendulum.move(currentRequest.getPendulumRotation());
+    claw.setSpeed(0.5);
 
     if (
       !rumbleMuter.getValue() &&
       Math.abs(pendulum.getError()) < .25 &&
-      translateXController.atGoal() && 
-      translateYController.atGoal() &&
+      translateXController.atSetpoint() && 
+      translateYController.atSetpoint() &&
       rotateOmegaController.atGoal()
     ) {
       // we are at the setpoint!
       aio.setRumble(RumbleType.kBothRumble, 1.0);
+      canDrop = true;
     } else {
       aio.setRumble(RumbleType.kBothRumble, 0.0);
     }
@@ -152,6 +172,9 @@ public class AutoPlaceCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    if (canDrop) {
+      new RunCommand(() -> claw.setSpeed(-0.5), claw).until(() -> !claw.switchPressed());
+    }
     vision.setDriverCamera(CameraType.Robot);
   }
 

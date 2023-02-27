@@ -39,9 +39,15 @@ public class Pendulum extends SubsystemBase {
 
     // simple trig to determine pendulum rotation angle and bot position
     public PendulumControlRequest {
+      // The equation below graphs a semi-circle:
+      // If the arm length is not long enough to reach the desired HEIGHT, then it will return a translation with a NaN X component
       double distanceXFromEndEffector = Math.sqrt(
         Math.pow(PendulumConstants.armLength, 2) - Math.pow(endEffector.getZ() - PendulumConstants.heightOfAxis, 2)
       );
+
+      System.out.println(Math.pow(PendulumConstants.armLength, 2) - Math.pow(endEffector.getZ() - PendulumConstants.heightOfAxis, 2));
+
+      System.out.println(distanceXFromEndEffector);
 
       robotPosition = new Pose2d(
         new Translation2d(endEffector.getX() + distanceXFromEndEffector, endEffector.getY()),

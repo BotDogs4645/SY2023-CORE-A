@@ -111,13 +111,14 @@ public final class Constants {
 
     public static class AutoPositionConstants {
         public static enum AprilTagTransformDirection {
-            // note: no rotation transformation should be required
-            // this direction should only move the apriltag pose left, center, or right, so
-            // the Y coord
-            // That coord should basically be aligned w/ the apriltag pose in the Z
-            // dimension
-            // just translated to the left, center or right.
-            // found from CAD btw
+           /* 
+            *  note: no rotation transformation should be required
+            *  this direction should only move the apriltag pose left, center, or right, so the Y coord
+            *  That coord should basically be aligned w/ the apriltag pose in the Z
+            *  dimension just translated to the left, center or right.
+            *  found from CAD btw
+            *
+            */ 
 
             // Transforms the april tag to a position to the..
             LEFT(new Translation3d(0, Units.inchesToMeters(22), 0), new Rotation3d()),
@@ -135,10 +136,11 @@ public final class Constants {
             }
         }
 
+        private static double above = 0;
         public static enum GamePiecePlacementLevel {
-            BOTTOM(new Translation3d(Units.inchesToMeters(6.77500), 0, Units.inchesToMeters(-14.53)), new Rotation3d()),
-            MIDDLE(new Translation3d(Units.inchesToMeters(-8.9125), 0, Units.inchesToMeters(17.5)), new Rotation3d()),
-            TOP(new Translation3d(Units.inchesToMeters(-25.9256), 0, Units.inchesToMeters(29.845)), new Rotation3d());
+            BOTTOM(new Translation3d(Units.inchesToMeters(6.77500), 0, Units.inchesToMeters(-13.155 + above)), new Rotation3d()),
+            MIDDLE(new Translation3d(Units.inchesToMeters(-8.9125), 0, Units.inchesToMeters(15.658 + above)), new Rotation3d()),
+            TOP(new Translation3d(Units.inchesToMeters(-25.9256), 0, Units.inchesToMeters(27.653 + above)), new Rotation3d());
 
             Transform3d transform;
 
