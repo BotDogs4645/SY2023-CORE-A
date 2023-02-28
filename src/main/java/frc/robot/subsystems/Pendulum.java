@@ -104,7 +104,7 @@ public class Pendulum extends SubsystemBase {
 
     /* State space stuff */
      this.pendulumPlant = LinearSystemId.createSingleJointedArmSystem(
-       DCMotor.getFalcon500(2),
+       DCMotor.getFalcon500(1),
        PendulumConstants.momentOfInertia,
        PendulumConstants.gearing
     );
