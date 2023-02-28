@@ -9,9 +9,6 @@ import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -39,7 +36,6 @@ import frc.robot.commands.swerve.PrecisionTeleop;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.Pendulum.PendulumControlRequest;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
 
@@ -139,16 +135,6 @@ public class RobotContainer {
         pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(9), 0.0));
       }, pendulum
     ));
-
-    Pose3d pose = new Pose3d(
-      new Translation3d(15.513558, 2.748026, 0.462788),
-      new Rotation3d()
-    ).transformBy(Constants.AutoPositionConstants.AprilTagTransformDirection.CENTER.transform)
-    .transformBy(Constants.AutoPositionConstants.GamePiecePlacementLevel.TOP.transform);
-
-    PendulumControlRequest testRequest = new PendulumControlRequest(pose);
-    System.out.println("pendulum position: " + testRequest.getPendulumRotation().position);
-    System.out.println(testRequest.getRobotPosition());
 
     // Other types of modes
     // Precision mode

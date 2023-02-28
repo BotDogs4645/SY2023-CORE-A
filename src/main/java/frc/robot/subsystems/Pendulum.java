@@ -11,7 +11,6 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import edu.wpi.first.math.numbers.*;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
@@ -33,21 +32,17 @@ import frc.bdlib.custom_talon.TalonFXW;
 import frc.robot.Constants.PendulumConstants;
 
 public class Pendulum extends SubsystemBase {
-  public static record PendulumControlRequest(Pose3d endEffector) {
-    private static Pose2d robotPosition;
-    private static TrapezoidProfile.State pendulumRotationAngle;
+  public static class PendulumControlRequest {
+    private Pose2d robotPosition;
+    private TrapezoidProfile.State pendulumRotationAngle;
 
     // simple trig to determine pendulum rotation angle and bot position
-    public PendulumControlRequest {
+    public PendulumControlRequest(Pose3d endEffector) {
       // The equation below graphs a semi-circle:
       // If the arm length is not long enough to reach the desired HEIGHT, then it will return a translation with a NaN X component
       double distanceXFromEndEffector = Math.sqrt(
         Math.pow(PendulumConstants.armLength, 2) - Math.pow(endEffector.getZ() - PendulumConstants.heightOfAxis, 2)
       );
-
-      System.out.println(Math.pow(PendulumConstants.armLength, 2) - Math.pow(endEffector.getZ() - PendulumConstants.heightOfAxis, 2));
-
-      System.out.println(distanceXFromEndEffector);
 
       robotPosition = new Pose2d(
         new Translation2d(endEffector.getX() + distanceXFromEndEffector, endEffector.getY()),
@@ -55,11 +50,7 @@ public class Pendulum extends SubsystemBase {
       );
 
       pendulumRotationAngle = new TrapezoidProfile.State(
-        MathUtil.clamp(
-          Math.asin((endEffector.getZ() - PendulumConstants.heightOfAxis) / PendulumConstants.armLength),
-          -Math.PI / 2,
-          Math.PI * 2 / 9
-        ),
+        Math.asin((-PendulumConstants.heightOfAxis + endEffector.getZ()) / PendulumConstants.armLength),
         0);
     }
 

@@ -136,11 +136,10 @@ public final class Constants {
             }
         }
 
-        private static double above = 0;
         public static enum GamePiecePlacementLevel {
-            BOTTOM(new Translation3d(Units.inchesToMeters(6.77500), 0, Units.inchesToMeters(-13.155 + above)), new Rotation3d()),
-            MIDDLE(new Translation3d(Units.inchesToMeters(-8.9125), 0, Units.inchesToMeters(15.658 + above)), new Rotation3d()),
-            TOP(new Translation3d(Units.inchesToMeters(-25.9256), 0, Units.inchesToMeters(27.653 + above)), new Rotation3d());
+            BOTTOM(new Translation3d(Units.inchesToMeters(6.77500), 0, Units.inchesToMeters(-13.155 + 3.5)), new Rotation3d()),
+            MIDDLE(new Translation3d(Units.inchesToMeters(-8.9125), 0, Units.inchesToMeters(15.658 + 3.5)), new Rotation3d()),
+            TOP(new Translation3d(Units.inchesToMeters(-25.9256), 0, Units.inchesToMeters(27.653 + 3.5)), new Rotation3d());
 
             Transform3d transform;
 
