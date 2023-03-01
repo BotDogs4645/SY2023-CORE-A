@@ -154,6 +154,12 @@ public class RobotContainer {
       })
     );
 
+    driver.getJoystickButton(JoystickButtonID.kStart)
+      .onTrue(new InstantCommand(() -> {
+        pendulum.zeroPendulum();
+      })
+    );
+
     var closeButton = driver.getJoystickButton(JoystickButtonID.kLeftBumper);
     var override = driver.getJoystickButton(JoystickButtonID.kA);
     claw.setDefaultCommand(

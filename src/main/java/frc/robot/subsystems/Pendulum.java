@@ -119,6 +119,12 @@ public class Pendulum extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  public void zeroPendulum() {
+    double currentValue = absoluteEncoder.configGetMagnetOffset();
+    double absPos = absoluteEncoder.getAbsolutePosition();
+    absoluteEncoder.configMagnetOffset(currentValue - absPos);
+  }
+
   public double getPendulumPosition() {
     return absoluteEncoder.getAbsolutePosition() * (Math.PI / 180.0);
   }
