@@ -156,7 +156,7 @@ public class AutoPlaceCommand extends CommandBase {
 
     if (
       !rumbleMuter.getValue() &&
-      Math.abs(pendulum.getError()) < .25 &&
+      pendulum.atSetpoint() &&
       translateXController.atSetpoint() && 
       translateYController.atSetpoint() &&
       rotateOmegaController.atGoal()

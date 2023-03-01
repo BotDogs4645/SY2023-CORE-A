@@ -52,7 +52,7 @@ public final class Constants {
             }
         }
 
-        public static final TalonFXW.FXWConfig pendulumFalconsConfig = new TalonFXW.FXWConfig(48, 0);
+        public static final TalonFXW.FXWConfig pendulumFalconsConfig = new TalonFXW.FXWConfig(100, 0);
 
         // TODO: find ids
         public static final int controllerId = 14;
@@ -70,7 +70,7 @@ public final class Constants {
         public static final double kA = 0.13784;
 
         // Other
-        public static final double momentOfInertia = 5.2;
+        public static final double momentOfInertia = 5.2; // 17.43589
         public static final double gearing = 100.0 / 1.0; // output / input
         public static final TrapezoidProfile.Constraints pendulumConstraints = new TrapezoidProfile.Constraints(
                 Units.degreesToRadians(45),
