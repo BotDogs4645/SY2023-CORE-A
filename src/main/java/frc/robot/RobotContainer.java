@@ -153,6 +153,19 @@ public class RobotContainer {
         swerve.zeroGyro();
       })
     );
+
+    var closeButton = driver.getJoystickButton(JoystickButtonID.kLeftBumper);
+    var override = driver.getJoystickButton(JoystickButtonID.kA);
+    claw.setDefaultCommand(
+            new RunCommand(() -> {
+              // If the switch is pressed or we're currently closing, we should close
+              boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
+              if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
+                claw.setSpeed(0.5);
+              } else {
+                claw.setSpeed(-0.5);
+              }
+            }, claw));
   }
 
   public void configureManipulatorController() {
@@ -160,19 +173,6 @@ public class RobotContainer {
     JoystickAxisAIO settingsChangeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
     new Trigger(settingsChangeTrigger.axisHigherThan(.5))
       .onTrue(new SetVisionSettings(manipulator, vision));
-
-    var closeButton = manipulator.getJoystickButton(JoystickButtonID.kLeftBumper);
-    var override = manipulator.getJoystickButton(JoystickButtonID.kA);
-    claw.setDefaultCommand(
-      new RunCommand(() -> {
-      // If the switch is pressed or we're currently closing, we should close
-      boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
-      if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
-        claw.setSpeed(0.5);
-      } else {
-        claw.setSpeed(-0.5);
-      }
-    }, claw));
   }
 
   private void configureAutonomous() {
