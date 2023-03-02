@@ -131,7 +131,7 @@ public class RobotContainer {
     pendulum.setDefaultCommand(
       new RunCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get(), 0.0));
+        //pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(7), 0.0));
       }, pendulum
     ));
 
@@ -167,9 +167,9 @@ public class RobotContainer {
               // If the switch is pressed or we're currently closing, we should close
               boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
               if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
-                claw.setSpeed(0.5);
+                claw.setSpeed(-15);
               } else {
-                claw.setSpeed(-0.5);
+                claw.setSpeed(25);
               }
             }, claw));
   }

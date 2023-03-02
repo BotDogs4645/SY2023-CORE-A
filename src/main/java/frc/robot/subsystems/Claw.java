@@ -21,7 +21,7 @@ public class Claw extends SubsystemBase {
         this.limitSwitch = new DigitalInput(ClawConstants.limitSwitchChannel);
 
         clawMotor.setNeutralMode(NeutralMode.Brake);
-        clawMotor.configContinuousCurrentLimit(20);
+        clawMotor.configContinuousCurrentLimit(80);
     }
 
     /**
@@ -31,7 +31,7 @@ public class Claw extends SubsystemBase {
      * @param speed the new speed of the motor
      */
     public void setSpeed(double speed) {
-        this.clawMotor.set(TalonSRXControlMode.PercentOutput, speed);
+        this.clawMotor.set(TalonSRXControlMode.Current, speed);
     }
 
     /**

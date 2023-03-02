@@ -82,7 +82,7 @@ public final class Constants {
 
     public static class ClawConstants {
 
-        public static final int motorDeviceId = 1; // TODO: Get actual value
+        public static final int motorDeviceId = 18; // TODO: Get actual value
 
         public static final int limitSwitchChannel = 1; // TODO: Get actual value
 
