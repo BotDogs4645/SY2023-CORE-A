@@ -21,24 +21,21 @@ public class Claw extends SubsystemBase {
     private final TalonSRX clawMotor;
     private final DigitalInput limitSwitch;
 
+    private boolean limitSwitchValue;
+
     public Claw() {
         this.clawMotor = new TalonSRX(ClawConstants.motorDeviceId);
         this.limitSwitch = new DigitalInput(ClawConstants.limitSwitchChannel);
 
         clawMotor.setNeutralMode(NeutralMode.Brake);
         clawMotor.configContinuousCurrentLimit(20);
-        this.tab = Shuffleboard.getTab("Gripper");
 
-        tab.addNumber("amps drawn", () -> clawMotor.getStatorCurrent());
+        this.tab = Shuffleboard.getTab("Gripper");
+        tab.addNumber("amps drawn", clawMotor::getStatorCurrent);
     }
 
     /**
-     * Sets the speed of this claw, as a percentage between -1 and 1, with 1 being
-     * fully forwards and -1 being fully
-     * backwards. Because the claw shouldn't require extremely precise movements and
-     * detection, complicated math
-     * shouldn't really be required for this.
-     * 
+     * Sets the amperage that the motor should draw.
      * @param speed the new speed of the motor
      */
     public void setAmperage(double speed) {
@@ -46,10 +43,26 @@ public class Claw extends SubsystemBase {
     }
 
     /**
-     * Stops the claw by setting its speed to zero.
+     * Stops the claw by setting its amperage to zero.
      */
     public void stop() {
         setAmperage(0);
+    }
+
+    /**
+     * Updates the currently stored value of the limit switch.
+     */
+    public void updateLimitSwitch() {
+        this.limitSwitchValue = switchPressed();
+    }
+
+    /**
+     * Returns the most recently updated value of the limit switch. This should be used for when the switch is intended
+     * to be updated at specific times instead of constantly.
+     * @return the current stored value
+     */
+    public boolean guardedSwitchValue() {
+        return limitSwitchValue;
     }
 
     /**

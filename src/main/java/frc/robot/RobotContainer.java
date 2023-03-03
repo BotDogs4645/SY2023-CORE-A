@@ -171,16 +171,16 @@ public class RobotContainer {
 
     var closeButton = driver.getJoystickButton(JoystickButtonID.kLeftBumper);
     var override = driver.getJoystickButton(JoystickButtonID.kA);
-    claw.setDefaultCommand(
-            new RunCommand(() -> {
-              // If the switch is pressed or we're currently closing, we should close
-              boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
-              if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
-                claw.setAmperage(-5.5);
-              } else {
-                claw.setAmperage(9);
-              }
-            }, claw));
+
+    double openAmps = -5.5, closeAmps = 9;
+
+    override.whileTrue(Commands.run(() -> claw.setAmperage(openAmps), claw));
+    closeButton.whileTrue(Commands.run(() -> claw.setAmperage(closeAmps), claw))
+            .onFalse(new RunCommand(claw::updateLimitSwitch));
+
+    claw.setDefaultCommand(Commands.run(() -> {
+      claw.setAmperage(claw.guardedSwitchValue() ? closeAmps : openAmps);
+    }, claw));
   }
 
   public void configureManipulatorController() {
