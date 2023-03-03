@@ -31,6 +31,8 @@ public final class Constants {
     public static final boolean testing = true;
     public static final NetworkTable LogTable = NetworkTableInstance.getDefault().getTable("Loggables");
 
+    public static final int shooterMotorId = 17;
+
     public static class PendulumConstants {
         // picture for reference
         //
@@ -81,11 +83,8 @@ public final class Constants {
     }
 
     public static class ClawConstants {
-
         public static final int motorDeviceId = 18; // TODO: Get actual value
-
         public static final int limitSwitchChannel = 1; // TODO: Get actual value
-
     }
 
     public static class CameraConstants {

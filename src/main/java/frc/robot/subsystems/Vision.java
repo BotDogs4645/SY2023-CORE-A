@@ -18,6 +18,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -57,13 +58,13 @@ public class Vision extends SubsystemBase {
     public Vision() {
         PhotonCamera.setVersionCheckEnabled(false);
 
-        // this.driverCam = CameraServer.startAutomaticCapture(0);
-        // driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        this.driverCam = CameraServer.startAutomaticCapture(0);
+        driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
         // this.armCamera = CameraServer.startAutomaticCapture(1);
         // driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-        // this.cameraServer = CameraServer.getServer();
+        this.cameraServer = CameraServer.getServer();
 
         this.apriltagCamLeft = new PhotonCamera("apriltagvisionleft");
         apriltagCamLeft.setDriverMode(false);

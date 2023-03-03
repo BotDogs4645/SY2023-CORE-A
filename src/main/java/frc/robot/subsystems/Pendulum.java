@@ -31,19 +31,18 @@ public class Pendulum extends SubsystemBase {
     // simple trig to determine pendulum rotation angle and bot position
     public PendulumControlRequest(Pose3d endEffector) {
       // The equation below graphs a semi-circle:
-      // If the arm length is not long enough to reach the desired HEIGHT, then it will return a translation with a NaN X component
+      // If the arm length is not long enough to reach the desired HEIGHT, then it
+      // will return a translation with a NaN X component
       double distanceXFromEndEffector = Math.sqrt(
-        Math.pow(PendulumConstants.armLength, 2) - Math.pow(endEffector.getZ() - PendulumConstants.heightOfAxis, 2)
-      );
+          Math.pow(PendulumConstants.armLength, 2) - Math.pow(endEffector.getZ() - PendulumConstants.heightOfAxis, 2));
 
       robotPosition = new Pose2d(
-        new Translation2d(endEffector.getX() + distanceXFromEndEffector, endEffector.getY()),
-        Rotation2d.fromRadians(0)
-      );
+          new Translation2d(endEffector.getX() + distanceXFromEndEffector, endEffector.getY()),
+          Rotation2d.fromRadians(0));
 
       pendulumRotationAngle = new TrapezoidProfile.State(
-        Math.asin((-PendulumConstants.heightOfAxis + endEffector.getZ()) / PendulumConstants.armLength),
-        0);
+          Math.asin((-PendulumConstants.heightOfAxis + endEffector.getZ()) / PendulumConstants.armLength),
+          0);
     }
 
     public Pose2d getRobotPosition() {
@@ -66,7 +65,7 @@ public class Pendulum extends SubsystemBase {
   private CANCoder absoluteEncoder;
 
   private ShuffleboardTab tab;
-  
+
   /** Creates a new PIDPendulum. */
   public Pendulum() {
     this.plantMotor = new TalonFXW(PendulumConstants.controllerId, "", PendulumConstants.pendulumFalconsConfig);
@@ -80,11 +79,10 @@ public class Pendulum extends SubsystemBase {
 
     this.arm = new ArmFeedforward(0.4005, 0.54473, 1.3389, 0.19963);
     this.pid = new ProfiledPIDController(
-      8,
-      0.25,
-      0, 
-      new TrapezoidProfile.Constraints(0.8, 0.4)
-    );
+        8,
+        0.25,
+        0,
+        new TrapezoidProfile.Constraints(0.8, 0.4));
     this.pidWant = 0;
     this.ffWant = 0;
 

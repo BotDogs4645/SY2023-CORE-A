@@ -16,9 +16,11 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
@@ -35,6 +37,7 @@ import frc.robot.commands.swerve.NormalTeleop;
 import frc.robot.commands.swerve.PrecisionTeleop;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Pendulum;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.swervehelper.SwerveSettings;
@@ -58,6 +61,7 @@ public class RobotContainer {
   private final Vision vision = new Vision();
   private final Pendulum pendulum = new Pendulum();
   private final Claw claw = new Claw();
+  private final Shooter shootie = new Shooter();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -131,9 +135,15 @@ public class RobotContainer {
     pendulum.setDefaultCommand(
       new RunCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        //pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(7), 0.0));
+        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(7), 0.0));
       }, pendulum
     ));
+
+    Commands.sequence(
+      Commands.run(() -> shootie.setSpeed(1), shootie),
+      Commands.waitSeconds(3),
+      Commands.runOnce(() -> shootie.setSpeed(0), shootie)
+    ).schedule();
 
     // Other types of modes
     // Precision mode
@@ -167,9 +177,9 @@ public class RobotContainer {
               // If the switch is pressed or we're currently closing, we should close
               boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
               if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
-                claw.setSpeed(-15);
+                claw.setSpeed(-5.5);
               } else {
-                claw.setSpeed(25);
+                claw.setSpeed(9);
               }
             }, claw));
   }
