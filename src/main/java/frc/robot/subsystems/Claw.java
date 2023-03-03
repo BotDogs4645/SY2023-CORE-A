@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
 
@@ -15,6 +16,8 @@ import frc.robot.Constants.ClawConstants;
  */
 public class Claw extends SubsystemBase {
 
+    private final ShuffleboardTab tab;
+
     private final TalonSRX clawMotor;
     private final DigitalInput limitSwitch;
 
@@ -24,7 +27,9 @@ public class Claw extends SubsystemBase {
 
         clawMotor.setNeutralMode(NeutralMode.Brake);
         clawMotor.configContinuousCurrentLimit(20);
-        Shuffleboard.getTab("Arm").addNumber("amp", () -> clawMotor.getStatorCurrent());
+        this.tab = Shuffleboard.getTab("Gripper");
+
+        tab.addNumber("amps drawn", () -> clawMotor.getStatorCurrent());
     }
 
     /**
@@ -36,7 +41,7 @@ public class Claw extends SubsystemBase {
      * 
      * @param speed the new speed of the motor
      */
-    public void setSpeed(double speed) {
+    public void setAmperage(double speed) {
         this.clawMotor.set(TalonSRXControlMode.Current, speed);
     }
 
@@ -44,7 +49,7 @@ public class Claw extends SubsystemBase {
      * Stops the claw by setting its speed to zero.
      */
     public void stop() {
-        setSpeed(0);
+        setAmperage(0);
     }
 
     /**

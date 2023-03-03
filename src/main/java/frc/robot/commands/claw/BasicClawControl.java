@@ -26,7 +26,7 @@ public class BasicClawControl extends CommandBase {
     @Override
     public void initialize() {
         this.endTime = System.currentTimeMillis() + timeMs;
-        claw.setSpeed(speed);
+        claw.setAmperage(speed);
     }
 
     @Override
@@ -36,6 +36,6 @@ public class BasicClawControl extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        claw.setSpeed(0);
+        claw.setAmperage(0);
     }
 }

@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.bdlib.driver.ControllerAIO;
 import frc.bdlib.driver.JoystickAxisAIO;
@@ -177,9 +176,9 @@ public class RobotContainer {
               // If the switch is pressed or we're currently closing, we should close
               boolean normalClose = claw.switchPressed() || closeButton.getAsBoolean();
               if (normalClose && !override.getAsBoolean()) { // Always open if the open override button is pressed
-                claw.setSpeed(-5.5);
+                claw.setAmperage(-5.5);
               } else {
-                claw.setSpeed(9);
+                claw.setAmperage(9);
               }
             }, claw));
   }

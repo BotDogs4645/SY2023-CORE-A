@@ -152,7 +152,7 @@ public class AutoPlaceCommand extends CommandBase {
 
     swerve.drive(swerve.generateRequest(new Pose2d(translation, rotation), false, 1.0));
     pendulum.move(currentRequest.getPendulumRotation());
-    claw.setSpeed(0.5);
+    claw.setAmperage(5.5);
 
     if (
       !rumbleMuter.getValue() &&
@@ -173,7 +173,7 @@ public class AutoPlaceCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     if (canDrop) {
-      new RunCommand(() -> claw.setSpeed(-0.5), claw).until(() -> !claw.switchPressed());
+      new RunCommand(() -> claw.setAmperage(-5.5), claw).until(() -> !claw.switchPressed());
     }
     vision.setDriverCamera(CameraType.Robot);
   }
