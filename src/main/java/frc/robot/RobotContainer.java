@@ -134,7 +134,7 @@ public class RobotContainer {
     pendulum.setDefaultCommand(
       new RunCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(9), 0.0));
+        // pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(9), 0.0));
       }, pendulum
     ));
 
@@ -178,14 +178,17 @@ public class RobotContainer {
     var closeButton = driver.getJoystickButton(JoystickButtonID.kLeftBumper);
     var override = driver.getJoystickButton(JoystickButtonID.kA);
 
-    double openAmps = -5.5, closeAmps = 9;
+    double openAmps = -5.5, closeAmps = 9.5;
 
-    override.whileTrue(Commands.run(() -> claw.setAmperage(openAmps), claw));
-    closeButton.whileTrue(Commands.run(() -> claw.setAmperage(closeAmps), claw))
-            .onFalse(new RunCommand(claw::updateLimitSwitch));
+    override.onTrue(Commands.runOnce(() -> claw.changeLimitSwitch(true), claw));
+
+    closeButton.whileTrue(
+      Commands.runEnd(() -> claw.setAmperage(closeAmps), () -> claw.updateLimitSwitch(),
+      claw)
+      );
 
     claw.setDefaultCommand(Commands.run(() -> {
-      claw.setAmperage(claw.guardedSwitchValue() ? closeAmps : openAmps);
+      claw.setAmperage(claw.guardedSwitchValue() ? openAmps : closeAmps);
     }, claw));
   }
 

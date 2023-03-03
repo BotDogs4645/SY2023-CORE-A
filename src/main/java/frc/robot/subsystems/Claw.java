@@ -27,11 +27,16 @@ public class Claw extends SubsystemBase {
         this.clawMotor = new TalonSRX(ClawConstants.motorDeviceId);
         this.limitSwitch = new DigitalInput(ClawConstants.limitSwitchChannel);
 
+        limitSwitchValue = limitSwitch.get();
+
         clawMotor.setNeutralMode(NeutralMode.Brake);
-        clawMotor.configContinuousCurrentLimit(20);
+        clawMotor.configContinuousCurrentLimit(5);
+        clawMotor.enableCurrentLimit(true);
 
         this.tab = Shuffleboard.getTab("Gripper");
         tab.addNumber("amps drawn", clawMotor::getStatorCurrent);
+        tab.addBoolean("limit switch", limitSwitch::get);
+        tab.add(this);
     }
 
     /**
@@ -54,6 +59,10 @@ public class Claw extends SubsystemBase {
      */
     public void updateLimitSwitch() {
         this.limitSwitchValue = switchPressed();
+    }
+
+    public void changeLimitSwitch(boolean value) {
+        this.limitSwitchValue = value;
     }
 
     /**
