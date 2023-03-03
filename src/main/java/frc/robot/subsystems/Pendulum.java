@@ -63,7 +63,7 @@ public class Pendulum extends SubsystemBase {
   private TalonFXW plantMotor;
   private TalonFXW followerMotor;
   private CANCoder absoluteEncoder;
-
+ 
   private ShuffleboardTab tab;
 
   /** Creates a new PIDPendulum. */
@@ -77,12 +77,12 @@ public class Pendulum extends SubsystemBase {
     absoluteEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
     absoluteEncoder.setPositionToAbsolute();
 
-    this.arm = new ArmFeedforward(0.4005, 0.54473, 1.3389, 0.19963);
+    this.arm = new ArmFeedforward(0.48005, 0.54473, 1.3389, 0.19963);
     this.pid = new ProfiledPIDController(
         8,
-        0.25,
         0,
-        new TrapezoidProfile.Constraints(0.8, 0.4));
+        .05,
+        new TrapezoidProfile.Constraints(1, .5));
     this.pidWant = 0;
     this.ffWant = 0;
 
@@ -95,7 +95,7 @@ public class Pendulum extends SubsystemBase {
     followerMotor.follow(plantMotor);
 
     followerMotor.setInverted(TalonFXInvertType.OpposeMaster);
-    pid.setTolerance(Math.toRadians(.35), Math.toRadians(0.1));
+    pid.setTolerance(Math.toRadians(1), Math.toRadians(0.1));
 
     pid.reset(new TrapezoidProfile.State(getPendulumPosition(), getPendulumVelocity()));
 

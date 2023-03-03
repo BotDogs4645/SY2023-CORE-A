@@ -134,9 +134,15 @@ public class RobotContainer {
     pendulum.setDefaultCommand(
       new RunCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(7), 0.0));
+        pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(9), 0.0));
       }, pendulum
     ));
+
+    driver.getJoystickButton(JoystickButtonID.kY)
+      .whileTrue(new RunCommand(() -> {
+        // default position is arm facing down @ velocity 0, waiting for position commands
+        pendulum.move(new TrapezoidProfile.State(Math.toRadians(-7), 0.0));
+      }, pendulum));
 
     Commands.sequence(
       Commands.run(() -> shootie.setSpeed(1), shootie),
