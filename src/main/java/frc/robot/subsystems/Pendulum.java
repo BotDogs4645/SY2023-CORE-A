@@ -19,11 +19,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import frc.bdlib.custom_talon.TalonFXW;
 import frc.robot.Constants.PendulumConstants;
 
-public class Pendulum extends SubsystemBase {
+public class Pendulum extends ProfiledPIDSubsystem {
   public static class PendulumControlRequest {
     private Pose2d robotPosition;
     private TrapezoidProfile.State pendulumRotationAngle;
@@ -41,7 +41,7 @@ public class Pendulum extends SubsystemBase {
           Rotation2d.fromRadians(0));
 
       pendulumRotationAngle = new TrapezoidProfile.State(
-          Math.asin((-PendulumConstants.heightOfAxis + endEffector.getZ()) / PendulumConstants.armLength),
+          Math.asin((-PendulumConstants.heightOfAxis + endEffector.getZ()) / PendulumConstants.armLength) + Math.toRadians(9), // gear ratio offset
           0);
     }
 
@@ -53,9 +53,8 @@ public class Pendulum extends SubsystemBase {
       return pendulumRotationAngle;
     }
   }
-
+  
   private ArmFeedforward arm;
-  private ProfiledPIDController pid;
 
   private double pidWant;
   private double ffWant;
@@ -63,11 +62,22 @@ public class Pendulum extends SubsystemBase {
   private TalonFXW plantMotor;
   private TalonFXW followerMotor;
   private CANCoder absoluteEncoder;
+
+  public double wantedAngle;
  
   private ShuffleboardTab tab;
 
-  /** Creates a new PIDPendulum. */
+  /** Creates a new PendulumProfiled. */
   public Pendulum() {
+    super(
+        // The ProfiledPIDController used by the subsystem
+        new ProfiledPIDController(
+            8.25,
+            0,
+            0.05,
+            // The motion profile constraints
+            new TrapezoidProfile.Constraints(1.5, 0.7)));
+
     this.plantMotor = new TalonFXW(PendulumConstants.controllerId, "", PendulumConstants.pendulumFalconsConfig);
     this.followerMotor = new TalonFXW(PendulumConstants.followerId, "", PendulumConstants.pendulumFalconsConfig);
 
@@ -78,12 +88,6 @@ public class Pendulum extends SubsystemBase {
     absoluteEncoder.setPositionToAbsolute();
 
     this.arm = new ArmFeedforward(0.48005, 0.54473, 1.3389, 0.19963);
-    this.pid = new ProfiledPIDController(
-        8,
-        0,
-        .05,
-        new TrapezoidProfile.Constraints(1, .5));
-    this.pidWant = 0;
     this.ffWant = 0;
 
     plantMotor.setInverted(TalonFXInvertType.CounterClockwise);
@@ -95,14 +99,12 @@ public class Pendulum extends SubsystemBase {
     followerMotor.follow(plantMotor);
 
     followerMotor.setInverted(TalonFXInvertType.OpposeMaster);
-    pid.setTolerance(Math.toRadians(1), Math.toRadians(0.1));
 
-    pid.reset(new TrapezoidProfile.State(getPendulumPosition(), getPendulumVelocity()));
+    super.getController().setTolerance(1.5, .5);
 
     this.tab = Shuffleboard.getTab("Arm");
     tab.addNumber("Arm Absolute Angle (degrees)", () -> absoluteEncoder.getAbsolutePosition());
     tab.addNumber("Arm velo (degrees / second)", () -> absoluteEncoder.getVelocity());
-    tab.addNumber("Arm error (degrees)", () -> pid.getPositionError() * (180 / Math.PI));
     tab.addNumber("Arm left amp", () -> plantMotor.getStatorCurrent());
     tab.addNumber("Arm right amp", () -> followerMotor.getStatorCurrent());
     tab.addNumber("Arm left volts", () -> plantMotor.getMotorOutputVoltage());
@@ -111,36 +113,30 @@ public class Pendulum extends SubsystemBase {
     tab.addNumber("PID Want", () -> getPIDVoltage());
     tab.addNumber("FF want", () -> getFFVoltage());
 
-    tab.add(pid);
-
-    zero();
-  }
-
-  public void move(TrapezoidProfile.State angle) {
-    pidWant = pid.calculate(getPendulumPosition(), angle);
-    ffWant = arm.calculate(pid.getSetpoint().position, pid.getSetpoint().velocity);
-
-    plantMotor.setVoltage(pidWant + ffWant);
+    tab.add(this);
   }
 
   @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
+  public void useOutput(double output, TrapezoidProfile.State setpoint) {
+    ffWant = arm.calculate(setpoint.position, setpoint.velocity);
+
+    plantMotor.setVoltage(output + ffWant);
+  }
+
+  @Override
+  public double getMeasurement() {
+    // Return the process variable measurement here
+    return getPendulumPosition();
   }
 
   public void zeroPendulum() {
     double currentValue = absoluteEncoder.configGetMagnetOffset();
     double absPos = absoluteEncoder.getAbsolutePosition();
     absoluteEncoder.configMagnetOffset(currentValue - absPos);
-    zero();
   }
 
   public double getPendulumPosition() {
     return absoluteEncoder.getAbsolutePosition() * (Math.PI / 180.0);
-  }
-
-  public void zero() {
-    pid.reset(getPendulumPosition(), getPendulumVelocity());
   }
 
   public double getPendulumVelocity() {
@@ -148,15 +144,19 @@ public class Pendulum extends SubsystemBase {
   }
 
   public double getError() {
-    return pid.getPositionError();
+    return super.getController().getPositionError();
   }
 
   public boolean atSetpoint() {
-    return pid.atSetpoint();
+    return super.getController().atSetpoint();
   }
 
   public double getPIDVoltage() {
     return pidWant;
+  }
+
+  public void setWantedAngle(double wantedAngle) {
+    this.wantedAngle = wantedAngle;
   }
 
   public double getFFVoltage() {

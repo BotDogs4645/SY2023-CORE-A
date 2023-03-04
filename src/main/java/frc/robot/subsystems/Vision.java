@@ -20,7 +20,10 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -58,11 +61,12 @@ public class Vision extends SubsystemBase {
     public Vision() {
         PhotonCamera.setVersionCheckEnabled(false);
 
-        this.driverCam = CameraServer.startAutomaticCapture(0);
-        driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-
-        // this.armCamera = CameraServer.startAutomaticCapture(1);
+        // this.driverCam = CameraServer.startAutomaticCapture(0);
         // driverCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+        this.armCamera = CameraServer.startAutomaticCapture(1);
+        armCamera.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        armCamera.setResolution(720, 480);
 
         this.cameraServer = CameraServer.getServer();
 
@@ -82,7 +86,7 @@ public class Vision extends SubsystemBase {
 
         // assume that we are testing within our own facilities while testing, else use the current field resource file.
         if (Constants.testing) {
-            tag_locations = new AprilTagFieldLayout(new ArrayList<AprilTag>(), 0, 0);
+            tag_locations = new AprilTagFieldLayout(List.of(new AprilTag(2, new Pose3d(new Translation3d(0, Units.inchesToMeters(-63), Units.inchesToMeters(15.5)), new Rotation3d()))), Units.inchesToMeters(362), Units.inchesToMeters(179));
         } else {
             try {
                 tag_locations = new AprilTagFieldLayout(AprilTagFields.k2023ChargedUp.m_resourceFile);

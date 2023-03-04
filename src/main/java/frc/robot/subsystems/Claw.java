@@ -36,7 +36,7 @@ public class Claw extends SubsystemBase {
         this.tab = Shuffleboard.getTab("Gripper");
         tab.addNumber("amps drawn", clawMotor::getStatorCurrent);
         tab.addBoolean("limit switch", limitSwitch::get);
-        tab.add(this);
+        tab.add(this); // 37 in
     }
 
     /**

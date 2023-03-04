@@ -40,7 +40,7 @@ public final class Constants {
             IdleWithPiece(-Math.PI / 4),
             Idle(-Math.PI / 2),
             Straight(0),
-            RetrieveAngle(0), // TODO: find retrieve angle
+            RetrieveAngle(Math.toRadians(-6)), // TODO: find retrieve angle
             ;
 
             private double angle;

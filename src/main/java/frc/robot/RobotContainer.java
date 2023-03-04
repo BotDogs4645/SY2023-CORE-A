@@ -26,14 +26,12 @@ import frc.bdlib.driver.JoystickAxisAIO;
 import frc.bdlib.driver.ToggleBooleanSupplier;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
-import frc.robot.Constants.PendulumConstants.PendulumCommand;
 import frc.robot.commands.autos.ExampleAuto1;
-import frc.robot.commands.autos.ExampleCommand;
+import frc.robot.commands.autos.RunShooter;
 import frc.robot.commands.pendulum.AutoPlaceCommand;
 import frc.robot.commands.pendulum.MoveToCapturePosition;
 import frc.robot.commands.pendulum.SetVisionSettings;
 import frc.robot.commands.swerve.NormalTeleop;
-import frc.robot.commands.swerve.PrecisionTeleop;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.Shooter;
@@ -132,33 +130,40 @@ public class RobotContainer {
 
     // Sets the normal teleop command
     pendulum.setDefaultCommand(
-      new RunCommand(() -> {
+      Commands.runOnce(() -> pendulum.enable(), pendulum).andThen(new RunCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        // pendulum.move(new TrapezoidProfile.State(PendulumCommand.Straight.get() + Math.toRadians(9), 0.0));
+        pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-65) + Math.toRadians(9), 0.0));
       }, pendulum
-    ));
+    )));
 
     driver.getJoystickButton(JoystickButtonID.kY)
-      .whileTrue(new RunCommand(() -> {
+      .whileTrue(Commands.runOnce(() -> pendulum.enable(), pendulum).andThen(new RunCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.move(new TrapezoidProfile.State(Math.toRadians(-7), 0.0));
-      }, pendulum));
+        pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-7) + Math.toRadians(9), 0.0));
+      }, pendulum)));
 
     Commands.sequence(
       Commands.run(() -> shootie.setSpeed(1), shootie),
-      Commands.waitSeconds(3),
+      Commands.waitSeconds(
+        3),
       Commands.runOnce(() -> shootie.setSpeed(0), shootie)
     ).schedule();
 
+    driver.getJoystickButton(JoystickButtonID.kY)
+    .whileTrue(Commands.runOnce(() -> pendulum.enable(), pendulum).andThen(new RunCommand(() -> {
+      // default position is arm facing down @ velocity 0, waiting for position commands
+      pendulum.setGoal(new TrapezoidProfile.State(pendulum.wantedAngle, 0.0));
+    }, pendulum)));
+
     // Other types of modes
     // Precision mode
-    driver.getJoystickButton(JoystickButtonID.kX)
-      .whileTrue(
-        new PrecisionTeleop(swerve, leftXAxis)
-      );
+    // driver.getJoystickButton(JoystickButtonID.kX)
+    //   .whileTrue(
+    //     new PrecisionTeleop(swerve, leftXAxis)
+    //   );
 
     driver.getJoystickButton(JoystickButtonID.kB)
-      .onTrue(
+      .whileTrue(
         new MoveToCapturePosition(swerve, pendulum, leftXAxis, leftYAxis)
       );
 
@@ -178,14 +183,17 @@ public class RobotContainer {
     var closeButton = driver.getJoystickButton(JoystickButtonID.kLeftBumper);
     var override = driver.getJoystickButton(JoystickButtonID.kA);
 
-    double openAmps = -5.5, closeAmps = 9.5;
+    double openAmps = -5.5, closeAmps = 13;
 
-    override.onTrue(Commands.runOnce(() -> claw.changeLimitSwitch(true), claw));
+    closeButton.onTrue(
+      new InstantCommand(() -> {
+        claw.changeLimitSwitch(!claw.guardedSwitchValue());
+      }
+    ));
 
-    closeButton.whileTrue(
-      Commands.runEnd(() -> claw.setAmperage(closeAmps), () -> claw.updateLimitSwitch(),
-      claw)
-      );
+    claw.setDefaultCommand(Commands.run(() -> {
+      claw.setAmperage(claw.guardedSwitchValue() ? openAmps : closeAmps);
+    }, claw));
 
     claw.setDefaultCommand(Commands.run(() -> {
       claw.setAmperage(claw.guardedSwitchValue() ? openAmps : closeAmps);
@@ -197,13 +205,24 @@ public class RobotContainer {
     JoystickAxisAIO settingsChangeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
     new Trigger(settingsChangeTrigger.axisHigherThan(.5))
       .onTrue(new SetVisionSettings(manipulator, vision));
+
+    manipulator.getJoystickButton(JoystickButtonID.kY)
+    .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(5) + Math.toRadians(9)), pendulum));
+
+    manipulator.getJoystickButton(JoystickButtonID.kX)
+    .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-7) + Math.toRadians(9)), pendulum));
+
+    manipulator.getJoystickButton(JoystickButtonID.kA)
+    .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-45) + Math.toRadians(9)), pendulum));
+
+    manipulator.getJoystickButton(JoystickButtonID.kB)
+    .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-75) + Math.toRadians(9)), pendulum));
   }
 
   private void configureAutonomous() {
     // when swerve reaches the event labeled "fire_ball", ExampleCommand will run.
     // note: swerve's path will not resume until ExampleCommand finishes unless,
     // it is set as a command that can run in parallel :)
-    swerve.addEvent("fire_ball", new ExampleCommand());
     autoChooser.addOption("full auto 1", new ExampleAuto1(swerve));
     autoChooser.addOption("path important", swerve.getFullAutoPath(SwerveSettings.PathList.Path2));
   }
@@ -215,6 +234,6 @@ public class RobotContainer {
    */
   public Command getChooser() {
     // An ExampleCommand will run in autonomous
-    return autoChooser.getSelected();
+    return Commands.sequence(new RunShooter(shootie), autoChooser.getSelected());
   }
 }

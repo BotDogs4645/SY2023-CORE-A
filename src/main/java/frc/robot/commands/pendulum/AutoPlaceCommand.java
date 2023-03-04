@@ -111,7 +111,7 @@ public class AutoPlaceCommand extends CommandBase {
     translateXController.setSetpoint(currentRequest.getRobotPosition().getX());
     translateYController.setSetpoint(currentRequest.getRobotPosition().getY());
     rotateOmegaController.setGoal(new State(currentRequest.getRobotPosition().getRotation().getRadians(), 0));
-    pendulum.move(currentRequest.getPendulumRotation());
+    pendulum.setGoal(currentRequest.getPendulumRotation());
 
     // Grab the original pose. The reset() method of PIDControllers is always the **position**, not the velocity.
     // Velocity is something it calculates.
@@ -119,8 +119,6 @@ public class AutoPlaceCommand extends CommandBase {
     translateXController.reset();
     translateYController.reset();
     rotateOmegaController.reset(currentPose.getRotation().getRadians());
-
-    pendulum.zero();
 
     vision.setDriverCamera(CameraType.Arm);
   }
@@ -151,7 +149,7 @@ public class AutoPlaceCommand extends CommandBase {
     );
 
     swerve.drive(swerve.generateRequest(new Pose2d(translation, rotation), false, 1.0));
-    pendulum.move(currentRequest.getPendulumRotation());
+    pendulum.setGoal(currentRequest.getPendulumRotation());
     claw.setAmperage(5.5);
 
     if (

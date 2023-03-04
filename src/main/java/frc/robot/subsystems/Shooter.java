@@ -12,7 +12,7 @@ import frc.robot.Constants;
 
 public class Shooter extends SubsystemBase {
   private TalonSRX shooter;
-
+  
   /** Creates a new Shooter. */
   public Shooter() {
     this.shooter = new TalonSRX(Constants.shooterMotorId);

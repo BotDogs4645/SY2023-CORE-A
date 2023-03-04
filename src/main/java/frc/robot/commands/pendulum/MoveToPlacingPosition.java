@@ -15,7 +15,7 @@ import frc.robot.Constants.PendulumConstants.PendulumCommand;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.swerve.Swerve;
 
-public class MoveToCapturePosition extends CommandBase {
+public class MoveToPlacingPosition extends CommandBase {
   private Swerve swerve;
   private Pendulum pendulum;
   private JoystickAxisAIO translateX;
@@ -25,7 +25,7 @@ public class MoveToCapturePosition extends CommandBase {
   private TrapezoidProfile.State rotationalState = new TrapezoidProfile.State(0, 0);
 
   /** Creates a new MoveToCapturePosition. */
-  public MoveToCapturePosition(
+  public MoveToPlacingPosition(
       Swerve swerve,
       Pendulum pendulum,
       JoystickAxisAIO translateX,
@@ -72,7 +72,7 @@ public class MoveToCapturePosition extends CommandBase {
         1.0
       )
     );
-    pendulum.setGoal(new TrapezoidProfile.State(PendulumCommand.RetrieveAngle.get(), 0));
+    pendulum.setGoal(new TrapezoidProfile.State(pendulum.wantedAngle, 0));
   }
 
   // Called once the command ends or is interrupted.
