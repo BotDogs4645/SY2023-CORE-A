@@ -93,7 +93,7 @@ public final class Constants {
         // defined from the origin of the robot chassis facing the "front face" of the
         // robot. Or atleast it should be.
         public static enum CameraDefaults {
-            MountOne(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, 0.0)),
+            MountOne(new Translation3d(Units.inchesToMeters(10.9), Units.inchesToMeters(6.6), Units.inchesToMeters(43.75)), new Rotation3d(0.0, Units.degreesToRadians(20.0), 0.0)),
             MountTwo(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, 0.0));
 
             Transform3d overallTransform;
