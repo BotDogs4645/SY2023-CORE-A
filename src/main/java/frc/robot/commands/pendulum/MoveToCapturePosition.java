@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.bdlib.driver.Driver;
 import frc.bdlib.driver.JoystickAxisAIO;
 import frc.robot.Constants.PendulumConstants.PendulumCommand;
 import frc.robot.subsystems.Pendulum;
@@ -20,21 +21,26 @@ public class MoveToCapturePosition extends CommandBase {
   private Pendulum pendulum;
   private JoystickAxisAIO translateX;
   private JoystickAxisAIO translateY;
+  private JoystickAxisAIO redKey;
 
   private ProfiledPIDController rotationController;
   private TrapezoidProfile.State rotationalState = new TrapezoidProfile.State(0, 0);
+
+  private double baseSpeed = .6;
 
   /** Creates a new MoveToCapturePosition. */
   public MoveToCapturePosition(
       Swerve swerve,
       Pendulum pendulum,
       JoystickAxisAIO translateX,
-      JoystickAxisAIO translateY
+      JoystickAxisAIO translateY,
+      JoystickAxisAIO redKey
     ) {
     this.swerve = swerve;
     this.pendulum = pendulum;
     this.translateX = translateX;
     this.translateY = translateY;
+    this.redKey = redKey;
     
     this.rotationController = new ProfiledPIDController(
       5.0, 
@@ -63,13 +69,13 @@ public class MoveToCapturePosition extends CommandBase {
 
     Translation2d translation = new Translation2d(
       -translateY.getValue(),
-      -translateX.getValue()).times(0.8);
+      -translateX.getValue()).times(Driver.maxChassisSpeed);
 
     swerve.drive(
       swerve.generateRequest(
         new Pose2d(translation, Rotation2d.fromRadians(newRotationInput)),
         true, 
-        1.0
+        baseSpeed - (0.3 * (redKey.getValue() > .5 ? 1.0 : 0.0))
       )
     );
     pendulum.setGoal(new TrapezoidProfile.State(PendulumCommand.RetrieveAngle.get(), 0));

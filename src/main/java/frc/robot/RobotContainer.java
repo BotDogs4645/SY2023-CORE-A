@@ -32,6 +32,7 @@ import frc.robot.commands.pendulum.MoveToCapturePosition;
 import frc.robot.commands.pendulum.MoveToPlacingPosition;
 import frc.robot.commands.pendulum.SetVisionSettings;
 import frc.robot.commands.swerve.NormalTeleop;
+import frc.robot.commands.swerve.PrecisionTeleop;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.Shooter;
@@ -107,6 +108,7 @@ public class RobotContainer {
     JoystickAxisAIO leftYAxis = driver.getAxis(JoystickAxisID.kLeftY, SwerveSettings.driver.leftY());
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
     JoystickAxisAIO rightTrigger = driver.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
+    JoystickAxisAIO leftTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
     JoystickAxisAIO autoPlaceTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
     ToggleBooleanSupplier muteRumblerButton = driver.getToggleBooleanSupplier(JoystickButtonID.kY, 0.5);
 
@@ -123,6 +125,10 @@ public class RobotContainer {
       .onTrue(new InstantCommand(swerve::zeroGyro)
     );
 
+    manipulator.getJoystickButton(JoystickButtonID.kY)
+      .whileTrue(new MoveToPlacingPosition(swerve, pendulum, leftXAxis, leftYAxis, leftTrigger)
+    );
+
     /* Driver Mode Semantics */
     // Set the normal teleop command.
     swerve.setDefaultCommand(new NormalTeleop(swerve, leftXAxis, leftYAxis, rightXAxis,
@@ -133,50 +139,35 @@ public class RobotContainer {
     pendulum.setDefaultCommand(
       Commands.runOnce(() -> pendulum.enable(), pendulum).andThen(new RunCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-65) + Math.toRadians(9), 0.0));
+        pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-70) + Math.toRadians(9), 0.0));
       }, pendulum
     )));
 
-    driver.getJoystickButton(JoystickButtonID.kY)
-      .whileTrue(new MoveToPlacingPosition(swerve, pendulum, rightTrigger, autoPlaceTrigger));
-
-    Commands.sequence(
-      Commands.run(() -> shootie.setSpeed(1), shootie),
-      Commands.waitSeconds(
-        3),
-      Commands.runOnce(() -> shootie.setSpeed(0), shootie)
-    ).schedule();
-
-    // driver.getJoystickButton(JoystickButtonID.kY)
-    // .whileTrue(Commands.runOnce(() -> pendulum.enable(), pendulum).andThen(new RunCommand(() -> {
-    //   // default position is arm facing down @ velocity 0, waiting for position commands
-    //   pendulum.setGoal(new TrapezoidProfile.State(pendulum.wantedAngle, 0.0));
-    // }, pendulum)));
-
     // Other types of modes
     // Precision mode
-    // driver.getJoystickButton(JoystickButtonID.kX)
-    //   .whileTrue(
-    //     new PrecisionTeleop(swerve, leftXAxis)
-    //   );
+    driver.getJoystickButton(JoystickButtonID.kX)
+      .whileTrue(
+        new PrecisionTeleop(swerve, leftXAxis)
+        .alongWith(
+          Commands.runOnce(() -> {
+            pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-85) + Math.toRadians(9), 0.0));
+            claw.setAmperage(-5.5);
+          },
+          pendulum, claw
+        ))
+      );
 
     driver.getJoystickButton(JoystickButtonID.kB)
       .whileTrue(
-        new MoveToCapturePosition(swerve, pendulum, leftXAxis, leftYAxis)
+        new MoveToCapturePosition(swerve, pendulum, leftXAxis, leftYAxis, leftTrigger)
       );
 
     // Recenter gyro mode
     driver.getJoystickButton(JoystickButtonID.kBack)
-      .toggleOnTrue(new InstantCommand(() -> {
-        swerve.zeroGyro();
-      })
-    );
+      .onTrue(Commands.runOnce(swerve::zeroGyro, swerve));
 
     driver.getJoystickButton(JoystickButtonID.kStart)
-      .onTrue(new InstantCommand(() -> {
-        pendulum.zeroPendulum();
-      })
-    );
+      .onTrue(Commands.runOnce(pendulum::zeroPendulum, pendulum));
 
     var closeButton = driver.getJoystickButton(JoystickButtonID.kLeftBumper);
     double openAmps = -5.5, closeAmps = 13;
