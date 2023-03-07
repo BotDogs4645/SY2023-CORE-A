@@ -22,7 +22,7 @@ public class MoveToPlacingPosition extends CommandBase {
   private JoystickAxisAIO translateY;
 
   private ProfiledPIDController rotationController;
-  private TrapezoidProfile.State rotationalState = new TrapezoidProfile.State(0, 0);
+  private TrapezoidProfile.State rotationalState = new TrapezoidProfile.State(-Math.PI, 0);
 
   /** Creates a new MoveToCapturePosition. */
   public MoveToPlacingPosition(
@@ -54,6 +54,7 @@ public class MoveToPlacingPosition extends CommandBase {
   public void initialize() {
     rotationController.reset(swerve.getYaw().getRadians(), 0);
     rotationController.setGoal(rotationalState);
+    pendulum.enable();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

@@ -4,6 +4,7 @@
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Arm/Pendulum": "Subsystem",
       "/Shuffleboard/Field/Field": "Field2d",
+      "/Shuffleboard/Gripper/Claw": "Subsystem",
       "/Shuffleboard/auto/SendableChooser[0]": "String Chooser",
       "/Shuffleboard/swerve_tab/Pigeon IMU": "Gyro"
     }

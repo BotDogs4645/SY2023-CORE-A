@@ -139,8 +139,11 @@ public final class SwerveSettings {
       }
 
       public static enum PathList {
-        Path1("Path1", new PathConstraints(2, 2), 0.0),
-        Path2("Path 3", new PathConstraints(2, 2), 0.0);
+        OutDS1("Out - DS 1", new PathConstraints(1.5, 1), 0),      
+        OutDS2("Out - DS 2", new PathConstraints(1.5, 1), 0),
+        OutDS3("Out - DS 3", new PathConstraints(1.5, 1), 0),
+        OutAndDockDS2("Out and Dock -  DS 2", new PathConstraints(1.5, 1), 0),
+        TestPath("Test Path - Dock", new PathConstraints(1.5, 1), 0);
 
         private String path_name;
         private PathConstraints constraints;
