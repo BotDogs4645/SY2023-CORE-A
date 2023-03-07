@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.bdlib.driver.JoystickAxisAIO;
-import frc.robot.Constants.PendulumConstants.PendulumCommand;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.swerve.Swerve;
 

@@ -179,8 +179,6 @@ public class RobotContainer {
     );
 
     var closeButton = driver.getJoystickButton(JoystickButtonID.kLeftBumper);
-    var override = driver.getJoystickButton(JoystickButtonID.kA);
-
     double openAmps = -5.5, closeAmps = 13;
 
     closeButton.onTrue(
