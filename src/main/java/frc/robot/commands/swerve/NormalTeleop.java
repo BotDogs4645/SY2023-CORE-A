@@ -21,7 +21,7 @@ public class NormalTeleop extends CommandBase {
   private JoystickButton disableFOC;
   private JoystickAxisAIO redKey;
 
-  private double baseSpeed = .6;
+  private double baseSpeed = .45;
 
   /** Creates a new TeleopController. */
   public NormalTeleop(
@@ -64,7 +64,7 @@ public class NormalTeleop extends CommandBase {
       s_Swerve.generateRequest(
         new Pose2d(translation, rotation),
         true,
-        baseSpeed + ((1.0 - baseSpeed) * (redKey.getValue() > .5 ? 1.0 : 0.0)))
+        baseSpeed + ((.65 - baseSpeed) * (redKey.getValue() > .5 ? 1.0 : 0.0)))
     );
   }
 

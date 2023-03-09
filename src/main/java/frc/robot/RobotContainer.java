@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -63,11 +64,12 @@ public class RobotContainer {
   private final Shooter shootie = new Shooter();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
-
+  
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    PortForwarder.add(5800, "photonvision.local", 5800);
     DriverStation.silenceJoystickConnectionWarning(true);
 
     Shuffleboard.getTab("auto").add(autoChooser);
@@ -109,23 +111,23 @@ public class RobotContainer {
     JoystickAxisAIO rightXAxis = driver.getAxis(JoystickAxisID.kRightX, SwerveSettings.driver.rightX());
     JoystickAxisAIO rightTrigger = driver.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
     JoystickAxisAIO leftTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
-    JoystickAxisAIO autoPlaceTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
+    //JoystickAxisAIO autoPlaceTrigger = driver.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
     ToggleBooleanSupplier muteRumblerButton = driver.getToggleBooleanSupplier(JoystickButtonID.kY, 0.5);
 
-    new Trigger(autoPlaceTrigger.axisHigherThan(.5))
-      .onTrue(
-        new ConditionalCommand(
-            new AutoPlaceCommand(pendulum, swerve, vision, claw, driver, muteRumblerButton),
-            new InstantCommand(),
-            () -> vision.hasTargets() && claw.switchPressed()
-          )
-      );
+    // new Trigger(autoPlaceTrigger.axisHigherThan(.5))
+    //   .onTrue(
+    //     new ConditionalCommand(
+    //         new AutoPlaceCommand(pendulum, swerve, vision, claw, driver, muteRumblerButton),
+    //         new InstantCommand(),
+    //         () -> vision.hasTargets() && claw.switchPressed()
+    //       )
+    //   );
     
     driver.getJoystickButton(JoystickButtonID.kA)
       .onTrue(new InstantCommand(swerve::zeroGyro)
     );
 
-    manipulator.getJoystickButton(JoystickButtonID.kY)
+    manipulator.getJoystickButton(JoystickButtonID.kB)
       .whileTrue(new MoveToPlacingPosition(swerve, pendulum, leftXAxis, leftYAxis, leftTrigger)
     );
 
@@ -157,7 +159,7 @@ public class RobotContainer {
         ))
       );
 
-    driver.getJoystickButton(JoystickButtonID.kB)
+    manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
       .whileTrue(
         new MoveToCapturePosition(swerve, pendulum, leftXAxis, leftYAxis, leftTrigger)
       );
@@ -169,7 +171,7 @@ public class RobotContainer {
     driver.getJoystickButton(JoystickButtonID.kStart)
       .onTrue(Commands.runOnce(pendulum::zeroPendulum, pendulum));
 
-    var closeButton = driver.getJoystickButton(JoystickButtonID.kLeftBumper);
+    var closeButton = manipulator.getJoystickButton(JoystickButtonID.kLeftBumper);
     double openAmps = -5.5, closeAmps = 13;
 
     closeButton.onTrue(
@@ -189,10 +191,18 @@ public class RobotContainer {
 
   public void configureManipulatorController() {
     // vision settings
-    JoystickAxisAIO settingsChangeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
-    new Trigger(settingsChangeTrigger.axisHigherThan(.5))
-      .onTrue(new SetVisionSettings(manipulator, vision));
+    // JoystickAxisAIO settingsChangeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
+    // new Trigger(settingsChangeTrigger.axisHigherThan(.5))
+    //   .onTrue(new SetVisionSettings(manipulator, vision));
 
+    JoystickAxisAIO coneTrigger = manipulator.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
+     new Trigger(coneTrigger.axisHigherThan(.5))
+       .onTrue(new SetVisionSettings(manipulator, vision));
+
+    JoystickAxisAIO cubeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
+      new Trigger(cubeTrigger.axisHigherThan(.5))
+       .onTrue(new SetVisionSettings(manipulator, vision));
+    
     manipulator.getJoystickButton(JoystickButtonID.kY)
     .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(5) + Math.toRadians(9)), pendulum));
 
@@ -201,9 +211,6 @@ public class RobotContainer {
 
     manipulator.getJoystickButton(JoystickButtonID.kA)
     .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-45) + Math.toRadians(9)), pendulum));
-
-    manipulator.getJoystickButton(JoystickButtonID.kB)
-    .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-75) + Math.toRadians(9)), pendulum));
   }
 
   private void configureAutonomous() {
@@ -224,6 +231,15 @@ public class RobotContainer {
    */
   public Command getChooser() {
     // An ExampleCommand will run in autonomous
-    return Commands.sequence(new InstantCommand(() -> {swerve.zeroGyro();;}),new RunShooter(shootie), autoChooser.getSelected());
+    return Commands.sequence(
+      new InstantCommand(() -> {swerve.zeroGyro();}),
+      new RunShooter(shootie),
+      autoChooser.getSelected())
+      .alongWith(
+        Commands.run(() -> {
+          pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-85) + Math.toRadians(2.5), 0.0));
+          claw.setAmperage(-5.5);
+        }, pendulum)
+      );
   }
 }

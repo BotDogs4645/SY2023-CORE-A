@@ -143,7 +143,9 @@ public final class SwerveSettings {
         OutDS2("Out - DS 2", new PathConstraints(1.5, 1), 0),
         OutDS3("Out - DS 3", new PathConstraints(1.5, 1), 0),
         OutAndDockDS2("Out and Dock -  DS 2", new PathConstraints(1.5, 1), 0),
-        TestPath("Test Path - Dock", new PathConstraints(1.5, 1), 0);
+        TestPath("Test Path - Dock", new PathConstraints(1.5, 1), 0),
+        OutLeftDS2("Out the Left - DS 2", new PathConstraints(1.5, 1), 0);
+
 
         private String path_name;
         private PathConstraints constraints;

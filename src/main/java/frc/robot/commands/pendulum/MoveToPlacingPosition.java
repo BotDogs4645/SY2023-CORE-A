@@ -75,7 +75,7 @@ public class MoveToPlacingPosition extends CommandBase {
       swerve.generateRequest(
         new Pose2d(translation, Rotation2d.fromRadians(newRotationInput)),
         true, 
-        baseSpeed - (0.3 * (redKey.getValue() > .5 ? 1.0 : 0.0)
+        baseSpeed - ((0.15 * (redKey.getValue() > .5 ? 1.0 : 0.0))
       )
     ));
     pendulum.setGoal(new TrapezoidProfile.State(pendulum.wantedAngle, 0));
