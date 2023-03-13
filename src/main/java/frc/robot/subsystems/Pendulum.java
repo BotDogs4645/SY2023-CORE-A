@@ -64,6 +64,7 @@ public class Pendulum extends ProfiledPIDSubsystem {
   private CANCoder absoluteEncoder;
 
   public double wantedAngle;
+  private double offset;
  
   private ShuffleboardTab tab;
 
@@ -113,6 +114,8 @@ public class Pendulum extends ProfiledPIDSubsystem {
     tab.addNumber("PID Want", () -> getPIDVoltage());
     tab.addNumber("FF want", () -> getFFVoltage());
 
+    this.offset = absoluteEncoder.configGetMagnetOffset();
+
     tab.add(this);
   }
 
@@ -157,6 +160,16 @@ public class Pendulum extends ProfiledPIDSubsystem {
 
   public void setWantedAngle(double wantedAngle) {
     this.wantedAngle = wantedAngle;
+  }
+
+  public void changeOffset(double povIn) {
+    if (povIn == 180) {
+      offset += 0.2;
+      absoluteEncoder.configMagnetOffset(offset);
+    } else if (povIn == 0) {
+      offset -= 0.2;
+      absoluteEncoder.configMagnetOffset(offset);
+    }
   }
 
   public double getFFVoltage() {

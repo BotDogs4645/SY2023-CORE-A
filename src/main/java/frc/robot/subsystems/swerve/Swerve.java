@@ -23,6 +23,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -178,8 +180,13 @@ public class Swerve extends SubsystemBase {
         // available path
         // hashmap.
         for (PathList enu : PathList.values()) {
-            trajectories.put(enu, PathPlanner.loadPath(enu.toString(), enu.getConstraints()));
+            PathPlannerTrajectory path = PathPlanner.loadPath(enu.toString(), enu.getConstraints());
+            trajectories.put(enu, PathPlannerTrajectory.transformTrajectoryForAlliance(path, DriverStation.getAlliance()));
         }
+
+        // Shuffleboard.getTab("other swerve").addNumber("rot x", () -> getGyroRotationComponents()[0]);
+        // Shuffleboard.getTab("other swerve").addNumber("rot y", () -> getGyroRotationComponents()[1]);
+        // Shuffleboard.getTab("other swerve").addNumber("rot z", () -> getGyroRotationComponents()[2]);
     }
 
     /**
@@ -396,6 +403,12 @@ public class Swerve extends SubsystemBase {
         }
 
         return SwerveDriveTrain.swerveKinematics.toChassisSpeeds(currentStates);
+    }
+
+    public double[] getGyroRotationComponents() {
+        double[] components = new double[3];
+        gyro.getYawPitchRoll(components);
+        return components;
     }
 
     @Override

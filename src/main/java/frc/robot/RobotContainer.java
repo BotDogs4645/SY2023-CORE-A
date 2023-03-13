@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -28,13 +27,12 @@ import frc.bdlib.driver.ToggleBooleanSupplier;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickAxisID;
 import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.autos.RunShooter;
-import frc.robot.commands.pendulum.AutoPlaceCommand;
 import frc.robot.commands.pendulum.MoveToCapturePosition;
 import frc.robot.commands.pendulum.MoveToPlacingPosition;
-import frc.robot.commands.pendulum.SetVisionSettings;
 import frc.robot.commands.swerve.NormalTeleop;
 import frc.robot.commands.swerve.PrecisionTeleop;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.LEDController;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
@@ -62,6 +60,7 @@ public class RobotContainer {
   private final Pendulum pendulum = new Pendulum();
   private final Claw claw = new Claw();
   private final Shooter shootie = new Shooter();
+  private final LEDController led = new LEDController();
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
   
@@ -152,7 +151,7 @@ public class RobotContainer {
         new PrecisionTeleop(swerve, leftXAxis)
         .alongWith(
           Commands.runOnce(() -> {
-            pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-85) + Math.toRadians(9), 0.0));
+            pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-95) + Math.toRadians(9), 0.0));
             claw.setAmperage(-5.5);
           },
           pendulum, claw
@@ -197,11 +196,11 @@ public class RobotContainer {
 
     JoystickAxisAIO coneTrigger = manipulator.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
      new Trigger(coneTrigger.axisHigherThan(.5))
-       .onTrue(new SetVisionSettings(manipulator, vision));
+       .onTrue(led.burstCone().ignoringDisable(true));
 
     JoystickAxisAIO cubeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
       new Trigger(cubeTrigger.axisHigherThan(.5))
-       .onTrue(new SetVisionSettings(manipulator, vision));
+       .onTrue(led.burstCube().ignoringDisable(true));
     
     manipulator.getJoystickButton(JoystickButtonID.kY)
     .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(5) + Math.toRadians(9)), pendulum));
@@ -211,12 +210,18 @@ public class RobotContainer {
 
     manipulator.getJoystickButton(JoystickButtonID.kA)
     .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-45) + Math.toRadians(9)), pendulum));
+
+    new Trigger(() -> manipulator.getPOV() == 0 || manipulator.getPOV() == 180)
+      .whileTrue(
+        Commands.run(() -> pendulum.changeOffset(manipulator.getPOV()))
+      );
   }
 
   private void configureAutonomous() {
     // when swerve reaches the event labeled "fire_ball", ExampleCommand will run.
     // note: swerve's path will not resume until ExampleCommand finishes unless,
     // it is set as a command that can run in parallel :)
+    // swerve.addEvent("pid", new AutoBalance(swerve, pendulum));
     autoChooser.addOption("Out and Dock -  DS 2", swerve.getFullAutoPath(PathList.OutAndDockDS2));
     autoChooser.addOption("Out - DS 2", swerve.getFullAutoPath(PathList.OutDS2));
     autoChooser.addOption("Out - DS 1", swerve.getFullAutoPath(PathList.OutDS1));
@@ -234,12 +239,14 @@ public class RobotContainer {
     return Commands.sequence(
       new InstantCommand(() -> {swerve.zeroGyro();}),
       new RunShooter(shootie),
-      autoChooser.getSelected())
-      .alongWith(
-        Commands.run(() -> {
-          pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-85) + Math.toRadians(2.5), 0.0));
-          claw.setAmperage(-5.5);
-        }, pendulum)
-      );
+      autoChooser.getSelected());
+    //   .alongWith(
+    //     Commands.runOnce(() -> pendulum.enable(), pendulum).andThen(new RunCommand(() -> {
+    //       // default position is arm facing down @ velocity 0, waiting for position commands
+    //       pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-90) + Math.toRadians(9), 0.0));
+    //       claw.setAmperage(-5.5);
+    //     }, pendulum
+    //   )
+    // ));
   }
 }
