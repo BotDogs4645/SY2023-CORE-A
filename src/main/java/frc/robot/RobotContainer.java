@@ -190,27 +190,9 @@ public class RobotContainer {
 
   public void configureManipulatorController() {
     // vision settings
-<<<<<<< HEAD
-    // new Trigger(settingsChangeTrigger.axisHigherThan(.5))
-    //   .onTrue(new SetVisionSettings(manipulator, vision));
-
-    // backup
-    // manipulator.getJoystickButton(JoystickButtonID.kY)
-    // .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(5) + Math.toRadians(9)), pendulum));
-
-    // manipulator.getJoystickButton(JoystickButtonID.kX)
-    // .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-7) + Math.toRadians(9)), pendulum));
-
-    // manipulator.getJoystickButton(JoystickButtonID.kA)
-    // .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-45) + Math.toRadians(9)), pendulum));
-
-    // manipulator.getJoystickButton(JoystickButtonID.kB)
-    // .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-75) + Math.toRadians(9)), pendulum));
-=======
     // JoystickAxisAIO settingsChangeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
     // new Trigger(settingsChangeTrigger.axisHigherThan(.5))
     //   .onTrue(new SetVisionSettings(manipulator, vision));
->>>>>>> 1af89279249250cb172970d4cd35b281c9293297
 
     JoystickAxisAIO coneTrigger = manipulator.getAxis(JoystickAxisID.kLeftTrigger, JoystickAxisAIO.LINEAR);
      new Trigger(coneTrigger.axisHigherThan(.5))
