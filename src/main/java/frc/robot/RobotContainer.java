@@ -30,7 +30,6 @@ import frc.robot.commands.autos.RunShooter;
 import frc.robot.commands.pendulum.AutoPlaceCommand;
 import frc.robot.commands.pendulum.MoveToCapturePosition;
 import frc.robot.commands.pendulum.MoveToPlacingPosition;
-import frc.robot.commands.pendulum.SetVisionSettings;
 import frc.robot.commands.swerve.NormalTeleop;
 import frc.robot.commands.swerve.PrecisionTeleop;
 import frc.robot.subsystems.Claw;
@@ -189,9 +188,21 @@ public class RobotContainer {
 
   public void configureManipulatorController() {
     // vision settings
-    JoystickAxisAIO settingsChangeTrigger = manipulator.getAxis(JoystickAxisID.kRightTrigger, JoystickAxisAIO.LINEAR);
-    new Trigger(settingsChangeTrigger.axisHigherThan(.5))
-      .onTrue(new SetVisionSettings(manipulator, vision));
+    // new Trigger(settingsChangeTrigger.axisHigherThan(.5))
+    //   .onTrue(new SetVisionSettings(manipulator, vision));
+
+    // backup
+    // manipulator.getJoystickButton(JoystickButtonID.kY)
+    // .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(5) + Math.toRadians(9)), pendulum));
+
+    // manipulator.getJoystickButton(JoystickButtonID.kX)
+    // .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-7) + Math.toRadians(9)), pendulum));
+
+    // manipulator.getJoystickButton(JoystickButtonID.kA)
+    // .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-45) + Math.toRadians(9)), pendulum));
+
+    // manipulator.getJoystickButton(JoystickButtonID.kB)
+    // .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(-75) + Math.toRadians(9)), pendulum));
 
     manipulator.getJoystickButton(JoystickButtonID.kY)
     .onTrue(Commands.runOnce(() -> pendulum.setWantedAngle(Math.toRadians(5) + Math.toRadians(9)), pendulum));

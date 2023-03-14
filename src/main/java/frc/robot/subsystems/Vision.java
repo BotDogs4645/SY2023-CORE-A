@@ -140,8 +140,11 @@ public class Vision extends SubsystemBase {
         return tag_locations.getTagPose(id).get();
     }
 
-    public void setPlacementSettings(GamePiecePlacementLevel level, AprilTagTransformDirection transform) {
-        levelToPlace = level;
+    public void setGamePiecePlacementLevel(GamePiecePlacementLevel level) {
+        this.levelToPlace = level;
+    }
+
+    public void setAprilTagTransformDirection(AprilTagTransformDirection transform) {
         selectedRobotTransform = transform;
     }
 
