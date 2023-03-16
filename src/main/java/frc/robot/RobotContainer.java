@@ -29,6 +29,7 @@ import frc.bdlib.misc.BDConstants.JoystickConstants.JoystickButtonID;
 import frc.robot.commands.autos.RunShooter;
 import frc.robot.commands.pendulum.MoveToCapturePosition;
 import frc.robot.commands.pendulum.MoveToPlacingPosition;
+import frc.robot.commands.swerve.AutoBalance;
 import frc.robot.commands.swerve.NormalTeleop;
 import frc.robot.commands.swerve.PrecisionTeleop;
 import frc.robot.subsystems.Claw;
@@ -140,7 +141,7 @@ public class RobotContainer {
     pendulum.setDefaultCommand(
       Commands.runOnce(() -> pendulum.enable(), pendulum).andThen(new RunCommand(() -> {
         // default position is arm facing down @ velocity 0, waiting for position commands
-        pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-70) + Math.toRadians(9), 0.0));
+        pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-75) + Math.toRadians(9), 0.0));
       }, pendulum
     )));
 
@@ -161,6 +162,11 @@ public class RobotContainer {
     manipulator.getJoystickButton(JoystickButtonID.kRightBumper)
       .whileTrue(
         new MoveToCapturePosition(swerve, pendulum, leftXAxis, leftYAxis, leftTrigger)
+      );
+
+    driver.getJoystickButton(JoystickButtonID.kLeftBumper)
+      .whileTrue(
+        new AutoBalance(swerve, pendulum, claw)
       );
 
     // Recenter gyro mode
@@ -227,6 +233,7 @@ public class RobotContainer {
     autoChooser.addOption("Out - DS 1", swerve.getFullAutoPath(PathList.OutDS1));
     autoChooser.addOption("Out - DS 3", swerve.getFullAutoPath(PathList.OutDS3));
     autoChooser.addOption("Test Path - Dock", swerve.getFullAutoPath(PathList.TestPath));
+    autoChooser.addOption("Nothing", new InstantCommand());
   } 
 
   /**
@@ -236,17 +243,17 @@ public class RobotContainer {
    */
   public Command getChooser() {
     // An ExampleCommand will run in autonomous
-    return Commands.sequence(
-      new InstantCommand(() -> {swerve.zeroGyro();}),
-      new RunShooter(shootie),
-      autoChooser.getSelected());
-    //   .alongWith(
-    //     Commands.runOnce(() -> pendulum.enable(), pendulum).andThen(new RunCommand(() -> {
-    //       // default position is arm facing down @ velocity 0, waiting for position commands
-    //       pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-90) + Math.toRadians(9), 0.0));
-    //       claw.setAmperage(-5.5);
-    //     }, pendulum
-    //   )
-    // ));
+    return 
+    Commands.parallel(
+      Commands.sequence(
+        new InstantCommand(() -> {swerve.zeroGyro();}),
+        new RunShooter(shootie),
+        autoChooser.getSelected()
+      ),
+      Commands.runOnce(() -> pendulum.enable(), pendulum).andThen(Commands.run(() -> {
+        pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-95), 0));
+        claw.setAmperage(5.5);  
+      }, pendulum, claw))
+    );
   }
 }

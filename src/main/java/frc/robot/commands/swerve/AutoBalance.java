@@ -4,52 +4,83 @@
 
 package frc.robot.commands.swerve;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Pendulum;
 import frc.robot.subsystems.swerve.Swerve;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class AutoBalance extends ProfiledPIDCommand {
-  Pendulum pendulum;
-  Swerve swerve;
+public class AutoBalance extends CommandBase {
+  private Swerve swerve;
+  private Pendulum pendulum;
+  private Claw claw;
+  private double angleDegrees;
+
+  private double velocityThreshold = 0.5;
+  private double inchesSpeed = 1.0;
+  private double positionThreshold = 4;
 
   /** Creates a new AutoBalance. */
-  public AutoBalance(Swerve swerve, Pendulum pendulum) {
-    super(
-        // The ProfiledPIDController used by the command
-        new ProfiledPIDController(
-            // The PID gains
-            0.25,
-            0,
-            100,
-            // The motion profile constraints
-            new TrapezoidProfile.Constraints(0, 0)),
-        // This should return the measurement
-        () -> Math.toRadians(swerve.getGyroRotationComponents()[1]),
-        // This should return the goal (can also be a constant)
-        () -> new TrapezoidProfile.State(0, 0),
-        // This uses the output
-        (output, setpoint) -> {
-          swerve.driveNoFOC(new Pose2d(new Translation2d(output, 0), new Rotation2d()), 1.0);
-        });
-    this.pendulum = pendulum;
+  public AutoBalance(Swerve swerve, Pendulum pendulum, Claw claw) {
     this.swerve = swerve;
+    this.pendulum = pendulum;
+    this.claw = claw;
+
     // Use addRequirements() here to declare subsystem dependencies.
-    // Configure additional PID options by calling `getController` here.
-    addRequirements(swerve, pendulum);
-    super.getController().setTolerance(Math.toRadians(5), Math.toRadians(0.01));
+    addRequirements(swerve, pendulum, claw);
+    Shuffleboard.getTab("Auto Balance")
+      .addNumber("pitch", () -> swerve.getPitch().getDegrees());
+    Shuffleboard.getTab("Auto Balance")
+      .addNumber("roll", () -> swerve.getRoll().getDegrees());
+
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    angleDegrees = Double.POSITIVE_INFINITY;
+    pendulum.enable();
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
+    pendulum.setGoal(new TrapezoidProfile.State(Math.toRadians(-85), 0));
+    claw.setAmperage(-5.5);
+
+    angleDegrees = swerve.getYaw().getCos() * swerve.getPitch().getDegrees() +
+        swerve.getYaw().getSin() * swerve.getRoll().getDegrees();
+
+    double angleVelocityDegreesPerSec = swerve.getYaw().getCos() * swerve.getPitchVelocity().getDegrees() +
+        swerve.getYaw().getSin() * swerve.getRollVelocity().getDegrees();
+
+    boolean shouldStop = (angleDegrees < 0.0 && angleVelocityDegreesPerSec > velocityThreshold)
+        || (angleDegrees > 0.0 && angleVelocityDegreesPerSec < -velocityThreshold);
+
+    if (!shouldStop) {
+      swerve.drive(
+        swerve.generateRequest(
+          new Pose2d(new Translation2d(inchesSpeed * (angleDegrees > 0.0 ? 1.0 : 1.0), 0), Rotation2d.fromRadians(0)),
+          true, 
+          1.0
+        )
+      );
+    }
+  }
+
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return Math.abs(angleDegrees) < positionThreshold;
   }
 }

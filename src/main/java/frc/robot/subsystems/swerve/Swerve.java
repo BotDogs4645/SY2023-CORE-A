@@ -8,6 +8,7 @@ import java.util.Map;
 import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.ctre.phoenix.sensors.Pigeon2.AxisDirection;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
@@ -24,7 +25,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -73,6 +73,9 @@ public class Swerve extends SubsystemBase {
     private SwerveAutoBuilder builder;
     private Field2d field;
 
+    private double[] yprDegrees = new double[3];
+    private double[] xyzDps = new double[3];
+
     /**
      * A swerve implementation using MK4 SDS modules, with full field oriented
      * features.
@@ -89,6 +92,8 @@ public class Swerve extends SubsystemBase {
         gyro.configFactoryDefault();
 
         zeroGyro();
+        gyro.zeroGyroBiasNow();
+        gyro.configMountPose(AxisDirection.PositiveX, AxisDirection.PositiveZ, 20);
 
         // Gets us the swerve tab.
         this.subsystemTab = Shuffleboard.getTab("swerve_tab");
@@ -259,6 +264,22 @@ public class Swerve extends SubsystemBase {
         return swerveOdometry.getEstimatedPosition();
     }
 
+    public Rotation2d getPitch() {
+        return Rotation2d.fromDegrees(-yprDegrees[2]);
+    }
+
+    public Rotation2d getRoll() {
+        return Rotation2d.fromDegrees(yprDegrees[1]);
+    }
+
+    public Rotation2d getPitchVelocity() {
+        return Rotation2d.fromDegrees(-xyzDps[0]);
+    }
+
+    public Rotation2d getRollVelocity() {
+        return Rotation2d.fromDegrees(xyzDps[1]);
+    }
+
     /**
      * Resets the odometry to a specified {@link Pose2d}.
      * 
@@ -417,5 +438,8 @@ public class Swerve extends SubsystemBase {
         // throughout the sub.
         swerveOdometry.update(getYaw(), getModulePositions());
         field.setRobotPose(getPose());
+
+        gyro.getYawPitchRoll(yprDegrees);
+        gyro.getRawGyro(xyzDps);
     }
 }
